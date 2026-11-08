@@ -59,8 +59,10 @@ pub fn fit(before: &str, polished: &str) -> String {
     join_after(before, &text)
 }
 
-/// `polished` without a copy of the field's text at its start: the whole text, its last line or
-/// its last sentence, compared on letters and digits only (any case, spacing or punctuation).
+/// `polished` without a copy of the field's text at its start or its end: the whole text, its
+/// last line or its last sentence, compared on letters and digits only (any case, spacing or
+/// punctuation). A dictation into "Can you check why it failed?" came back as "It worked
+/// yesterday. Can you check why it failed?" from the server model.
 fn without_repeated_context(before: &str, polished: &str) -> String {
     let trimmed = before.trim();
     let last_line = trimmed.rsplit('\n').next().unwrap_or_default();
@@ -69,12 +71,63 @@ fn without_repeated_context(before: &str, polished: &str) -> String {
         .rsplit(SENTENCE_ENDS)
         .next()
         .unwrap_or_default();
+    let mut text = polished;
     for candidate in [trimmed, last_line, last_sentence] {
-        if let Some(rest) = after_prefix(candidate, polished) {
-            return rest.to_string();
+        if let Some(rest) = after_prefix(candidate, text) {
+            text = rest;
+            break;
         }
     }
-    polished.to_string()
+    for candidate in [trimmed, last_line, last_sentence] {
+        if let Some(rest) = before_suffix(candidate, text) {
+            text = rest;
+            break;
+        }
+    }
+    text.to_string()
+}
+
+/// The letters and digits of `copy`, lower case, when it is long enough to call a copy: two
+/// words, or four characters of a language without spaces ("Status: " then "Status update is
+/// ready." is not a copy).
+fn copy_key(copy: &str) -> Option<Vec<char>> {
+    let wanted: Vec<char> = copy
+        .chars()
+        .filter(|c| c.is_alphanumeric())
+        .flat_map(char::to_lowercase)
+        .collect();
+    let words = copy
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|word| !word.is_empty())
+        .count();
+    let unspaced = wanted.iter().any(|c| !c.is_ascii());
+    (wanted.len() >= 4 && (words >= 2 || unspaced)).then_some(wanted)
+}
+
+/// What comes before `suffix` at the end of `text`, when `text` ends with it and something is
+/// left. The text's own final punctuation stays; a comma or spaces before the copy go.
+fn before_suffix<'a>(suffix: &str, text: &'a str) -> Option<&'a str> {
+    let mut wanted = copy_key(suffix)?;
+    wanted.reverse();
+    let mut matched = 0;
+    for (at, c) in text.char_indices().rev() {
+        if !c.is_alphanumeric() {
+            continue;
+        }
+        let lower: Vec<char> = c.to_lowercase().collect();
+        for lower in lower.into_iter().rev() {
+            if wanted.get(matched) != Some(&lower) {
+                return None;
+            }
+            matched += 1;
+        }
+        if matched == wanted.len() {
+            let rest =
+                text[..at].trim_end_matches(|c: char| c.is_whitespace() || ",，;；、".contains(c));
+            return (!rest.trim().is_empty()).then_some(rest);
+        }
+    }
+    None
 }
 
 const SENTENCE_ENDS: &[char] = &['.', '!', '?', '。', '！', '？'];
@@ -83,20 +136,7 @@ const SENTENCE_ENDS: &[char] = &['.', '!', '?', '。', '！', '？'];
 /// compared: at least two words, or four characters of a language without spaces) and something
 /// is left.
 fn after_prefix<'a>(prefix: &str, text: &'a str) -> Option<&'a str> {
-    let wanted: Vec<char> = prefix
-        .chars()
-        .filter(|c| c.is_alphanumeric())
-        .flat_map(char::to_lowercase)
-        .collect();
-    // One word is too little to call a copy ("Status: " then "Status update is ready.").
-    let words = prefix
-        .split(|c: char| !c.is_alphanumeric())
-        .filter(|word| !word.is_empty())
-        .count();
-    let unspaced = wanted.iter().any(|c| !c.is_ascii());
-    if wanted.len() < 4 || (words < 2 && !unspaced) {
-        return None;
-    }
+    let wanted = copy_key(prefix)?;
     let mut matched = 0;
     for (at, c) in text.char_indices() {
         if !c.is_alphanumeric() {
@@ -273,6 +313,17 @@ mod tests {
                 "I finished the report this morning, and then I sent it."
             ),
             "and then I sent it."
+        );
+        assert_eq!(
+            fit(
+                "Can you check why the deploy failed?",
+                "It worked fine yesterday. Can you check why the deploy failed?"
+            ),
+            " It worked fine yesterday."
+        );
+        assert_eq!(
+            fit("今日開會，", "最重要係出新版，今日開會。"),
+            "最重要係出新版"
         );
         // Not a copy: kept, and an answer that is only the context is left to the guard.
         assert_eq!(fit("Hi ", "Hi there."), "Hi there.");

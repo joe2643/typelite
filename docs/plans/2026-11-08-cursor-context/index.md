@@ -36,9 +36,11 @@ Status: building - 2026-11-08
   `warm-builtin-ai`); text that changes every run there would make every dictation read it again.
 - **Only for a plain dictation**: Dictate, insert at the cursor, no translation, no selection.
   Reason: the other modes do not continue the field's text.
-- **The space is added in code** (`join_after`), not by the model: one space when the field ends a
-  word or sentence of a spaced language and the dictation starts with a letter or digit. Reason:
-  models drop leading spaces, and the paste must not glue "today,and".
+- **The answer is fitted in code** (`fit`), not left to the model: a copy of the field's text at
+  the start or end is dropped, the first letter's case follows how the field's text ends, and one
+  space goes where a spaced language's word or sentence meets a dictation starting with a letter
+  or digit. Reason: both measured models copied the context and got the case wrong without it,
+  and models drop leading spaces, so the paste would glue "today,and".
 - **Logs only the length** ("Text before cursor: N chars in M ms"), never the text.
 
 ## Parts
