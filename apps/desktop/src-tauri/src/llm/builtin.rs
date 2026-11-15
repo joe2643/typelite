@@ -209,6 +209,59 @@ pub fn launch_spec_for(
     }
 }
 
+/// Applies the persisted Built-in backend preference (`"auto"`, `"cpu"`, or an explicit device
+/// such as `"Vulkan0"`) to `llama-server` CLI arguments.
+pub fn apply_backend_choice_to_args(
+    args: &mut Vec<String>,
+    has_projector: bool,
+    backend_choice: &str,
+) {
+    let choice = crate::storage::normalize_builtin_backend(backend_choice);
+    match choice.as_str() {
+        "auto" => {}
+        "cpu" => {
+            if let Some(pos) = args.iter().position(|arg| arg == "--n-gpu-layers") {
+                if let Some(layers) = args.get_mut(pos + 1) {
+                    *layers = "0".to_string();
+                }
+            }
+            args.extend(["--device", "none"].map(String::from));
+            if has_projector {
+                args.extend(["--no-mmproj-offload", "--mmproj-device", "none"].map(String::from));
+            }
+        }
+        device => {
+            args.extend(["--device", device, "--split-mode", "none"].map(String::from));
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn launch_spec_for_with_backend(
+    role: ServerRole,
+    binary: &Path,
+    model_path: &Path,
+    projector_path: Option<&Path>,
+    model_alias: &str,
+    port: u16,
+    api_key: &str,
+    slots: u32,
+    backend_choice: &str,
+) -> LaunchSpec {
+    let mut spec = launch_spec_for(
+        role,
+        binary,
+        model_path,
+        projector_path,
+        model_alias,
+        port,
+        api_key,
+        slots,
+    );
+    apply_backend_choice_to_args(&mut spec.args, projector_path.is_some(), backend_choice);
+    spec
+}
+
 /// A started server program.
 pub trait ServerChild: Send {
     fn pid(&self) -> u32;
@@ -232,6 +285,7 @@ struct Running {
     model_path: PathBuf,
     projector_path: Option<PathBuf>,
     slots: u32,
+    backend_choice: String,
     endpoint: Endpoint,
 }
 
@@ -251,6 +305,7 @@ pub struct ServerManager {
     /// Request slots for the next start (plan `warm-builtin-ai`); set from the config by
     /// [`sync_with_config`], so a start on demand uses the same number.
     slots: Mutex<u32>,
+    backend_choice: Mutex<String>,
     startup_timeout: Duration,
     poll: Duration,
 }
@@ -270,6 +325,7 @@ impl ServerManager {
             models_dir: Mutex::new(None),
             pid_file: Mutex::new(None),
             slots: Mutex::new(1),
+            backend_choice: Mutex::new("auto".to_string()),
             startup_timeout: STARTUP_TIMEOUT,
             poll: HEALTH_POLL,
         }
@@ -298,6 +354,34 @@ impl ServerManager {
     /// different number is started again by the next [`ensure`](Self::ensure).
     pub fn set_slots(&self, slots: u32) {
         *lock(&self.slots) = slots.max(1);
+    }
+
+    /// Sets the backend preference (`"auto"`, `"cpu"`, or a specific device id like `"Vulkan0"`).
+    /// A running server with a different backend is restarted on the next [`ensure`](Self::ensure).
+    pub fn set_backend_choice(&self, choice: &str) {
+        *lock(&self.backend_choice) = crate::storage::normalize_builtin_backend(choice);
+    }
+
+    pub fn backend_choice(&self) -> String {
+        lock(&self.backend_choice).clone()
+    }
+
+    /// True if a healthy server is already serving `model_file`, `slots`, and `backend_choice`.
+    pub fn running_matches(&self, model_file: &str, slots: u32, backend_choice: &str) -> bool {
+        let mut running = lock(&self.running);
+        let Some(current) = running.as_mut() else {
+            return false;
+        };
+        if current.child.exit_status().is_some() {
+            return false;
+        }
+        let wanted_backend = crate::storage::normalize_builtin_backend(backend_choice);
+        current
+            .model_path
+            .file_name()
+            .is_some_and(|name| name.to_string_lossy() == model_file)
+            && current.slots == slots.max(1)
+            && current.backend_choice == wanted_backend
     }
 
     /// The model file the running server serves, if one runs.
@@ -350,6 +434,7 @@ impl ServerManager {
             None => None,
         };
         let slots = *lock(&self.slots);
+        let backend_choice = lock(&self.backend_choice).clone();
 
         {
             let mut running = lock(&self.running);
@@ -357,7 +442,8 @@ impl ServerManager {
                 match current.child.exit_status() {
                     None if current.model_path == model_path
                         && current.projector_path == projector_path
-                        && current.slots == slots =>
+                        && current.slots == slots
+                        && current.backend_choice == backend_choice =>
                     {
                         return Ok(current.endpoint.clone())
                     }
@@ -377,7 +463,7 @@ impl ServerManager {
             .ok_or(ServerError::BinaryMissing)?;
         let port = free_port().map_err(|error| ServerError::Spawn(error.to_string()))?;
         let api_key = uuid::Uuid::new_v4().simple().to_string();
-        let spec = launch_spec_for(
+        let spec = launch_spec_for_with_backend(
             self.role,
             &binary,
             &model_path,
@@ -386,6 +472,7 @@ impl ServerManager {
             port,
             &api_key,
             slots,
+            &backend_choice,
         );
         let started = Instant::now();
         let mut child = self
@@ -435,6 +522,7 @@ impl ServerManager {
             model_path,
             projector_path,
             slots,
+            backend_choice,
             endpoint: endpoint.clone(),
         });
         Ok(endpoint)
@@ -576,11 +664,18 @@ pub fn log_level_for(line: &str) -> Option<tracing::Level> {
     let _time = parts.next()?;
     match parts.next()? {
         "E" => Some(tracing::Level::WARN),
+        "W" if !line.contains("n_past was set to") => Some(tracing::Level::WARN),
         "I" if line.contains("model loaded")
             || line.contains("listening on")
             || line.contains("eval time")
             || line.contains("total time")
-            || line.contains("stop processing") =>
+            || line.contains("stop processing")
+            || line.contains("load_tensors")
+            || line.contains("offload")
+            || line.contains("Vulkan")
+            || line.contains("encode")
+            || line.contains("mtmd")
+            || line.contains("clip") =>
         {
             Some(tracing::Level::INFO)
         }
@@ -644,7 +739,8 @@ impl Default for ProcessLauncher {
 }
 
 /// One GPU entry printed by `llama-server --list-devices`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LlamaDevice {
     pub id: String,
     pub description: String,
@@ -786,9 +882,9 @@ pub fn select_best_llama_device(
 }
 
 #[cfg(target_os = "windows")]
-pub fn preferred_windows_vulkan_device(binary: &Path) -> Option<String> {
-    static DEVICE: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
-    DEVICE
+pub fn windows_vulkan_devices_for_binary(binary: &Path) -> &'static [LlamaDevice] {
+    static DEVICES: std::sync::OnceLock<Vec<LlamaDevice>> = std::sync::OnceLock::new();
+    DEVICES
         .get_or_init(|| {
             let mut command = std::process::Command::new(binary);
             crate::platform::configure_background_command(&mut command);
@@ -803,14 +899,41 @@ pub fn preferred_windows_vulkan_device(binary: &Path) -> Option<String> {
                 }
             }
             let Ok(output) = command.output() else {
-                return None;
+                return Vec::new();
             };
             let mut combined = String::from_utf8_lossy(&output.stdout).into_owned();
             combined.push('\n');
             combined.push_str(&String::from_utf8_lossy(&output.stderr));
-            let devices = parse_llama_list_devices(&combined);
+            parse_llama_list_devices(&combined)
+                .into_iter()
+                .filter(|d| !d.id.eq_ignore_ascii_case("CPU"))
+                .filter(|d| !is_virtual_or_software_vk_description(&d.description))
+                .collect()
+        })
+        .as_slice()
+}
+
+pub fn list_windows_vulkan_devices() -> Vec<LlamaDevice> {
+    #[cfg(target_os = "windows")]
+    {
+        find_server_binary()
+            .map(|binary| windows_vulkan_devices_for_binary(&binary).to_vec())
+            .unwrap_or_default()
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        Vec::new()
+    }
+}
+
+#[cfg(target_os = "windows")]
+pub fn preferred_windows_vulkan_device(binary: &Path) -> Option<String> {
+    static DEVICE: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
+    DEVICE
+        .get_or_init(|| {
+            let devices = windows_vulkan_devices_for_binary(binary);
             let dxgi_pref = crate::stt::hardware::preferred_windows_gpu_name();
-            let chosen = select_best_llama_device(&devices, dxgi_pref.as_deref());
+            let chosen = select_best_llama_device(devices, dxgi_pref.as_deref());
             tracing::info!(
                 "Built-in Vulkan devices detected: {:?}; dxgi_pref={:?}; selected={:?}",
                 devices,
@@ -1110,11 +1233,12 @@ pub fn warm_up() {
 /// changed). Starting runs in the background and ends with the warm-up. A server with another
 /// number of slots (languages or "Fast language switching" changed) is started again.
 pub fn sync_with_config(config: &AppConfig, store: Option<&LibraryStore>) {
+    server().set_backend_choice(&config.builtin_ai_backend);
     match wanted_model(config) {
         Some((model_file, alias)) => {
             let slots = wanted_slots(config, store);
             server().set_slots(slots);
-            if server().running_model_and_slots() == Some((model_file.clone(), slots)) {
+            if server().running_matches(&model_file, slots, &config.builtin_ai_backend) {
                 return;
             }
             tauri::async_runtime::spawn(async move {
@@ -1687,6 +1811,78 @@ Available devices:\r\n\
         assert_eq!(
             select_best_llama_device(&dual, None).as_deref(),
             Some("Vulkan1")
+        );
+    }
+
+    #[test]
+    fn apply_backend_choice_to_args_supports_auto_cpu_and_explicit_vulkan_device() {
+        let base = launch_spec_for(
+            ServerRole::Speech,
+            Path::new("/app/llama-server"),
+            Path::new("/models/asr.gguf"),
+            Some(Path::new("/models/mmproj.gguf")),
+            "qwen3-asr",
+            5556,
+            "k",
+            1,
+        );
+
+        let mut auto_args = base.args.clone();
+        apply_backend_choice_to_args(&mut auto_args, true, "auto");
+        assert_eq!(auto_args, base.args);
+
+        let mut cpu_args = base.args.clone();
+        apply_backend_choice_to_args(&mut cpu_args, true, "cpu");
+        let joined_cpu = cpu_args.join(" ");
+        assert!(joined_cpu.contains("--n-gpu-layers 0"), "{joined_cpu}");
+        assert!(joined_cpu.contains("--device none"), "{joined_cpu}");
+        assert!(
+            joined_cpu.contains("--no-mmproj-offload --mmproj-device none"),
+            "{joined_cpu}"
+        );
+
+        let mut vk_args = base.args;
+        apply_backend_choice_to_args(&mut vk_args, true, "Vulkan1");
+        let joined_vk = vk_args.join(" ");
+        assert!(joined_vk.contains("--n-gpu-layers 999"), "{joined_vk}");
+        assert!(
+            joined_vk.contains("--device Vulkan1 --split-mode none"),
+            "{joined_vk}"
+        );
+    }
+
+    #[tokio::test]
+    async fn switching_backend_choice_restarts_running_server() {
+        let s = setup("backend-restart", true, 1, None);
+        s.manager.set_backend_choice("auto");
+        let ep1 = s.manager.ensure("a.gguf", "m").await.unwrap();
+        let ep2 = s.manager.ensure("a.gguf", "m").await.unwrap();
+        assert_eq!(ep1, ep2);
+        assert_eq!(lock(&s.spawned).len(), 1);
+
+        s.manager.set_backend_choice("cpu");
+        assert!(!s.manager.running_matches("a.gguf", 1, "cpu"));
+        let _ep3 = s.manager.ensure("a.gguf", "m").await.unwrap();
+        let spawned = lock(&s.spawned);
+        assert_eq!(spawned.len(), 2);
+        assert!(spawned[1].args.join(" ").contains("--device none"));
+        assert!(lock(&s.children)[0].killed.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn log_level_for_forwards_warnings_and_multimodal_vulkan_diagnostics() {
+        assert_eq!(log_level_for("01:02:03 W warn"), Some(tracing::Level::WARN));
+        assert_eq!(
+            log_level_for("01:02:03 I ggml_vulkan: Vulkan0 ready"),
+            Some(tracing::Level::INFO)
+        );
+        assert_eq!(
+            log_level_for("01:02:03 I clip_model_load: encode time = 123 ms"),
+            Some(tracing::Level::INFO)
+        );
+        assert_eq!(
+            log_level_for("01:02:03 I mtmd_context_init_from_file: done"),
+            Some(tracing::Level::INFO)
         );
     }
 }

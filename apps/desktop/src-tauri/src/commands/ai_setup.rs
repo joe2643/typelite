@@ -58,6 +58,7 @@ pub async fn init(app: &tauri::AppHandle) {
     let Ok(mut config) = state.load().await else {
         return;
     };
+    builtin::server().set_backend_choice(&config.builtin_ai_backend);
     if config.reconcile_builtin_ai_models(&ai_models::installed_pairs(&dir)) {
         tracing::info!("Built-in AI preset updated to match the installed models");
         if let Err(error) = state.save(&config).await {
@@ -281,6 +282,7 @@ async fn run_setup(
     // Plan `warm-builtin-ai`: start with the slots the config wants, so the server is not
     // started again right after its test.
     let store = super::language_presets::library_store(app).ok();
+    builtin::server().set_backend_choice(&config.builtin_ai_backend);
     builtin::server().set_slots(builtin::wanted_slots(&config, store.as_ref()));
     let test = match builtin::server()
         .ensure(&preset.model_file, &preset.model)

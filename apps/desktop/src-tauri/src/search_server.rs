@@ -12,6 +12,7 @@
 //! Built-in is chosen) and stopped at quit, like the built-in AI server (`llm/builtin.rs`).
 //! SearXNG does not log queries; its output goes to `search/searxng.log`.
 
+#[cfg(not(target_os = "windows"))]
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
@@ -384,16 +385,142 @@ fn run(command: &mut Command, what: &str) -> Result<(), String> {
     ))
 }
 
+#[cfg(not(target_os = "windows"))]
 fn tar_program() -> PathBuf {
-    #[cfg(target_os = "windows")]
-    {
-        let sys_root = std::env::var_os("SystemRoot").unwrap_or_else(|| r"C:\Windows".into());
-        let sys_tar = PathBuf::from(sys_root).join("System32").join("tar.exe");
-        if sys_tar.is_file() {
-            return sys_tar;
+    PathBuf::from("tar")
+}
+
+#[cfg(any(target_os = "windows", test))]
+fn is_windows_safe_component(name: &str) -> bool {
+    if name.is_empty() || name.ends_with('.') || name.ends_with(' ') {
+        return false;
+    }
+    if name.chars().any(|c| {
+        matches!(c, '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*') || (c as u32) < 0x20
+    }) {
+        return false;
+    }
+    let stem = name.split('.').next().unwrap_or(name).to_ascii_uppercase();
+    !matches!(
+        stem.as_str(),
+        "CON"
+            | "PRN"
+            | "AUX"
+            | "NUL"
+            | "COM1"
+            | "COM2"
+            | "COM3"
+            | "COM4"
+            | "COM5"
+            | "COM6"
+            | "COM7"
+            | "COM8"
+            | "COM9"
+            | "LPT1"
+            | "LPT2"
+            | "LPT3"
+            | "LPT4"
+            | "LPT5"
+            | "LPT6"
+            | "LPT7"
+            | "LPT8"
+            | "LPT9"
+    )
+}
+
+#[cfg(any(target_os = "windows", test))]
+pub(crate) fn unpack_searxng_tar_gz(archive_bytes: &[u8], dest: &Path) -> Result<(), String> {
+    use std::path::Component;
+
+    let gz = flate2::read::GzDecoder::new(archive_bytes);
+    let mut archive = tar::Archive::new(gz);
+    let entries = archive
+        .entries()
+        .map_err(|e| format!("unpack SearXNG: read archive: {e}"))?;
+
+    for entry_res in entries {
+        let mut entry = entry_res.map_err(|e| format!("unpack SearXNG: entry: {e}"))?;
+        let entry_type = entry.header().entry_type();
+        if matches!(
+            entry_type,
+            tar::EntryType::XGlobalHeader
+                | tar::EntryType::XHeader
+                | tar::EntryType::GNULongName
+                | tar::EntryType::GNULongLink
+        ) {
+            continue;
+        }
+
+        let raw_path = entry
+            .path()
+            .map_err(|e| format!("unpack SearXNG: invalid entry path: {e}"))?
+            .into_owned();
+
+        let mut normal_parts = Vec::new();
+        for comp in raw_path.components() {
+            match comp {
+                Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
+                    return Err(format!(
+                        "unpack SearXNG: unsafe path in archive: {}",
+                        raw_path.display()
+                    ));
+                }
+                Component::CurDir => {}
+                Component::Normal(part) => normal_parts.push(part.to_os_string()),
+            }
+        }
+
+        // Mirror `--strip-components 1` from GitHub's `<repo>-<commit>/...` tarball layout.
+        if normal_parts.len() <= 1 {
+            continue;
+        }
+        let stripped = &normal_parts[1..];
+
+        // Skip symlinks/hardlinks (unprivileged Windows lacks symlink privileges) and
+        // `utils/templates/...` server templates (Apache/nginx sample configs with colons/symlinks).
+        if entry_type.is_symlink() || entry_type.is_hard_link() {
+            continue;
+        }
+        if stripped.len() >= 2 && stripped[0] == "utils" && stripped[1] == "templates" {
+            continue;
+        }
+
+        if !stripped
+            .iter()
+            .all(|part| part.to_str().is_some_and(is_windows_safe_component))
+        {
+            tracing::debug!(
+                "Skipping SearXNG archive entry with Windows-incompatible name: {}",
+                raw_path.display()
+            );
+            continue;
+        }
+
+        let mut out_path = dest.to_path_buf();
+        for part in stripped {
+            out_path.push(part);
+        }
+
+        match entry_type {
+            tar::EntryType::Directory => {
+                std::fs::create_dir_all(&out_path)
+                    .map_err(|e| format!("unpack SearXNG: mkdir {}: {e}", out_path.display()))?;
+            }
+            tar::EntryType::Regular | tar::EntryType::Continuous => {
+                if let Some(parent) = out_path.parent() {
+                    std::fs::create_dir_all(parent)
+                        .map_err(|e| format!("unpack SearXNG: mkdir {}: {e}", parent.display()))?;
+                }
+                let mut out_file = std::fs::File::create(&out_path)
+                    .map_err(|e| format!("unpack SearXNG: create {}: {e}", out_path.display()))?;
+                std::io::copy(&mut entry, &mut out_file)
+                    .map_err(|e| format!("unpack SearXNG: write {}: {e}", out_path.display()))?;
+            }
+            _ => {}
         }
     }
-    PathBuf::from("tar")
+
+    Ok(())
 }
 
 fn uv_command(paths: &SearchPaths) -> Command {
@@ -1039,20 +1166,26 @@ async fn install_searxng(
         let dir = paths.install_dir(&commit);
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-        let tarball = paths.root.join("searxng.tar.gz");
-        std::fs::File::create(&tarball)
-            .and_then(|mut f| f.write_all(&archive))
-            .map_err(|e| format!("save SearXNG: {e}"))?;
-        let unpacked = run(
-            Command::new(tar_program())
-                .arg("-xzf")
-                .arg(&tarball)
-                .arg("-C")
-                .arg(&dir)
-                .args(["--strip-components", "1"]),
-            "unpack SearXNG",
-        );
-        let _ = std::fs::remove_file(&tarball);
+        #[cfg(target_os = "windows")]
+        let unpacked = unpack_searxng_tar_gz(&archive, &dir);
+        #[cfg(not(target_os = "windows"))]
+        let unpacked = {
+            let tarball = paths.root.join("searxng.tar.gz");
+            std::fs::File::create(&tarball)
+                .and_then(|mut f| f.write_all(&archive))
+                .map_err(|e| format!("save SearXNG: {e}"))?;
+            let unpacked = run(
+                Command::new(tar_program())
+                    .arg("-xzf")
+                    .arg(&tarball)
+                    .arg("-C")
+                    .arg(&dir)
+                    .args(["--strip-components", "1"]),
+                "unpack SearXNG",
+            );
+            let _ = std::fs::remove_file(&tarball);
+            unpacked
+        };
         let installed = unpacked
             .and_then(|()| {
                 run(
@@ -1467,5 +1600,89 @@ mod tests {
         server.remove().await.unwrap();
         assert!(!root.exists());
         assert!(!server.status().running);
+    }
+
+    #[test]
+    fn unpack_searxng_tar_gz_extracts_files_and_skips_templates_symlinks_and_colons() {
+        let mut gz_bytes = Vec::new();
+        {
+            let encoder =
+                flate2::write::GzEncoder::new(&mut gz_bytes, flate2::Compression::default());
+            let mut tar = tar::Builder::new(encoder);
+
+            let add_file = |tar: &mut tar::Builder<_>, path: &str, contents: &[u8]| {
+                let mut header = tar::Header::new_gnu();
+                header.set_size(contents.len() as u64);
+                header.set_mode(0o644);
+                header.set_entry_type(tar::EntryType::Regular);
+                tar.append_data(&mut header, path, contents).unwrap();
+            };
+
+            add_file(&mut tar, "searxng-abc123/searx/webapp.py", b"app = 'ok'");
+            add_file(
+                &mut tar,
+                "searxng-abc123/utils/templates/etc/apache2/sites-available/searxng.conf",
+                b"apache",
+            );
+            add_file(
+                &mut tar,
+                "searxng-abc123/docs/windows:bad.txt",
+                b"should-skip",
+            );
+
+            let mut symlink = tar::Header::new_gnu();
+            symlink.set_size(0);
+            symlink.set_mode(0o777);
+            symlink.set_entry_type(tar::EntryType::Symlink);
+            tar.append_link(&mut symlink, "searxng-abc123/searx/link.py", "webapp.py")
+                .unwrap();
+
+            tar.into_inner().unwrap().finish().unwrap();
+        }
+
+        let dest = std::env::temp_dir().join(format!("oratype-searxng-{}", uuid::Uuid::new_v4()));
+        unpack_searxng_tar_gz(&gz_bytes, &dest).expect("unpack cleanly");
+
+        assert_eq!(
+            std::fs::read_to_string(dest.join("searx").join("webapp.py")).unwrap(),
+            "app = 'ok'"
+        );
+        assert!(!dest.join("utils").join("templates").exists());
+        assert!(!dest.join("docs").join("windows:bad.txt").exists());
+        assert!(!dest.join("searx").join("link.py").exists());
+
+        std::fs::remove_dir_all(dest).unwrap();
+    }
+
+    #[test]
+    fn unpack_searxng_tar_gz_rejects_parent_dir_traversal() {
+        let mut gz_bytes = Vec::new();
+        {
+            let encoder =
+                flate2::write::GzEncoder::new(&mut gz_bytes, flate2::Compression::default());
+            let mut tar = tar::Builder::new(encoder);
+
+            let mut header = tar::Header::new_gnu();
+            let raw_name = b"searxng-abc123/../../evil.txt";
+            header.as_old_mut().name[..raw_name.len()].copy_from_slice(raw_name);
+            header.set_size(4);
+            header.set_mode(0o644);
+            header.set_entry_type(tar::EntryType::Regular);
+            header.set_cksum();
+            tar.append(&header, &b"evil"[..]).unwrap();
+
+            tar.into_inner().unwrap().finish().unwrap();
+        }
+
+        let parent =
+            std::env::temp_dir().join(format!("oratype-searxng-trap-{}", uuid::Uuid::new_v4()));
+        let dest = parent.join("install");
+        std::fs::create_dir_all(&dest).unwrap();
+
+        let err = unpack_searxng_tar_gz(&gz_bytes, &dest).unwrap_err();
+        assert!(err.contains("unsafe path"), "unexpected err: {err}");
+        assert!(!parent.join("evil.txt").exists());
+
+        std::fs::remove_dir_all(parent).unwrap();
     }
 }

@@ -62,9 +62,22 @@ impl ContextSignalSource for WindowsContextSource {
 }
 
 unsafe fn collect_foreground_context() -> Option<ContextSignals> {
-    let hwnd = windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow();
+    let mut hwnd = windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow();
+    if !hwnd.is_null() && crate::overlay_window::is_own_overlay_hwnd(hwnd as isize) {
+        if let Some(fallback) = crate::output::windows_focus::last_non_overlay_hwnd() {
+            let fallback_hwnd = fallback as windows_sys::Win32::Foundation::HWND;
+            if !fallback_hwnd.is_null()
+                && windows_sys::Win32::UI::WindowsAndMessaging::IsWindow(fallback_hwnd) != 0
+            {
+                hwnd = fallback_hwnd;
+            }
+        }
+    }
     if hwnd.is_null() {
         return None;
+    }
+    if !crate::overlay_window::is_own_overlay_hwnd(hwnd as isize) {
+        crate::output::windows_focus::remember_non_overlay_hwnd(hwnd as isize);
     }
 
     let mut title_buf = [0u16; 512];

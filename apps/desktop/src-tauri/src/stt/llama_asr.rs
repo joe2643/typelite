@@ -259,6 +259,7 @@ pub fn wanted_model(config: &AppConfig) -> Option<LlamaAsrConfig> {
 /// Starts or stops the speech server to match `config` (at app start and after the speech engine
 /// changed). Starting runs in the background.
 pub fn sync_with_config(config: &AppConfig) {
+    builtin::speech_server().set_backend_choice(&config.builtin_speech_backend);
     match wanted_model(config) {
         Some(wanted) => {
             tauri::async_runtime::spawn(async move {

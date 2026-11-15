@@ -200,6 +200,69 @@ pub fn take_observation(
     }
 }
 
+pub fn is_own_overlay_hwnd(hwnd: isize) -> bool {
+    #[cfg(target_os = "windows")]
+    {
+        win::is_tracked_hwnd(hwnd)
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = hwnd;
+        false
+    }
+}
+
+/// Shows or hides an overlay window (`capsule` / `ask`) without ever activating it on Windows
+/// (`SW_SHOWNOACTIVATE` + `WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW`), avoiding `tao::Window::show()`'s
+/// `SW_SHOW` activation that steals foreground from the user's target text field.
+pub fn set_visible_no_activate(window: &tauri::WebviewWindow, visible: bool) {
+    #[cfg(target_os = "windows")]
+    {
+        let target = window.clone();
+        let label = window.label().to_string();
+        let job = move || {
+            if let Ok(hwnd) = target.hwnd() {
+                unsafe { win::set_visible_no_activate(hwnd.0, &label, visible) };
+            }
+        };
+        let already_on_window_thread = window
+            .hwnd()
+            .is_ok_and(|hwnd| unsafe { win::is_window_thread(hwnd.0) });
+        if already_on_window_thread {
+            job();
+        } else if let Err(error) = window.run_on_main_thread(job) {
+            tracing::warn!("Windows overlay set_visible_no_activate dispatch failed: {error}");
+        }
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = if visible {
+            window.show()
+        } else {
+            window.hide()
+        };
+    }
+}
+
+/// Tauri command used by the frontend overlay (`capsule` / `ask`) so showing or hiding the
+/// overlay on Windows uses `SW_SHOWNOACTIVATE` instead of Tauri/Tao's activating `win.show()`.
+#[tauri::command]
+pub fn set_overlay_visible(
+    app: tauri::AppHandle,
+    label: String,
+    visible: bool,
+) -> Result<(), String> {
+    use tauri::Manager;
+    if !matches!(label.as_str(), "capsule" | "ask") {
+        return Err(format!("Unsupported overlay label: {label}"));
+    }
+    let window = app
+        .get_webview_window(&label)
+        .ok_or_else(|| format!("Overlay window '{label}' is not available"))?;
+    set_visible_no_activate(&window, visible);
+    Ok(())
+}
+
 /// Makes `window` able to show over full-screen apps (see the module docs). Safe to call again:
 /// it is idempotent. Runs on the main thread (AppKit requires it). Does nothing off macOS.
 pub fn make_overlay(window: &tauri::WebviewWindow) {
@@ -355,13 +418,38 @@ pub fn clear_web_hover(window: &tauri::WebviewWindow) {
 #[cfg(target_os = "windows")]
 mod win {
     use std::ptr;
+    use std::sync::Mutex;
     use windows_sys::Win32::Foundation::HWND;
     use windows_sys::Win32::System::Threading::GetCurrentThreadId;
     use windows_sys::Win32::UI::WindowsAndMessaging::{
         GetWindowLongPtrW, GetWindowThreadProcessId, SetForegroundWindow, SetWindowLongPtrW,
-        SetWindowPos, GWL_EXSTYLE, HWND_TOPMOST, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE,
-        SWP_NOSIZE, SWP_NOZORDER, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
+        SetWindowPos, ShowWindow, GWL_EXSTYLE, HWND_TOPMOST, SWP_FRAMECHANGED, SWP_NOACTIVATE,
+        SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SW_HIDE, SW_SHOWNOACTIVATE, WS_EX_NOACTIVATE,
+        WS_EX_TOOLWINDOW,
     };
+
+    static TRACKED_OVERLAY_HWNDS: Mutex<Vec<isize>> = Mutex::new(Vec::new());
+
+    fn track_hwnd(hwnd: HWND) {
+        let raw = hwnd as isize;
+        if raw == 0 {
+            return;
+        }
+        let mut list = TRACKED_OVERLAY_HWNDS
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        if !list.contains(&raw) {
+            list.push(raw);
+        }
+    }
+
+    pub(super) fn is_tracked_hwnd(hwnd: isize) -> bool {
+        hwnd != 0
+            && TRACKED_OVERLAY_HWNDS
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .contains(&hwnd)
+    }
 
     pub(super) unsafe fn is_window_thread(hwnd: HWND) -> bool {
         if hwnd.is_null() {
@@ -370,17 +458,24 @@ mod win {
         GetWindowThreadProcessId(hwnd, ptr::null_mut()) == GetCurrentThreadId()
     }
 
+    fn ensure_no_activate_styles(hwnd: HWND) {
+        let ex_style = unsafe { GetWindowLongPtrW(hwnd, GWL_EXSTYLE) };
+        let next = ex_style | (WS_EX_NOACTIVATE as isize) | (WS_EX_TOOLWINDOW as isize);
+        if next != ex_style {
+            unsafe {
+                SetWindowLongPtrW(hwnd, GWL_EXSTYLE, next);
+            }
+        }
+    }
+
     /// Configures a Windows overlay window with `WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW` and
     /// `HWND_TOPMOST` so hovering/showing never steals focus from the user's target app.
     pub(super) unsafe fn apply(hwnd: HWND, label: &str) {
         if hwnd.is_null() {
             return;
         }
-        let ex_style = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
-        let next = ex_style | (WS_EX_NOACTIVATE as isize) | (WS_EX_TOOLWINDOW as isize);
-        if next != ex_style {
-            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, next);
-        }
+        track_hwnd(hwnd);
+        ensure_no_activate_styles(hwnd);
         let _ = SetWindowPos(
             hwnd,
             HWND_TOPMOST,
@@ -392,6 +487,31 @@ mod win {
         );
         // TODO(windows): exclusive Direct3D/Vulkan fullscreen games sit above `HWND_TOPMOST`; verify borderless-fullscreen overlays and taskbar z-order on Windows 10/11.
         tracing::debug!("Overlay window {label}: Windows WS_EX_NOACTIVATE | HWND_TOPMOST applied");
+    }
+
+    /// Shows (`SW_SHOWNOACTIVATE`) or hides (`SW_HIDE`) a Windows overlay without activating it.
+    pub(super) unsafe fn set_visible_no_activate(hwnd: HWND, label: &str, visible: bool) {
+        if hwnd.is_null() {
+            return;
+        }
+        track_hwnd(hwnd);
+        ensure_no_activate_styles(hwnd);
+        if visible {
+            let _ = ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+            let _ = SetWindowPos(
+                hwnd,
+                HWND_TOPMOST,
+                0,
+                0,
+                0,
+                0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_FRAMECHANGED,
+            );
+            tracing::debug!("Overlay window {label}: shown with SW_SHOWNOACTIVATE");
+        } else {
+            let _ = ShowWindow(hwnd, SW_HIDE);
+            tracing::debug!("Overlay window {label}: hidden");
+        }
     }
 
     /// Atomic `SetWindowPos` move+resize without Z-order change or activation.

@@ -365,32 +365,79 @@ pub fn select_windows_gpu(adapters: &[DxgiAdapter], cpu_name: &str) -> WindowsCh
     }
 }
 
+static SPEECH_BACKEND_CHOICE: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
+
+/// Updates the active Built-in Speech backend preference (`"auto"`, `"cpu"`, or `"VulkanN"`).
+pub fn set_speech_backend_choice(choice: &str) {
+    let normalized = crate::storage::normalize_builtin_backend(choice);
+    *SPEECH_BACKEND_CHOICE
+        .lock()
+        .unwrap_or_else(|e| e.into_inner()) = normalized;
+}
+
+/// Current Built-in Speech backend preference (`"auto"`, `"cpu"`, or `"VulkanN"`).
+pub fn speech_backend_choice() -> String {
+    let guard = SPEECH_BACKEND_CHOICE
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    crate::storage::normalize_builtin_backend(&guard)
+}
+
+/// Pure resolver for in-process `whisper.cpp` GPU flags from persisted backend preference and
+/// detected hardware capabilities.
+pub fn resolve_whisper_gpu_params(
+    choice: &str,
+    platform_is_macos: bool,
+    platform_is_windows: bool,
+    has_win_vk_gpu: bool,
+    auto_vk_index: Option<i32>,
+) -> (bool, i32) {
+    let normalized = crate::storage::normalize_builtin_backend(choice);
+    if normalized == "cpu" {
+        return (false, 0);
+    }
+    if platform_is_windows {
+        if let Some(rest) = normalized
+            .strip_prefix("Vulkan")
+            .or_else(|| normalized.strip_prefix("vulkan"))
+        {
+            if let Ok(index) = rest.trim().parse::<i32>() {
+                return (true, index);
+            }
+        }
+        return (has_win_vk_gpu, auto_vk_index.unwrap_or(0));
+    }
+    if platform_is_macos {
+        return (true, 0);
+    }
+    (false, 0)
+}
+
+fn current_whisper_gpu_params() -> (bool, i32) {
+    let choice = speech_backend_choice();
+    #[cfg(target_os = "macos")]
+    let params = resolve_whisper_gpu_params(&choice, true, false, false, None);
+    #[cfg(target_os = "windows")]
+    let params = resolve_whisper_gpu_params(
+        &choice,
+        false,
+        true,
+        has_windows_vulkan_gpu(),
+        crate::llm::builtin::preferred_windows_vulkan_device_index(),
+    );
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    let params = resolve_whisper_gpu_params(&choice, false, false, false, None);
+    params
+}
+
 /// Whether in-process whisper.cpp should use the GPU backend on this platform.
 pub fn use_whisper_gpu() -> bool {
-    #[cfg(target_os = "macos")]
-    {
-        true
-    }
-    #[cfg(target_os = "windows")]
-    {
-        has_windows_vulkan_gpu()
-    }
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    {
-        false
-    }
+    current_whisper_gpu_params().0
 }
 
 /// Which GPU device index in-process whisper.cpp should select when `use_whisper_gpu()` is true.
 pub fn whisper_gpu_device() -> i32 {
-    #[cfg(target_os = "windows")]
-    {
-        crate::llm::builtin::preferred_windows_vulkan_device_index().unwrap_or(0)
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        0
-    }
+    current_whisper_gpu_params().1
 }
 
 /// Reads the chip, memory and free space of the disk that holds `models_dir` (or of its
@@ -969,5 +1016,33 @@ mod tests {
         assert_eq!(picked.chip_name, "NVIDIA GeForce RTX 4090");
         assert_eq!(picked.gpu_name.as_deref(), Some("NVIDIA GeForce RTX 4090"));
         assert_eq!(picked.vram_bytes, Some(24_142 * MIB));
+    }
+
+    #[test]
+    fn resolve_whisper_gpu_params_respects_auto_cpu_and_explicit_vulkan_index() {
+        assert_eq!(
+            resolve_whisper_gpu_params("auto", true, false, false, None),
+            (true, 0)
+        );
+        assert_eq!(
+            resolve_whisper_gpu_params("cpu", true, false, false, None),
+            (false, 0)
+        );
+        assert_eq!(
+            resolve_whisper_gpu_params("auto", false, true, true, Some(1)),
+            (true, 1)
+        );
+        assert_eq!(
+            resolve_whisper_gpu_params("cpu", false, true, true, Some(1)),
+            (false, 0)
+        );
+        assert_eq!(
+            resolve_whisper_gpu_params("Vulkan0", false, true, true, Some(1)),
+            (true, 0)
+        );
+        assert_eq!(
+            resolve_whisper_gpu_params("auto", false, true, false, None),
+            (false, 0)
+        );
     }
 }
