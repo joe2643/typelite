@@ -124,7 +124,11 @@ pub async fn get_ai_hardware(app: tauri::AppHandle) -> Result<AiHardwareCheck, S
         let offer = ai_models::offer_models(&hardware, &installed);
         let server_available = builtin::server().binary_available();
         tracing::info!(
-            "AI hardware check: offered {:?}, server program {}",
+            "AI hardware check: {:?} '{}' (gpu={:?}, vram={:?} MB), offered {:?}, server program {}",
+            hardware.chip_kind,
+            hardware.chip_name,
+            hardware.gpu_name,
+            hardware.vram_bytes.map(|bytes| bytes / (1024 * 1024)),
             offer
                 .models
                 .iter()
@@ -346,6 +350,9 @@ mod tests {
                 chip_name: "Intel".into(),
                 memory_bytes: 1,
                 free_bytes: 2,
+                gpu_name: None,
+                vram_bytes: None,
+                shared_gpu_memory_bytes: None,
             },
             offer: crate::stt::hardware::ModelOffer {
                 models: Vec::new(),

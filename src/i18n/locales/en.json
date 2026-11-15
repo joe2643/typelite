@@ -1110,10 +1110,15 @@
     "hardware": {
       "long": "This computer: {{chip}}, {{memory}} GB memory.",
       "short": "{{chip}} · {{memory}} GB",
+      "windowsLong": "This computer: {{gpu}} ({{vram}} GB VRAM), {{memory}} GB memory.",
+      "windowsShort": "{{gpu}} ({{vram}} GB VRAM) · {{memory}} GB",
       "unknownChip": "Unknown chip",
+      "unknownGpu": "No discrete GPU",
       "noSpace": "Not enough free space for a model: {{needed}} GB needed, {{available}} GB free.",
       "leftOut": {
         "needs_apple_silicon": "The larger model needs an Apple Silicon Mac.",
+        "needs_gpu": "The larger model needs a Vulkan-compatible discrete GPU.",
+        "needs_vram": "The larger model needs a GPU with at least 4 GB of VRAM.",
         "needs_memory": "The larger model needs 8 GB of memory.",
         "needs_disk_space": "Not enough free space for the larger model."
       }
@@ -1212,6 +1217,8 @@
       "serverMissing": "This copy of OraType was built without the built-in AI server. Use your own server or API key instead.",
       "leftOut": {
         "needs_apple_silicon": "Built-in AI needs an Apple Silicon Mac.",
+        "needs_gpu": "Built-in AI needs a Vulkan-compatible discrete GPU with at least 4 GB of VRAM. Use your own server or API key instead.",
+        "needs_vram": "The larger model needs a GPU with at least 8 GB of VRAM.",
         "needs_memory": "The larger model needs 16 GB of memory.",
         "needs_disk_space": "Not enough free space for the larger model."
       }

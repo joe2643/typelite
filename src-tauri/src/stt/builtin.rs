@@ -159,7 +159,8 @@ impl LocalWhisper {
         *slot = None;
         let started = Instant::now();
         let mut params = WhisperContextParameters::default();
-        params.use_gpu(cfg!(target_os = "macos"));
+        params.use_gpu(crate::stt::hardware::use_whisper_gpu());
+        params.gpu_device(crate::stt::hardware::whisper_gpu_device());
         params.flash_attn(true);
         let path_str = path
             .to_str()

@@ -149,9 +149,11 @@ pub async fn get_speech_hardware(
                 .retain(|model| !models::runs_in_llama_server(&model.id));
         }
         tracing::info!(
-            "Speech hardware check: {:?} '{}', {} GB memory, {} MB free, offered {:?}",
+            "Speech hardware check: {:?} '{}' (gpu={:?}, vram={:?} MB), {} GB memory, {} MB free, offered {:?}",
             hardware.chip_kind,
             hardware.chip_name,
+            hardware.gpu_name,
+            hardware.vram_bytes.map(|bytes| bytes / (1024 * 1024)),
             hardware.memory_bytes / (1024 * 1024 * 1024),
             hardware.free_bytes / 1_000_000,
             offer

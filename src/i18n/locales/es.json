@@ -1110,10 +1110,15 @@
     "hardware": {
       "long": "Este ordenador: {{chip}}, {{memory}} GB de memoria.",
       "short": "{{chip}} · {{memory}} GB",
+      "windowsLong": "Este ordenador: {{gpu}} ({{vram}} GB VRAM), {{memory}} GB de memoria.",
+      "windowsShort": "{{gpu}} ({{vram}} GB VRAM) · {{memory}} GB",
       "unknownChip": "Chip desconocido",
+      "unknownGpu": "Sin GPU dedicada",
       "noSpace": "No hay espacio libre suficiente para un modelo: se necesitan {{needed}} GB, hay {{available}} GB libres.",
       "leftOut": {
         "needs_apple_silicon": "El modelo más grande necesita un Mac con Apple Silicon.",
+        "needs_gpu": "El modelo más grande necesita una GPU dedicada compatible con Vulkan.",
+        "needs_vram": "El modelo más grande necesita una GPU con al menos 4 GB de VRAM.",
         "needs_memory": "El modelo más grande necesita 8 GB de memoria.",
         "needs_disk_space": "No hay espacio libre suficiente para el modelo más grande."
       }
@@ -1212,6 +1217,8 @@
       "serverMissing": "Esta copia de OraType se compiló sin el servidor de IA integrado. Usa tu propio servidor o clave de API.",
       "leftOut": {
         "needs_apple_silicon": "La IA integrada necesita un Mac con Apple Silicon.",
+        "needs_gpu": "La IA integrada necesita una GPU dedicada compatible con Vulkan y con al menos 4 GB de VRAM. Usa tu propio servidor o clave de API.",
+        "needs_vram": "El modelo más grande necesita una GPU con al menos 8 GB de VRAM.",
         "needs_memory": "El modelo más grande necesita 16 GB de memoria.",
         "needs_disk_space": "No hay espacio libre suficiente para el modelo más grande."
       }

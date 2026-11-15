@@ -1110,10 +1110,15 @@
     "hardware": {
       "long": "这台电脑：{{chip}}，{{memory}} GB 内存。",
       "short": "{{chip}} · {{memory}} GB",
+      "windowsLong": "这台电脑：{{gpu}}（{{vram}} GB 显存），{{memory}} GB 内存。",
+      "windowsShort": "{{gpu}}（{{vram}} GB 显存）· {{memory}} GB",
       "unknownChip": "未知芯片",
+      "unknownGpu": "无独立显卡",
       "noSpace": "可用空间不足，无法下载模型：需要 {{needed}} GB，当前可用 {{available}} GB。",
       "leftOut": {
         "needs_apple_silicon": "较大的模型需要 Apple 芯片的 Mac。",
+        "needs_gpu": "较大的模型需要支持 Vulkan 的独立显卡。",
+        "needs_vram": "较大的模型需要至少 4 GB 显存的显卡。",
         "needs_memory": "较大的模型需要 8 GB 内存。",
         "needs_disk_space": "可用空间不足，无法使用较大的模型。"
       }
@@ -1212,6 +1217,8 @@
       "serverMissing": "这个 OraType 版本没有内置 AI 服务器。请改用你自己的服务器或 API 密钥。",
       "leftOut": {
         "needs_apple_silicon": "内置 AI 需要 Apple 芯片的 Mac。",
+        "needs_gpu": "内置 AI 需要至少 4 GB 显存并支持 Vulkan 的独立显卡。请改用你自己的服务器或 API 密钥。",
+        "needs_vram": "较大的模型需要至少 8 GB 显存的显卡。",
         "needs_memory": "较大的模型需要 16 GB 内存。",
         "needs_disk_space": "可用空间不足，无法使用较大的模型。"
       }

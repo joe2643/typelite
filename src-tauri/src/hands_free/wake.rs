@@ -102,7 +102,8 @@ impl WakeChecker {
     /// built-in speech.
     pub fn load(model: &Path, wake_name: &str, options: WakeCheckOptions) -> Result<Self, String> {
         let mut params = WhisperContextParameters::default();
-        params.use_gpu(cfg!(target_os = "macos"));
+        params.use_gpu(crate::stt::hardware::use_whisper_gpu());
+        params.gpu_device(crate::stt::hardware::whisper_gpu_device());
         params.flash_attn(true);
         let path = model
             .to_str()

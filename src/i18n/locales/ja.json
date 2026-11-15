@@ -1110,10 +1110,15 @@
     "hardware": {
       "long": "このコンピュータ：{{chip}}、メモリ {{memory}} GB。",
       "short": "{{chip}} · {{memory}} GB",
+      "windowsLong": "このコンピュータ：{{gpu}}（{{vram}} GB VRAM）、メモリ {{memory}} GB。",
+      "windowsShort": "{{gpu}}（{{vram}} GB VRAM）· {{memory}} GB",
       "unknownChip": "不明なチップ",
+      "unknownGpu": "専用 GPU なし",
       "noSpace": "モデル用の空き容量が足りません：{{needed}} GB 必要、空き {{available}} GB。",
       "leftOut": {
         "needs_apple_silicon": "大きいモデルには Apple シリコン搭載の Mac が必要です。",
+        "needs_gpu": "大きいモデルには Vulkan 対応の専用 GPU が必要です。",
+        "needs_vram": "大きいモデルには 4 GB 以上の VRAM を備えた GPU が必要です。",
         "needs_memory": "大きいモデルには 8 GB のメモリが必要です。",
         "needs_disk_space": "大きいモデル用の空き容量が足りません。"
       }
@@ -1212,6 +1217,8 @@
       "serverMissing": "この OraType は内蔵 AI サーバなしでビルドされています。代わりに自分のサーバまたは API キーを使ってください。",
       "leftOut": {
         "needs_apple_silicon": "内蔵 AI には Apple シリコン搭載の Mac が必要です。",
+        "needs_gpu": "内蔵 AI には 4 GB 以上の VRAM を備えた Vulkan 対応の専用 GPU が必要です。代わりに自分のサーバまたは API キーを使ってください。",
+        "needs_vram": "大きいモデルには 8 GB 以上の VRAM を備えた GPU が必要です。",
         "needs_memory": "大きいモデルには 16 GB のメモリが必要です。",
         "needs_disk_space": "大きいモデル用の空き容量が足りません。"
       }
