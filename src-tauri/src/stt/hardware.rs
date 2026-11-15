@@ -242,7 +242,40 @@ fn chip_and_memory() -> (ChipKind, String, u64) {
     (kind, name, sysctl_u64("hw.memsize").unwrap_or(0))
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+fn chip_and_memory() -> (ChipKind, String, u64) {
+    use windows_sys::Win32::System::Registry::HKEY_LOCAL_MACHINE;
+    use windows_sys::Win32::System::SystemInformation::{GlobalMemoryStatusEx, MEMORYSTATUSEX};
+
+    let mut status = MEMORYSTATUSEX {
+        dwLength: std::mem::size_of::<MEMORYSTATUSEX>() as u32,
+        dwMemoryLoad: 0,
+        ullTotalPhys: 0,
+        ullAvailPhys: 0,
+        ullTotalPageFile: 0,
+        ullAvailPageFile: 0,
+        ullTotalVirtual: 0,
+        ullAvailVirtual: 0,
+        ullAvailExtendedVirtual: 0,
+    };
+    let memory_bytes = if unsafe { GlobalMemoryStatusEx(&mut status) } != 0 {
+        status.ullTotalPhys
+    } else {
+        0
+    };
+
+    let cpu_name = crate::platform::read_reg_sz(
+        HKEY_LOCAL_MACHINE,
+        r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+        "ProcessorNameString",
+    )
+    .unwrap_or_default();
+
+    // TODO(windows): add DXGI / Vulkan / CUDA GPU VRAM detection and Windows model offer rules in `offer_by_rules` (currently gated on `ChipKind::AppleSilicon`).
+    (ChipKind::Unknown, cpu_name, memory_bytes)
+}
+
+#[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
 fn chip_and_memory() -> (ChipKind, String, u64) {
     (ChipKind::Unknown, String::new(), 0)
 }

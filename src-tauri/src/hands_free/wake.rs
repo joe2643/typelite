@@ -1,6 +1,7 @@
 //! Plan `hands-free-mode` (wake-check.md): the wake check. Runs the whisper.cpp that OraType
 //! already ships on one short voiced segment with a small model, then matches the text against
 //! the wake phrase (`matcher.rs`).
+// TODO(windows): wake-word inference runs on CPU via `whisper-rs` on Windows (latency unverified without DirectML/Vulkan GPU); verify WASAPI loopback acoustic echo / ducking on real hardware.
 //!
 //! The wake model has its own whisper context, separate from built-in speech's engine, so a
 //! wake check never unloads the user's speech model and the two never wait on each other's

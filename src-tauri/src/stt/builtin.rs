@@ -1,6 +1,7 @@
 //! Plan `quick-speech-setup`: the "Built-in (on-device)" speech provider. Runs whisper.cpp inside
-//! the app through the `whisper-rs` binding (GPU through Metal on macOS), so no speech server or
-//! Homebrew install is needed.
+//! the app through the `whisper-rs` binding (GPU through Metal on macOS; CPU fallback elsewhere),
+//! so no speech server or Homebrew install is needed.
+// TODO(windows): add optional `whisper-rs` `vulkan` (broad AMD/Intel/NVIDIA) or `cuda` GPU feature flags for Windows release builds once tested on Windows hardware.
 //!
 //! The model is loaded on first use (a recording start begins loading it while the user
 //! speaks), kept in memory, and freed after [`IDLE_UNLOAD_AFTER`] without use. Only one
