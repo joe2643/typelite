@@ -1111,10 +1111,15 @@
     "hardware": {
       "long": "Cet ordinateur : {{chip}}, {{memory}} Go de mémoire.",
       "short": "{{chip}} · {{memory}} Go",
+      "windowsLong": "Cet ordinateur : {{gpu}} ({{vram}} Go VRAM), {{memory}} Go de mémoire.",
+      "windowsShort": "{{gpu}} ({{vram}} Go VRAM) · {{memory}} Go",
       "unknownChip": "Puce inconnue",
+      "unknownGpu": "Aucun GPU dédié",
       "noSpace": "Pas assez d’espace libre pour un modèle : {{needed}} Go nécessaires, {{available}} Go libres.",
       "leftOut": {
         "needs_apple_silicon": "Le plus grand modèle nécessite un Mac Apple Silicon.",
+        "needs_gpu": "Le plus grand modèle nécessite un GPU dédié compatible Vulkan.",
+        "needs_vram": "Le plus grand modèle nécessite un GPU avec au moins 4 Go de VRAM.",
         "needs_memory": "Le plus grand modèle nécessite 8 Go de mémoire.",
         "needs_disk_space": "Pas assez d’espace libre pour le plus grand modèle."
       }
@@ -1213,6 +1218,8 @@
       "serverMissing": "Cette copie de {{appName}} a été compilée sans le serveur d’IA intégré. Utilisez plutôt votre propre serveur ou clé API.",
       "leftOut": {
         "needs_apple_silicon": "L’IA intégrée nécessite un Mac Apple Silicon.",
+        "needs_gpu": "L’IA intégrée nécessite un GPU dédié compatible Vulkan avec au moins 4 Go de VRAM. Utilisez plutôt votre propre serveur ou clé API.",
+        "needs_vram": "Le plus grand modèle nécessite un GPU avec au moins 8 Go de VRAM.",
         "needs_memory": "Le plus grand modèle nécessite 16 Go de mémoire.",
         "needs_disk_space": "Pas assez d’espace libre pour le plus grand modèle."
       }

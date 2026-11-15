@@ -1111,10 +1111,15 @@
     "hardware": {
       "long": "這臺電腦：{{chip}}，{{memory}} GB 記憶體。",
       "short": "{{chip}} · {{memory}} GB",
+      "windowsLong": "這臺電腦：{{gpu}}（{{vram}} GB 顯示記憶體），{{memory}} GB 記憶體。",
+      "windowsShort": "{{gpu}}（{{vram}} GB 顯示記憶體）· {{memory}} GB",
       "unknownChip": "未知晶片",
+      "unknownGpu": "無獨立顯示卡",
       "noSpace": "可用空間不足，無法下載模型：需要 {{needed}} GB，當前可用 {{available}} GB。",
       "leftOut": {
         "needs_apple_silicon": "較大的模型需要 Apple 晶片的 Mac。",
+        "needs_gpu": "較大的模型需要支援 Vulkan 的獨立顯示卡。",
+        "needs_vram": "較大的模型需要至少 4 GB 顯示記憶體的顯示卡。",
         "needs_memory": "較大的模型需要 8 GB 記憶體。",
         "needs_disk_space": "可用空間不足，無法使用較大的模型。"
       }
@@ -1213,6 +1218,8 @@
       "serverMissing": "這個 {{appName}} 版本沒有內建 AI 伺服器。請改用你自己的伺服器或 API 金鑰。",
       "leftOut": {
         "needs_apple_silicon": "內建 AI 需要 Apple 晶片的 Mac。",
+        "needs_gpu": "內建 AI 需要至少 4 GB 顯示記憶體並支援 Vulkan 的獨立顯示卡。請改用你自己的伺服器或 API 金鑰。",
+        "needs_vram": "較大的模型需要至少 8 GB 顯示記憶體的顯示卡。",
         "needs_memory": "較大的模型需要 16 GB 記憶體。",
         "needs_disk_space": "可用空間不足，無法使用較大的模型。"
       }

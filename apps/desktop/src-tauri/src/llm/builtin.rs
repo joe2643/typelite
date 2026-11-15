@@ -479,6 +479,25 @@ fn free_port() -> std::io::Result<u16> {
     Ok(listener.local_addr()?.port())
 }
 
+/// Whether a process image path or command name belongs to `llama-server` (or a
+/// triple-suffixed build of it).
+fn is_server_process_name(process_path_or_name: &str) -> bool {
+    let file_name = process_path_or_name
+        .rsplit(['/', '\\'])
+        .next()
+        .unwrap_or(process_path_or_name)
+        .trim();
+    let lower = file_name.to_ascii_lowercase();
+    let stem = lower.strip_suffix(".exe").unwrap_or(&lower);
+    stem == SERVER_BINARY_NAME || stem.starts_with("llama-server-")
+}
+
+/// Whether an environment variable is a `LLAMA_*` setting read by `llama-server` (case-insensitive
+/// for Windows).
+fn is_llama_env_var(name: &str) -> bool {
+    name.len() >= 6 && name[..6].eq_ignore_ascii_case("LLAMA_")
+}
+
 /// Stops a `llama-server` a crashed OraType left behind (its id is in `pid_file`). Only a
 /// process that really is `llama-server` is stopped.
 fn stop_stale_server(pid_file: &Path) {
@@ -486,27 +505,64 @@ fn stop_stale_server(pid_file: &Path) {
         return;
     };
     let _ = std::fs::remove_file(pid_file);
+    let Ok(pid) = text.trim().parse::<u32>() else {
+        return;
+    };
+    if pid == 0 {
+        return;
+    }
     #[cfg(unix)]
     {
-        let Ok(pid) = text.trim().parse::<u32>() else {
-            return;
-        };
         let name = std::process::Command::new("ps")
             .args(["-p", &pid.to_string(), "-o", "comm="])
             .output()
             .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
             .unwrap_or_default();
-        if name.ends_with(SERVER_BINARY_NAME) || name.contains("llama-server-") {
+        if is_server_process_name(&name) {
             tracing::info!("Stopping a built-in AI server left from an earlier run (pid {pid})");
             let _ = std::process::Command::new("kill")
                 .arg(pid.to_string())
                 .status();
         }
     }
-    #[cfg(not(unix))]
+    #[cfg(windows)]
     {
-        // TODO(windows): verify stale PID corresponds to `llama-server.exe` via `OpenProcess` + `QueryFullProcessImageNameW` + `TerminateProcess`, or bind child lifetime to a Win32 Job Object (`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`).
-        let _ = text;
+        use std::ffi::OsString;
+        use std::os::windows::ffi::OsStringExt;
+        use windows_sys::Win32::Foundation::CloseHandle;
+        use windows_sys::Win32::System::Threading::{
+            OpenProcess, QueryFullProcessImageNameW, TerminateProcess,
+            PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_TERMINATE,
+        };
+
+        // SAFETY: `pid` was parsed as a non-zero Win32 PID; we open only with query + terminate
+        // rights, inspect its full image path, terminate strictly when it matches `llama-server`,
+        // and unconditionally close the handle.
+        unsafe {
+            let handle = OpenProcess(
+                PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_TERMINATE,
+                0,
+                pid,
+            );
+            if handle.is_null() {
+                return;
+            }
+            let mut buffer = [0u16; 1024];
+            let mut size = buffer.len() as u32;
+            let ok = QueryFullProcessImageNameW(handle, 0, buffer.as_mut_ptr(), &mut size);
+            if ok != 0 && size > 0 {
+                let image_path = OsString::from_wide(&buffer[..size as usize])
+                    .to_string_lossy()
+                    .to_string();
+                if is_server_process_name(&image_path) {
+                    tracing::info!(
+                        "Stopping a built-in AI server left from an earlier run (pid {pid})"
+                    );
+                    let _ = TerminateProcess(handle, 1);
+                }
+            }
+            let _ = CloseHandle(handle);
+        }
     }
 }
 
@@ -587,6 +643,195 @@ impl Default for ProcessLauncher {
     }
 }
 
+/// One GPU entry printed by `llama-server --list-devices`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LlamaDevice {
+    pub id: String,
+    pub description: String,
+    pub total_mib: u64,
+    pub free_mib: u64,
+}
+
+fn is_virtual_or_software_vk_description(description: &str) -> bool {
+    let lower = description.to_ascii_lowercase();
+    [
+        "llvmpipe",
+        "lavapipe",
+        "basic render",
+        "swiftshader",
+        "parsec",
+        "sudomaker",
+        "virtual display",
+        "virtual desktop",
+        "virtual monitor",
+    ]
+    .iter()
+    .any(|marker| lower.contains(marker))
+}
+
+fn is_integrated_vk_description(description: &str) -> bool {
+    let lower = description.to_ascii_lowercase();
+    [
+        "radeon(tm) graphics",
+        "amd radeon graphics",
+        "uhd graphics",
+        "iris(r) xe",
+        "iris xe",
+        "hd graphics",
+    ]
+    .iter()
+    .any(|marker| lower.contains(marker))
+}
+
+/// Parses `llama-server --list-devices` output lines such as
+/// `  Vulkan0: NVIDIA GeForce RTX 4090 (24142 MiB, 23400 MiB free)`.
+pub fn parse_llama_list_devices(output: &str) -> Vec<LlamaDevice> {
+    let mut devices = Vec::new();
+    for line in output.lines() {
+        let trimmed = line.trim();
+        let Some((raw_id, rest)) = trimmed.split_once(": ") else {
+            continue;
+        };
+        if raw_id.is_empty() || raw_id.chars().any(char::is_whitespace) {
+            continue;
+        }
+        let Some(open_paren) = rest.rfind('(') else {
+            continue;
+        };
+        let Some(inner) = rest[open_paren + 1..].strip_suffix(')') else {
+            continue;
+        };
+        let mut parts = inner.split(',');
+        let Some(total_part) = parts.next() else {
+            continue;
+        };
+        let Some(free_part) = parts.next() else {
+            continue;
+        };
+        if parts.next().is_some() {
+            continue;
+        }
+        let Ok(total_mib) = total_part
+            .trim()
+            .strip_suffix("MiB")
+            .unwrap_or_default()
+            .trim()
+            .parse::<u64>()
+        else {
+            continue;
+        };
+        let Ok(free_mib) = free_part
+            .trim()
+            .strip_suffix("free")
+            .unwrap_or_default()
+            .trim()
+            .strip_suffix("MiB")
+            .unwrap_or_default()
+            .trim()
+            .parse::<u64>()
+        else {
+            continue;
+        };
+        let description = rest[..open_paren].trim().to_string();
+        if !description.is_empty() {
+            devices.push(LlamaDevice {
+                id: raw_id.to_string(),
+                description,
+                total_mib,
+                free_mib,
+            });
+        }
+    }
+    devices
+}
+
+/// Picks the best Vulkan device id (`Vulkan0`, `Vulkan1`, ...) for `llama-server`.
+/// Matches `preferred_gpu_name` from DXGI when present (e.g. `NVIDIA GeForce RTX 4090`), and
+/// otherwise prefers discrete GPUs with the largest VRAM over integrated GPUs whose Vulkan heaps
+/// include shared host memory.
+pub fn select_best_llama_device(
+    devices: &[LlamaDevice],
+    preferred_gpu_name: Option<&str>,
+) -> Option<String> {
+    let hardware: Vec<&LlamaDevice> = devices
+        .iter()
+        .filter(|d| !d.id.eq_ignore_ascii_case("CPU"))
+        .filter(|d| !is_virtual_or_software_vk_description(&d.description))
+        .collect();
+    if let Some(pref) = preferred_gpu_name.map(str::trim).filter(|s| !s.is_empty()) {
+        let pref_lower = pref.to_ascii_lowercase();
+        if let Some(matched) = hardware
+            .iter()
+            .copied()
+            .filter(|d| {
+                let desc_lower = d.description.to_ascii_lowercase();
+                desc_lower.contains(&pref_lower) || pref_lower.contains(&desc_lower)
+            })
+            .max_by_key(|d| (d.total_mib, d.free_mib))
+        {
+            return Some(matched.id.clone());
+        }
+    }
+    let discrete_max = hardware
+        .iter()
+        .copied()
+        .filter(|d| !is_integrated_vk_description(&d.description))
+        .max_by_key(|d| (d.total_mib, d.free_mib));
+    let picked = discrete_max.or_else(|| {
+        hardware
+            .into_iter()
+            .max_by_key(|d| (d.total_mib, d.free_mib))
+    });
+    picked.map(|d| d.id.clone())
+}
+
+#[cfg(target_os = "windows")]
+pub fn preferred_windows_vulkan_device(binary: &Path) -> Option<String> {
+    static DEVICE: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
+    DEVICE
+        .get_or_init(|| {
+            let mut command = std::process::Command::new(binary);
+            crate::platform::configure_background_command(&mut command);
+            command
+                .arg("--list-devices")
+                .stdin(std::process::Stdio::null())
+                .stdout(std::process::Stdio::piped())
+                .stderr(std::process::Stdio::piped());
+            for (name, _) in std::env::vars_os() {
+                if is_llama_env_var(&name.to_string_lossy()) {
+                    command.env_remove(name);
+                }
+            }
+            let Ok(output) = command.output() else {
+                return None;
+            };
+            let mut combined = String::from_utf8_lossy(&output.stdout).into_owned();
+            combined.push('\n');
+            combined.push_str(&String::from_utf8_lossy(&output.stderr));
+            let devices = parse_llama_list_devices(&combined);
+            let dxgi_pref = crate::stt::hardware::preferred_windows_gpu_name();
+            let chosen = select_best_llama_device(&devices, dxgi_pref.as_deref());
+            tracing::info!(
+                "Built-in Vulkan devices detected: {:?}; dxgi_pref={:?}; selected={:?}",
+                devices,
+                dxgi_pref,
+                chosen
+            );
+            chosen
+        })
+        .clone()
+}
+
+#[cfg(target_os = "windows")]
+pub fn preferred_windows_vulkan_device_index() -> Option<i32> {
+    let binary = find_server_binary()?;
+    let device = preferred_windows_vulkan_device(&binary)?;
+    let lower = device.to_ascii_lowercase();
+    lower
+        .strip_prefix("vulkan")
+        .and_then(|rest| rest.trim().parse::<i32>().ok())
+}
+
 #[async_trait]
 impl Launcher for ProcessLauncher {
     fn find_binary(&self) -> Option<PathBuf> {
@@ -601,9 +846,19 @@ impl Launcher for ProcessLauncher {
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped());
+        #[cfg(target_os = "windows")]
+        if !spec
+            .args
+            .iter()
+            .any(|arg| arg == "--device" || arg == "-dev")
+        {
+            if let Some(device) = preferred_windows_vulkan_device(&spec.binary) {
+                command.args(["--device", &device, "--split-mode", "none"]);
+            }
+        }
         // llama-server reads LLAMA_ARG_* settings from the environment; only ours count.
         for (name, _) in std::env::vars_os() {
-            if name.to_string_lossy().starts_with("LLAMA_") {
+            if is_llama_env_var(&name.to_string_lossy()) {
                 command.env_remove(name);
             }
         }
@@ -1321,5 +1576,117 @@ mod tests {
         let (resolved, key) = resolve_preset(&preset, "sk-1".into()).await.unwrap();
         assert_eq!(resolved, preset);
         assert_eq!(key, "sk-1");
+    }
+
+    #[test]
+    fn stale_process_matcher_accepts_only_llama_server_executables() {
+        for expected in [
+            "llama-server",
+            "llama-server.exe",
+            r"C:\OraType\llama-server.exe",
+            r"C:\OraType\LLAMA-SERVER.EXE",
+            r"C:\OraType\llama-server-x86_64-pc-windows-gnu.exe",
+            "/Applications/OraType.app/Contents/MacOS/llama-server",
+            "llama-server-aarch64-apple-darwin",
+            "llama-server-x8",
+        ] {
+            assert!(is_server_process_name(expected), "{expected}");
+        }
+        for rejected in [
+            "",
+            "svchost.exe",
+            r"C:\Windows\System32\svchost.exe",
+            r"C:\OraType\oratype.exe",
+            r"C:\Tools\ollama-server.exe",
+            "not-llama-server.exe",
+            "llama-server_other.exe",
+        ] {
+            assert!(!is_server_process_name(rejected), "{rejected}");
+        }
+    }
+
+    #[test]
+    fn llama_env_var_filter_is_ascii_case_insensitive() {
+        assert!(is_llama_env_var("LLAMA_ARG_N_GPU_LAYERS"));
+        assert!(is_llama_env_var("llama_api_key"));
+        assert!(is_llama_env_var("Llama_Host"));
+        assert!(!is_llama_env_var("LLAMA"));
+        assert!(!is_llama_env_var("PATH"));
+    }
+
+    #[test]
+    fn list_devices_parser_reads_vulkan_lines_with_nested_parentheses() {
+        let output = "\
+0.00.001.000 I srv  llama_server: initializing ...\n\
+Available devices:\r\n\
+  Vulkan0: AMD Radeon 8060S Graphics (RADV STRIX_HALO) (127488 MiB, 106934 MiB free)\r\n\
+  Vulkan1: NVIDIA GeForce RTX 4090 (24142 MiB, 23400 MiB free)\n";
+        let devices = parse_llama_list_devices(output);
+        assert_eq!(
+            devices,
+            vec![
+                LlamaDevice {
+                    id: "Vulkan0".into(),
+                    description: "AMD Radeon 8060S Graphics (RADV STRIX_HALO)".into(),
+                    total_mib: 127488,
+                    free_mib: 106934,
+                },
+                LlamaDevice {
+                    id: "Vulkan1".into(),
+                    description: "NVIDIA GeForce RTX 4090".into(),
+                    total_mib: 24142,
+                    free_mib: 23400,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn vulkan_device_selector_picks_rtx_4090_over_amd_igpu_with_95gb_shared_ram() {
+        // Ryzen 9 7950X3D (95 GB RAM -> ~48 GB shared Vulkan heap on iGPU) + RTX 4090 (24 GB).
+        let devices = vec![
+            LlamaDevice {
+                id: "Vulkan0".into(),
+                description: "AMD Radeon(TM) Graphics".into(),
+                total_mib: 48640,
+                free_mib: 46000,
+            },
+            LlamaDevice {
+                id: "Vulkan1".into(),
+                description: "NVIDIA GeForce RTX 4090".into(),
+                total_mib: 24142,
+                free_mib: 23400,
+            },
+        ];
+        // Even though Vulkan0 (iGPU) reports higher total MiB from shared RAM, RTX 4090 wins
+        // both with DXGI preference and with heuristic fallback.
+        assert_eq!(
+            select_best_llama_device(&devices, Some("NVIDIA GeForce RTX 4090")).as_deref(),
+            Some("Vulkan1")
+        );
+        assert_eq!(
+            select_best_llama_device(&devices, None).as_deref(),
+            Some("Vulkan1")
+        );
+
+        // Two discrete GPUs: picks the larger VRAM discrete GPU.
+        let dual = vec![
+            LlamaDevice {
+                id: "Vulkan0".into(),
+                description: "NVIDIA GeForce RTX 3060".into(),
+                total_mib: 12288,
+                free_mib: 11800,
+            },
+            LlamaDevice {
+                id: "Vulkan1".into(),
+                description: "NVIDIA GeForce RTX 4090".into(),
+                total_mib: 24142,
+                free_mib: 23400,
+            },
+        ];
+        assert_eq!(
+            select_best_llama_device(&dual, None).as_deref(),
+            Some("Vulkan1")
+        );
     }
 }

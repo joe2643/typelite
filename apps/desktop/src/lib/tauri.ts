@@ -510,10 +510,15 @@ export async function deleteSpeechModel(modelId: string): Promise<void> {
 
 // ─── Plan `two-tab-speech`: which built-in models this Mac runs well ───
 
-export type ChipKind = 'apple_silicon' | 'intel' | 'unknown'
+export type ChipKind = 'apple_silicon' | 'intel' | 'windows_gpu' | 'windows_cpu' | 'unknown'
 
 /** Why the larger model is not offered. Mirrors `LeftOutReason` in `stt/hardware.rs`. */
-export type ModelLeftOutReason = 'needs_apple_silicon' | 'needs_memory' | 'needs_disk_space'
+export type ModelLeftOutReason =
+  | 'needs_apple_silicon'
+  | 'needs_gpu'
+  | 'needs_vram'
+  | 'needs_memory'
+  | 'needs_disk_space'
 
 export interface OfferedModel {
   id: string
@@ -529,6 +534,12 @@ export interface SpeechHardwareCheck {
     chipName: string
     memoryBytes: number
     freeBytes: number
+    /** Windows only: DXGI adapter description. */
+    gpuName?: string
+    /** Windows only: DXGI DedicatedVideoMemory in bytes. */
+    vramBytes?: number
+    /** Windows only: DXGI SharedSystemMemory in bytes. */
+    sharedGpuMemoryBytes?: number
   }
   offer: {
     models: OfferedModel[]

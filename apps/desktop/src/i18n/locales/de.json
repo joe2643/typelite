@@ -1111,10 +1111,15 @@
     "hardware": {
       "long": "Dieser Computer: {{chip}}, {{memory}} GB Arbeitsspeicher.",
       "short": "{{chip}} · {{memory}} GB",
+      "windowsLong": "Dieser Computer: {{gpu}} ({{vram}} GB VRAM), {{memory}} GB Arbeitsspeicher.",
+      "windowsShort": "{{gpu}} ({{vram}} GB VRAM) · {{memory}} GB",
       "unknownChip": "Unbekannter Chip",
+      "unknownGpu": "Keine dedizierte GPU",
       "noSpace": "Nicht genug freier Speicher für ein Modell: {{needed}} GB benötigt, {{available}} GB frei.",
       "leftOut": {
         "needs_apple_silicon": "Das größere Modell braucht einen Mac mit Apple Silicon.",
+        "needs_gpu": "Das größere Modell braucht eine dedizierte Vulkan-fähige GPU.",
+        "needs_vram": "Das größere Modell braucht eine GPU mit mindestens 4 GB VRAM.",
         "needs_memory": "Das größere Modell braucht 8 GB Arbeitsspeicher.",
         "needs_disk_space": "Nicht genug freier Speicher für das größere Modell."
       }
@@ -1213,6 +1218,8 @@
       "serverMissing": "Diese {{appName}}-Version wurde ohne den integrierten KI-Server gebaut. Nutze stattdessen deinen eigenen Server oder API-Schlüssel.",
       "leftOut": {
         "needs_apple_silicon": "Integrierte KI braucht einen Mac mit Apple Silicon.",
+        "needs_gpu": "Integrierte KI braucht eine dedizierte Vulkan-fähige GPU mit mindestens 4 GB VRAM. Nutze stattdessen deinen eigenen Server oder API-Schlüssel.",
+        "needs_vram": "Das größere Modell braucht eine GPU mit mindestens 8 GB VRAM.",
         "needs_memory": "Das größere Modell braucht 16 GB Arbeitsspeicher.",
         "needs_disk_space": "Nicht genug freier Speicher für das größere Modell."
       }
