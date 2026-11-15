@@ -151,7 +151,7 @@ fn copy_selected_text_to_clipboard() -> bool {
 
     // TODO(windows): read selection directly via UI Automation `IUIAutomationTextPattern::GetSelection` before falling back to Ctrl+C `SendInput`.
     match crate::output::windows_sendinput::send_vk_chord(&[VK_LCONTROL], b'C' as u16) {
-        Ok(()) => true,
+        Ok(_) => true,
         Err(error) => {
             tracing::warn!("Windows selected-text copy via SendInput failed: {error}");
             false

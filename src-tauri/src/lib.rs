@@ -32,6 +32,7 @@ pub mod tray;
 pub mod updates;
 pub mod voice_intent;
 pub mod web_search;
+pub mod windows_backdrop;
 
 pub use hotkey::{default_ask_shortcut, default_shortcut, parse_hotkey};
 pub use tray::{refresh_tray, TrayHandle};
@@ -1225,6 +1226,11 @@ pub fn run() {
             let mut initial_config =
                 tauri::async_runtime::block_on(config_manager.load()).unwrap_or_default();
             sync_auto_start_preference(&app_handle, &config_manager, &mut initial_config);
+            #[cfg(target_os = "windows")]
+            {
+                let dark = initial_config.theme.eq_ignore_ascii_case("dark");
+                windows_backdrop::apply_to_main_window(&app_handle, dark);
+            }
             // Plan `onboarding-shortcut-gate`: until onboarding is finished no shortcut runs.
             // Set before any shortcut is registered, so nothing slips through before the
             // window loads and tells us which page it shows.
@@ -1570,6 +1576,7 @@ pub fn run() {
             updates::install_update,
             updates::restart_to_update,
             set_capsule_frame,
+            overlay_window::set_overlay_visible,
             ask_panel::copy_ask_text,
             ask_panel::insert_ask_text,
             commands::audio::list_input_devices,
@@ -1608,6 +1615,8 @@ pub fn run() {
             commands::stt::get_stt_recording_capability,
             commands::stt::test_speech_preset,
             commands::speech_setup::get_speech_setup_status,
+            commands::speech_setup::get_builtin_backend_info,
+            windows_backdrop::sync_main_window_backdrop,
             commands::speech_setup::start_speech_setup,
             commands::speech_setup::cancel_speech_setup,
             commands::speech_setup::list_speech_models,

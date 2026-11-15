@@ -1225,3 +1225,36 @@ export async function setCapsuleFrame(
 ): Promise<void> {
   return invoke('set_capsule_frame', { x, y, width, height })
 }
+
+export async function setOverlayVisible(
+  label: 'capsule' | 'ask',
+  visible: boolean,
+): Promise<void> {
+  return invoke('set_overlay_visible', { label, visible })
+}
+
+export interface LlamaDeviceInfo {
+  id: string
+  description: string
+  totalMib: number
+  freeMib: number
+}
+
+export interface BuiltinBackendInfo {
+  platform: string
+  llamaEngine: string
+  whisperEngine: string
+  devices: LlamaDeviceInfo[]
+  autoDeviceId: string | null
+  activeAiDevice: string
+  activeSpeechLlamaDevice: string
+  activeWhisperDevice: string
+}
+
+export async function getBuiltinBackendInfo(): Promise<BuiltinBackendInfo> {
+  return invoke('get_builtin_backend_info')
+}
+
+export async function syncMainWindowBackdrop(dark: boolean): Promise<string> {
+  return invoke('sync_main_window_backdrop', { dark })
+}
