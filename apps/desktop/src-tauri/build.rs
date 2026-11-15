@@ -5,6 +5,10 @@ fn main() {
         println!(
             "cargo:rustc-link-arg=/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
         );
+    } else if target_os == "windows" && target_env == "gnu" {
+        // ggml-cpu.cpp calls RegOpenKeyExA/RegQueryValueExA/RegCloseKey directly, while
+        // windows-targets uses raw-dylib and omits -ladvapi32 from the GNU linker line.
+        println!("cargo:rustc-link-arg=-ladvapi32");
     }
 
     #[cfg(target_os = "macos")]
