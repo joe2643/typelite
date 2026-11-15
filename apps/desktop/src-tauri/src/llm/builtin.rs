@@ -474,6 +474,7 @@ fn lock<T>(mutex: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
 }
 
 fn free_port() -> std::io::Result<u16> {
+    // TODO(windows): binding a local HTTP port may still prompt Windows Defender Firewall if any code later binds non-loopback interfaces; verify `127.0.0.1` passes cleanly on Windows 10/11.
     let listener = std::net::TcpListener::bind(("127.0.0.1", 0))?;
     Ok(listener.local_addr()?.port())
 }
@@ -485,19 +486,27 @@ fn stop_stale_server(pid_file: &Path) {
         return;
     };
     let _ = std::fs::remove_file(pid_file);
-    let Ok(pid) = text.trim().parse::<u32>() else {
-        return;
-    };
-    let name = std::process::Command::new("ps")
-        .args(["-p", &pid.to_string(), "-o", "comm="])
-        .output()
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
-        .unwrap_or_default();
-    if name.ends_with(SERVER_BINARY_NAME) || name.contains("llama-server-") {
-        tracing::info!("Stopping a built-in AI server left from an earlier run (pid {pid})");
-        let _ = std::process::Command::new("kill")
-            .arg(pid.to_string())
-            .status();
+    #[cfg(unix)]
+    {
+        let Ok(pid) = text.trim().parse::<u32>() else {
+            return;
+        };
+        let name = std::process::Command::new("ps")
+            .args(["-p", &pid.to_string(), "-o", "comm="])
+            .output()
+            .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+            .unwrap_or_default();
+        if name.ends_with(SERVER_BINARY_NAME) || name.contains("llama-server-") {
+            tracing::info!("Stopping a built-in AI server left from an earlier run (pid {pid})");
+            let _ = std::process::Command::new("kill")
+                .arg(pid.to_string())
+                .status();
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        // TODO(windows): verify stale PID corresponds to `llama-server.exe` via `OpenProcess` + `QueryFullProcessImageNameW` + `TerminateProcess`, or bind child lifetime to a Win32 Job Object (`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`).
+        let _ = text;
     }
 }
 
@@ -532,13 +541,18 @@ pub fn find_server_binary() -> Option<PathBuf> {
         let path = PathBuf::from(path);
         return path.is_file().then_some(path);
     }
-    let triple_name = format!("{SERVER_BINARY_NAME}-{}", env!("ORATYPE_TARGET_TRIPLE"));
+    let exe_name = format!("{SERVER_BINARY_NAME}{}", std::env::consts::EXE_SUFFIX);
+    let triple_name = format!(
+        "{SERVER_BINARY_NAME}-{}{}",
+        env!("ORATYPE_TARGET_TRIPLE"),
+        std::env::consts::EXE_SUFFIX
+    );
     let mut candidates = Vec::new();
     if let Some(dir) = std::env::current_exe()
         .ok()
         .and_then(|exe| exe.parent().map(Path::to_path_buf))
     {
-        candidates.push(dir.join(SERVER_BINARY_NAME));
+        candidates.push(dir.join(&exe_name));
         candidates.push(dir.join(&triple_name));
     }
     if cfg!(debug_assertions) {
@@ -581,6 +595,7 @@ impl Launcher for ProcessLauncher {
 
     fn spawn(&self, spec: &LaunchSpec) -> std::io::Result<Box<dyn ServerChild>> {
         let mut command = std::process::Command::new(&spec.binary);
+        crate::platform::configure_background_command(&mut command);
         command
             .args(&spec.args)
             .stdin(std::process::Stdio::null())

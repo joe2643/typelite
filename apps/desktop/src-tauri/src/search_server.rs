@@ -45,7 +45,14 @@ impl SearchPaths {
         Self { root }
     }
     pub fn uv(&self) -> PathBuf {
-        self.root.join("bin").join("uv")
+        #[cfg(target_os = "windows")]
+        {
+            self.root.join("bin").join("uv.exe")
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            self.root.join("bin").join("uv")
+        }
     }
     pub fn python_dir(&self) -> PathBuf {
         self.root.join("python")
@@ -57,7 +64,17 @@ impl SearchPaths {
         self.root.join(format!("searxng-{}", short_commit(commit)))
     }
     pub fn venv_python(&self, commit: &str) -> PathBuf {
-        self.install_dir(commit).join(".venv/bin/python")
+        #[cfg(target_os = "windows")]
+        {
+            self.install_dir(commit)
+                .join(".venv")
+                .join("Scripts")
+                .join("python.exe")
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            self.install_dir(commit).join(".venv/bin/python")
+        }
     }
     pub fn settings(&self) -> PathBuf {
         self.root.join("settings.yml")
@@ -182,9 +199,15 @@ pub fn settings_yaml(port: u16, secret_key: &str) -> String {
     )
 }
 
-/// The uv release file for this Mac.
+/// The uv release file for this host platform.
 pub fn uv_asset() -> &'static str {
-    if cfg!(target_arch = "x86_64") {
+    if cfg!(target_os = "windows") {
+        if cfg!(target_arch = "aarch64") {
+            "uv-aarch64-pc-windows-msvc.zip"
+        } else {
+            "uv-x86_64-pc-windows-msvc.zip"
+        }
+    } else if cfg!(target_arch = "x86_64") {
         "uv-x86_64-apple-darwin.tar.gz"
     } else {
         "uv-aarch64-apple-darwin.tar.gz"
@@ -222,17 +245,27 @@ fn stop_stale_server(pid_file: &Path) {
         return;
     };
     let _ = std::fs::remove_file(pid_file);
-    let Ok(pid) = text.trim().parse::<u32>() else {
-        return;
-    };
-    let args = Command::new("ps")
-        .args(["-p", &pid.to_string(), "-o", "args="])
-        .output()
-        .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
-        .unwrap_or_default();
-    if args.contains("searx.webapp") {
-        tracing::info!("Built-in search: stopping a SearXNG left from an earlier run (pid {pid})");
-        let _ = Command::new("kill").arg(pid.to_string()).status();
+    #[cfg(unix)]
+    {
+        let Ok(pid) = text.trim().parse::<u32>() else {
+            return;
+        };
+        let args = Command::new("ps")
+            .args(["-p", &pid.to_string(), "-o", "args="])
+            .output()
+            .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+            .unwrap_or_default();
+        if args.contains("searx.webapp") {
+            tracing::info!(
+                "Built-in search: stopping a SearXNG left from an earlier run (pid {pid})"
+            );
+            let _ = Command::new("kill").arg(pid.to_string()).status();
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        // TODO(windows): terminate orphaned SearXNG Python processes via Win32 Job Object or WMI/Toolhelp command-line inspection.
+        let _ = text;
     }
 }
 
@@ -268,6 +301,7 @@ fn write_installed(paths: &SearchPaths, installed: &Installed) -> Result<(), Str
 
 /// Runs a setup command (uv, tar) and returns its error output when it fails.
 fn run(command: &mut Command, what: &str) -> Result<(), String> {
+    crate::platform::configure_background_command(command);
     let output = command
         .stdin(Stdio::null())
         .output()
@@ -523,7 +557,10 @@ impl SearchServer {
             .append(true)
             .open(paths.log())
             .map_err(|e| format!("open searxng.log: {e}"))?;
-        let child = Command::new(paths.venv_python(&installed.commit))
+        let mut command = Command::new(paths.venv_python(&installed.commit));
+        crate::platform::configure_background_command(&mut command);
+        // TODO(windows): verify `127.0.0.1:{port}` does not trigger Windows Defender Firewall prompts on fresh machines.
+        let child = command
             .args(["-m", "searx.webapp"])
             .current_dir(paths.install_dir(&installed.commit))
             .env("SEARXNG_SETTINGS_PATH", paths.settings())
@@ -789,27 +826,38 @@ async fn ensure_uv(
             .map(Path::to_path_buf)
             .unwrap_or_default();
         std::fs::create_dir_all(&bin).map_err(|e| e.to_string())?;
-        let tarball = paths.root.join("uv.tar.gz");
-        std::fs::File::create(&tarball)
-            .and_then(|mut f| f.write_all(&archive))
-            .map_err(|e| format!("save uv: {e}"))?;
-        // The archive holds `uv-<target>/uv` and `uvx`; keep only uv.
-        let result = run(
-            Command::new("tar")
-                .arg("-xzf")
-                .arg(&tarball)
-                .arg("-C")
-                .arg(&bin)
-                .args(["--strip-components", "1"]),
-            "unpack uv",
-        );
-        let _ = std::fs::remove_file(&tarball);
-        let _ = std::fs::remove_file(bin.join("uvx"));
-        result?;
-        if !paths.uv().exists() {
-            return Err("uv's archive had no uv".to_string());
+        #[cfg(target_os = "windows")]
+        {
+            // TODO(windows): extract `uv-*-pc-windows-msvc.zip` (`uv.exe` at archive root) via the `zip` crate or Win10+ `tar.exe -xf` without `--strip-components`.
+            let _ = archive;
+            return Err(
+                "Built-in search uv zip extraction is not implemented on Windows yet".to_string(),
+            );
         }
-        Ok(())
+        #[cfg(not(target_os = "windows"))]
+        {
+            let tarball = paths.root.join("uv.tar.gz");
+            std::fs::File::create(&tarball)
+                .and_then(|mut f| f.write_all(&archive))
+                .map_err(|e| format!("save uv: {e}"))?;
+            // The archive holds `uv-<target>/uv` and `uvx`; keep only uv.
+            let result = run(
+                Command::new("tar")
+                    .arg("-xzf")
+                    .arg(&tarball)
+                    .arg("-C")
+                    .arg(&bin)
+                    .args(["--strip-components", "1"]),
+                "unpack uv",
+            );
+            let _ = std::fs::remove_file(&tarball);
+            let _ = std::fs::remove_file(bin.join("uvx"));
+            result?;
+            if !paths.uv().exists() {
+                return Err("uv's archive had no uv".to_string());
+            }
+            Ok(())
+        }
     })
     .await
 }

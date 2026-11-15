@@ -218,7 +218,20 @@ pub fn make_overlay(window: &tauri::WebviewWindow) {
             tracing::warn!("Overlay window setup was not scheduled: {error}");
         }
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
+    {
+        let target = window.clone();
+        let label = window.label().to_string();
+        let result = window.run_on_main_thread(move || {
+            if let Ok(hwnd) = target.hwnd() {
+                unsafe { win::apply(hwnd.0, &label) };
+            }
+        });
+        if let Err(error) = result {
+            tracing::warn!("Windows overlay window setup was not scheduled: {error}");
+        }
+    }
+    #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
     let _ = window;
 }
 
@@ -234,6 +247,12 @@ pub fn set_frame(window: &tauri::WebviewWindow, x: f64, y: f64, width: f64, heig
         if let Ok(ns_window) = target.ns_window() {
             // SAFETY: the live NSWindow of this window, on the main thread.
             if unsafe { mac::set_frame(ns_window.cast(), x, y, width, height) } {
+                return;
+            }
+        }
+        #[cfg(target_os = "windows")]
+        if let (Ok(hwnd), Ok(scale)) = (target.hwnd(), target.scale_factor()) {
+            if unsafe { win::set_frame(hwnd.0, x, y, width, height, scale) } {
                 return;
             }
         }
@@ -286,7 +305,30 @@ pub fn set_key(window: &tauri::WebviewWindow, key: bool) -> bool {
             .recv_timeout(std::time::Duration::from_millis(500))
             .unwrap_or(false)
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
+    {
+        let Ok(hwnd) = window.hwnd() else {
+            return false;
+        };
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let target = window.clone();
+        let job = move || {
+            let result = target
+                .hwnd()
+                .map(|hwnd| unsafe { win::set_key(hwnd.0, key) })
+                .unwrap_or(false);
+            let _ = sender.send(result);
+        };
+        if unsafe { win::is_window_thread(hwnd.0) } {
+            job();
+        } else if window.run_on_main_thread(job).is_err() {
+            return false;
+        }
+        receiver
+            .recv_timeout(std::time::Duration::from_millis(500))
+            .unwrap_or(false)
+    }
+    #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
     {
         let _ = (window, key);
         false
@@ -308,6 +350,109 @@ pub fn clear_web_hover(window: &tauri::WebviewWindow) {
     }
     #[cfg(not(target_os = "macos"))]
     let _ = window;
+}
+
+#[cfg(target_os = "windows")]
+mod win {
+    use std::ptr;
+    use windows_sys::Win32::Foundation::HWND;
+    use windows_sys::Win32::System::Threading::GetCurrentThreadId;
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        GetWindowLongPtrW, GetWindowThreadProcessId, SetForegroundWindow, SetWindowLongPtrW,
+        SetWindowPos, GWL_EXSTYLE, HWND_TOPMOST, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE,
+        SWP_NOSIZE, SWP_NOZORDER, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
+    };
+
+    pub(super) unsafe fn is_window_thread(hwnd: HWND) -> bool {
+        if hwnd.is_null() {
+            return false;
+        }
+        GetWindowThreadProcessId(hwnd, ptr::null_mut()) == GetCurrentThreadId()
+    }
+
+    /// Configures a Windows overlay window with `WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW` and
+    /// `HWND_TOPMOST` so hovering/showing never steals focus from the user's target app.
+    pub(super) unsafe fn apply(hwnd: HWND, label: &str) {
+        if hwnd.is_null() {
+            return;
+        }
+        let ex_style = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        let next = ex_style | (WS_EX_NOACTIVATE as isize) | (WS_EX_TOOLWINDOW as isize);
+        if next != ex_style {
+            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, next);
+        }
+        let _ = SetWindowPos(
+            hwnd,
+            HWND_TOPMOST,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_FRAMECHANGED,
+        );
+        // TODO(windows): exclusive Direct3D/Vulkan fullscreen games sit above `HWND_TOPMOST`; verify borderless-fullscreen overlays and taskbar z-order on Windows 10/11.
+        tracing::debug!("Overlay window {label}: Windows WS_EX_NOACTIVATE | HWND_TOPMOST applied");
+    }
+
+    /// Atomic `SetWindowPos` move+resize without Z-order change or activation.
+    // TODO(windows): convert global logical coordinates per target monitor (`MonitorFromPoint` + `GetMonitorInfoW` `rcWork`) for mixed-DPI multi-monitor setups.
+    pub(super) unsafe fn set_frame(
+        hwnd: HWND,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+        scale_factor: f64,
+    ) -> bool {
+        if hwnd.is_null() || !scale_factor.is_finite() || scale_factor <= 0.0 {
+            return false;
+        }
+        let px = (x * scale_factor).round() as i32;
+        let py = (y * scale_factor).round() as i32;
+        let pw = (width * scale_factor).round().max(1.0) as i32;
+        let ph = (height * scale_factor).round().max(1.0) as i32;
+        SetWindowPos(
+            hwnd,
+            ptr::null_mut(),
+            px,
+            py,
+            pw,
+            ph,
+            SWP_NOZORDER | SWP_NOACTIVATE,
+        ) != 0
+    }
+
+    /// Temporarily allows/disallows keyboard activation on the Ask panel (`set_key`).
+    // TODO(windows): snapshot the prior foreground `HWND` (`GetForegroundWindow`) before `set_key(..., true)` and restore it on `set_key(..., false)` for seamless Ctrl+C/Esc focus handback.
+    pub(super) unsafe fn set_key(hwnd: HWND, key: bool) -> bool {
+        if hwnd.is_null() {
+            return false;
+        }
+        let ex_style = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        let no_activate = WS_EX_NOACTIVATE as isize;
+        let next = if key {
+            ex_style & !no_activate
+        } else {
+            ex_style | no_activate
+        };
+        if next != ex_style {
+            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, next);
+            let _ = SetWindowPos(
+                hwnd,
+                ptr::null_mut(),
+                0,
+                0,
+                0,
+                0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED,
+            );
+        }
+        if key {
+            SetForegroundWindow(hwnd) != 0
+        } else {
+            true
+        }
+    }
 }
 
 #[cfg(target_os = "macos")]

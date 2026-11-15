@@ -192,7 +192,29 @@ fn simulate_paste(_shortcut: PasteShortcut) -> Result<(), AppError> {
     Ok(())
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+fn simulate_paste(shortcut: PasteShortcut) -> Result<(), AppError> {
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{VK_INSERT, VK_LCONTROL, VK_LSHIFT};
+
+    // Wait until hotkeys' physical modifiers go up so the target app sees plain Ctrl+V / Shift+Insert.
+    super::windows_modifier_guard::wait_for_modifier_release()?;
+
+    let result = match shortcut {
+        PasteShortcut::CtrlV => {
+            super::windows_sendinput::send_vk_chord(&[VK_LCONTROL], b'V' as u16)
+        }
+        PasteShortcut::CtrlShiftV => {
+            super::windows_sendinput::send_vk_chord(&[VK_LCONTROL, VK_LSHIFT], b'V' as u16)
+        }
+        PasteShortcut::ShiftInsert => {
+            super::windows_sendinput::send_vk_chord(&[VK_LSHIFT], VK_INSERT)
+        }
+    };
+    // TODO(windows): Windows UIPI blocks `SendInput` into elevated (Admin) windows; surface a fallback toast ("text copied — paste manually") when `SendInput` hits a UIPI boundary.
+    result.map_err(|error| AppError::Output(error.to_string()))
+}
+
+#[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
 fn paste_keys(shortcut: PasteShortcut) -> (Vec<enigo::Key>, enigo::Key) {
     use enigo::Key;
     match shortcut {
@@ -202,7 +224,7 @@ fn paste_keys(shortcut: PasteShortcut) -> (Vec<enigo::Key>, enigo::Key) {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
 fn simulate_paste(shortcut: PasteShortcut) -> Result<(), AppError> {
     super::windows_modifier_guard::wait_for_modifier_release()?;
 

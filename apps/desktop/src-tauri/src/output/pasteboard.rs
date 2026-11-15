@@ -272,9 +272,11 @@ mod platform {
 
 #[cfg(not(target_os = "macos"))]
 mod platform {
-    //! Outside macOS only the plain text is kept, through `arboard` (as before plan
-    //! `clipboard-safety`); the change count is emulated from the text.
+    //! Outside macOS only plain text is kept through `arboard`; on Windows `change_count`
+    //! queries Win32 `GetClipboardSequenceNumber()` directly.
 
+    // TODO(windows): capture and restore non-text clipboard formats (`CF_UNICODETEXT`, `HTML Format`, `CF_HDROP`, `CF_DIB`) via Win32 `OpenClipboard`/`EnumClipboardFormats`.
+    // TODO(windows): mark transient dictated clipboard writes with `ExcludeClipboardContentFromMonitorProcessing` and `CanIncludeInClipboardHistory = 0` so Win+V history is not polluted.
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Snapshot {
         text: Option<String>,
@@ -293,10 +295,20 @@ mod platform {
     }
 
     pub fn change_count(_board: &Board) -> i64 {
-        use std::hash::{Hash, Hasher};
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        read_text(&Board).hash(&mut hasher);
-        hasher.finish() as i64
+        #[cfg(target_os = "windows")]
+        {
+            // SAFETY: Win32 query with no pointer parameters; returns 0 only if window station denies access.
+            let seq =
+                unsafe { windows_sys::Win32::System::DataExchange::GetClipboardSequenceNumber() };
+            return seq as i64;
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            use std::hash::{Hash, Hasher};
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            read_text(&Board).hash(&mut hasher);
+            hasher.finish() as i64
+        }
     }
 
     pub fn snapshot(_board: &Board) -> Option<Snapshot> {

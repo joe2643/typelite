@@ -221,14 +221,21 @@ pub(crate) fn apply_dock_visibility(app: &tauri::AppHandle, show_in_dock: bool) 
             });
         }
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
+    {
+        let _ = show_in_dock;
+        apply_overlay_windows(app);
+    }
+    #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
     let _ = (app, show_in_dock);
 }
 
 /// Labels of the windows that float over other apps: the pill and the Ask panel.
+#[cfg(any(target_os = "macos", target_os = "windows", test))]
 const OVERLAY_WINDOW_LABELS: [&str; 2] = ["capsule", ask_panel::ASK_WINDOW_LABEL];
 
 /// Lets the pill and the Ask panel show over full-screen apps (see `overlay_window`).
+#[cfg(any(target_os = "macos", target_os = "windows"))]
 pub(crate) fn apply_overlay_windows(app: &tauri::AppHandle) {
     for label in OVERLAY_WINDOW_LABELS {
         if let Some(window) = app.get_webview_window(label) {
@@ -1239,13 +1246,17 @@ pub(crate) const APP_NAME: &str = "Munia Dev";
 
 /// The log folder's name under `~/Library/Logs`. The development build (`dev-build` feature)
 /// writes to its own folder, so its log never mixes with the release app's.
-#[cfg(all(target_os = "macos", not(feature = "dev-build")))]
+#[cfg(all(
+    any(target_os = "macos", target_os = "windows"),
+    not(feature = "dev-build")
+))]
 const LOG_FOLDER: &str = "OraType";
-#[cfg(all(target_os = "macos", feature = "dev-build"))]
+#[cfg(all(any(target_os = "macos", target_os = "windows"), feature = "dev-build"))]
 const LOG_FOLDER: &str = "OraType Dev";
 
-/// Where the log file lives: `~/Library/Logs/OraType/oratype.log` on macOS (open it with
-/// Console.app or any editor). The log holds timings, sizes and errors only, never dictated text.
+/// Where the log file lives: `~/Library/Logs/OraType/oratype.log` on macOS and
+/// `%LOCALAPPDATA%\OraType\Logs\oratype.log` on Windows. The log holds timings, sizes and
+/// errors only, never dictated text.
 fn log_file_path() -> Option<std::path::PathBuf> {
     #[cfg(target_os = "macos")]
     {
@@ -1257,7 +1268,14 @@ fn log_file_path() -> Option<std::path::PathBuf> {
                 .join("oratype.log"),
         )
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
+    {
+        let base = std::env::var_os("LOCALAPPDATA")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(std::env::temp_dir);
+        Some(base.join(LOG_FOLDER).join("Logs").join("oratype.log"))
+    }
+    #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
     {
         Some(std::env::temp_dir().join("oratype").join("oratype.log"))
     }

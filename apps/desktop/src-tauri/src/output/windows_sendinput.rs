@@ -262,6 +262,54 @@ fn send_vk(vk: u16, key_up: bool) -> Result<(), TypeError> {
     }
 }
 
+/// Sends an atomic key chord (modifiers down, primary key down/up, modifiers up in reverse)
+/// via Win32 `SendInput`, shielded from the native keyboard hook by `OwnKeystroke`.
+#[cfg(target_os = "windows")]
+pub(crate) fn send_vk_chord(modifiers: &[u16], key: u16) -> Result<(), TypeError> {
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
+        SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
+    };
+
+    let key_input = |vk: u16, key_up: bool| INPUT {
+        r#type: INPUT_KEYBOARD,
+        Anonymous: INPUT_0 {
+            ki: KEYBDINPUT {
+                wVk: vk,
+                wScan: 0,
+                dwFlags: if key_up { KEYEVENTF_KEYUP } else { 0 },
+                time: 0,
+                dwExtraInfo: 0,
+            },
+        },
+    };
+
+    let _own = crate::native_hotkey::OwnKeystroke::begin();
+    let mut events = Vec::with_capacity(modifiers.len() * 2 + 2);
+    for &modifier in modifiers {
+        events.push(key_input(modifier, false));
+    }
+    events.push(key_input(key, false));
+    events.push(key_input(key, true));
+    for &modifier in modifiers.iter().rev() {
+        events.push(key_input(modifier, true));
+    }
+
+    let sent = unsafe {
+        SendInput(
+            events.len() as u32,
+            events.as_ptr(),
+            std::mem::size_of::<INPUT>() as i32,
+        )
+    };
+    if sent == events.len() as u32 {
+        Ok(())
+    } else {
+        Err(TypeError::SendInputFailed(
+            std::io::Error::last_os_error().to_string(),
+        ))
+    }
+}
+
 #[cfg(target_os = "windows")]
 fn send_utf16_unit(unit: u16, key_up: bool) -> Result<(), TypeError> {
     use windows_sys::Win32::UI::Input::KeyboardAndMouse::{

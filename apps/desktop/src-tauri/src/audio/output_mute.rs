@@ -116,7 +116,7 @@ pub fn init(data_dir: &std::path::Path) {
     #[cfg(target_os = "macos")]
     restore_after_crash(&coreaudio_backend::DefaultOutput, &FileFlag(path));
     #[cfg(not(target_os = "macos"))]
-    let _ = path;
+    restore_after_crash(&NoOutput, &FileFlag(path));
 }
 
 /// Held by the audio capture thread for as long as the microphone records. Muting happens
@@ -156,7 +156,7 @@ fn with_platform(
 
 #[cfg(not(target_os = "macos"))]
 fn with_platform(_action: impl FnOnce(&mut MuteState, &NoOutput, &FileFlag)) {
-    // Muting other audio is macOS only for now.
+    // TODO(windows): implement Windows Core Audio COM backend (`IMMDeviceEnumerator::GetDefaultAudioEndpoint(eRender, eMultimedia)` + `IAudioEndpointVolume::GetMute`/`SetMute`).
     let _ = (&STATE, FLAG_PATH.get());
 }
 
