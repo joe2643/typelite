@@ -163,7 +163,11 @@ The Cantonese clips so far:
 Both were picked at random, one clip per speaker for Common Voice, from the clips whose text an
 independent Cantonese recognizer matched (at most 10% character error), so that a failure here
 means the recognizer under test, not a wrong transcript. Clips with digits were left out (the
-sets write `120` for a spoken 一百二十).
+sets write `120` for a spoken 一百二十). Every clip must also pass OraType's voice check
+(`stt/silence.rs`: at least 200 ms louder than −45 dBFS and 12 dB above the noise floor), or the
+app drops it as "no speech" and the case measures the voice check, not the recognizer. Two FLEURS
+recordings failed it (loudest 20 ms at −41 and −46 dBFS), so `sp-yue-fleurs-024` and `-033` use
+another speaker's recording of the same sentence.
 
 ## Adding a language
 
