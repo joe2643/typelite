@@ -14,12 +14,21 @@ describe('dark mode select contrast & Windows backdrop CSS tokens', () => {
     expect(css).toMatch(/\.dark select\s*\{\s*color-scheme:\s*dark;\s*\}/)
   })
 
-  it('uses an opaque dark surface and light ink for .dark .popup and .dark select.field', () => {
-    const darkPopupBody = ruleBody(/\.dark \.popup,\s*\.dark select\.field\s*\{([^}]*)\}/)
-    expect(darkPopupBody).toContain('color-scheme: dark')
-    expect(darkPopupBody).toMatch(/background-color:\s*#242e42/)
-    expect(darkPopupBody).toMatch(/color:\s*#f1f6ff/)
-    expect(darkPopupBody).not.toContain('--color-bg-tertiary')
+  it('uses an opaque dark surface and light ink for dark selects on Windows only', () => {
+    const darkBody = ruleBody(/\.dark \.popup,\s*\.dark select\.field\s*\{([^}]*)\}/)
+    expect(darkBody).toContain('color-scheme: dark')
+    expect(darkBody).not.toContain('background-color')
+
+    // macOS keeps the translucent fill over its window glass.
+    const macPopup = ruleBody(/\n {2}\.dark \.popup\s*\{([^}]*)\}/)
+    expect(macPopup).toContain('background-color: var(--color-bg-tertiary)')
+
+    const windowsBody = ruleBody(
+      /html\.dark\[data-windows-backdrop\] \.popup,\s*html\.dark\[data-windows-backdrop\] select\.field\s*\{([^}]*)\}/,
+    )
+    expect(windowsBody).toMatch(/background-color:\s*#242e42/)
+    expect(windowsBody).toMatch(/color:\s*#f1f6ff/)
+    expect(windowsBody).not.toContain('--color-bg-tertiary')
   })
 
   it('explicitly styles <option> and <optgroup> backgrounds and text in light and dark modes', () => {
