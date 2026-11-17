@@ -79,20 +79,6 @@ pub fn clipboard_sequence_number() -> Option<u32> {
     }
 }
 
-/// Pure restore guard helper for tests: when sequence numbers exist, requires `seq_now ==
-/// seq_after_write`; otherwise compares current clipboard text with what was written.
-pub fn clipboard_matches_written(
-    seq_after_write: Option<u32>,
-    seq_now: Option<u32>,
-    current_text: Option<&str>,
-    written_text: &str,
-) -> bool {
-    match (seq_after_write, seq_now) {
-        (Some(written), Some(now)) => written == now,
-        _ => current_text == Some(written_text),
-    }
-}
-
 #[cfg(target_os = "macos")]
 mod platform {
     //! Raw calls into AppKit's `NSPasteboard` through the Objective-C runtime (`objc2`). Every
@@ -498,34 +484,6 @@ mod non_macos_unit_tests {
         });
         assert_eq!(res, None);
         assert_eq!(attempts.get(), 3);
-    }
-
-    #[test]
-    fn clipboard_matches_written_uses_sequence_when_present() {
-        assert!(clipboard_matches_written(
-            Some(42),
-            Some(42),
-            Some("other"),
-            "written"
-        ));
-        assert!(!clipboard_matches_written(
-            Some(42),
-            Some(43),
-            Some("written"),
-            "written"
-        ));
-        assert!(clipboard_matches_written(
-            None,
-            None,
-            Some("written"),
-            "written"
-        ));
-        assert!(!clipboard_matches_written(
-            None,
-            None,
-            Some("different"),
-            "written"
-        ));
     }
 }
 
