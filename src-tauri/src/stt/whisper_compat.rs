@@ -24,10 +24,18 @@ pub struct WhisperCompatConfig {
     pub greedy_asr_limits: bool,
 }
 
-/// Computes a conservative `max_tokens` budget for Qwen3-ASR decoding from raw 16-bit mono PCM length.
+/// The `max_tokens` budget for Qwen3-ASR decoding, from the raw 16-bit mono PCM length: 16
+/// tokens for every second of audio plus 32, and at least 64. Speech writes about 4 to 5 tokens a
+/// second (a 50 s Cantonese clip gave 222), so the budget only stops a decoder that loops.
+///
+/// There is no fixed upper limit: `llama-server` cuts the transcript at `max_tokens` without an
+/// error, and a recording can be ten minutes long (some 2,700 tokens).
 pub fn greedy_asr_max_tokens(audio_pcm_bytes: usize, sample_rate: u32) -> u32 {
     let secs = (audio_pcm_bytes as f64) / (f64::from(sample_rate.max(1)) * 2.0);
-    ((secs.ceil() as u32).saturating_mul(16).saturating_add(32)).clamp(64, 1024)
+    (secs.ceil() as u32)
+        .saturating_mul(16)
+        .saturating_add(32)
+        .max(64)
 }
 
 /// Plan `language-prompt-library`: endpoints that refused `response_format=verbose_json` in this
@@ -766,14 +774,16 @@ mod tests {
     }
 
     #[test]
-    fn greedy_asr_max_tokens_scales_bounded_by_duration() {
+    fn greedy_asr_max_tokens_scales_with_duration() {
         // 1.5s @ 16kHz -> ceil(1.5) = 2 -> 2*16 + 32 = 64
         assert_eq!(greedy_asr_max_tokens(48_000, 16_000), 64);
         // 5.6s @ 16kHz -> ceil(5.6) = 6 -> 6*16 + 32 = 128
         assert_eq!(greedy_asr_max_tokens(179_200, 16_000), 128);
-        // Clamped lower bound (0.1s) and upper bound (10 min)
+        // The lower bound (0.1s).
         assert_eq!(greedy_asr_max_tokens(3_200, 16_000), 64);
-        assert_eq!(greedy_asr_max_tokens(16_000 * 2 * 600, 16_000), 1024);
+        // A ten-minute recording keeps its whole transcript: 600*16 + 32, far above the
+        // 2,700 tokens such a dictation writes.
+        assert_eq!(greedy_asr_max_tokens(16_000 * 2 * 600, 16_000), 9_632);
     }
 
     #[tokio::test]
