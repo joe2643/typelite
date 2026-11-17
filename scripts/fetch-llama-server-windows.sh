@@ -27,6 +27,8 @@ command -v unzip >/dev/null || fail "unzip is required."
 command -v curl >/dev/null || fail "curl is required."
 
 TMP_DIR="$(mktemp -d /tmp/oratype-llama-win-XXXXXX)"
+# The archive and its extracted copy are only needed until the files are staged.
+trap 'rm -rf "$TMP_DIR"' EXIT
 ZIP_PATH="$TMP_DIR/$ASSET_NAME"
 
 if [[ -n "${ORATYPE_LLAMA_ZIP_CACHE:-}" && -f "${ORATYPE_LLAMA_ZIP_CACHE}" ]]; then
