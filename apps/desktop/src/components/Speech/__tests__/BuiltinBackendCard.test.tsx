@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { BuiltinBackendCard } from '../BuiltinBackendCard'
 import * as tauri from '../../../lib/tauri'
 import { useAppStore } from '../../../stores/appStore'
@@ -70,6 +70,25 @@ describe('BuiltinBackendCard', () => {
 
     fireEvent.change(select, { target: { value: 'cpu' } })
     expect(updateConfig).toHaveBeenCalledWith({ builtin_ai_backend: 'cpu' })
+  })
+
+  it('shows nothing on a Mac, which has no device to choose', async () => {
+    vi.mocked(tauri.getBuiltinBackendInfo).mockResolvedValue({
+      ...WINDOWS_INFO,
+      platform: 'macos',
+      llamaEngine: 'llama.cpp b11177 (Metal)',
+      whisperEngine: 'whisper.cpp (Metal)',
+      devices: [],
+      autoDeviceId: null,
+      activeAiDevice: 'Apple Metal GPU',
+      activeSpeechLlamaDevice: 'Apple Metal GPU',
+      activeWhisperDevice: 'Apple Metal GPU',
+    })
+    const { container } = render(<BuiltinBackendCard kind="speech" />)
+
+    await waitFor(() => expect(tauri.getBuiltinBackendInfo).toHaveBeenCalled())
+    await Promise.resolve()
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('displays whisper and llama engines for Speech and switches between Vulkan GPU and CPU', async () => {

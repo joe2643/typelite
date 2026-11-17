@@ -13,6 +13,11 @@ function formatDeviceOption(device: LlamaDeviceInfo): string {
   return `${device.id} · ${device.description} (${gb} GB)`
 }
 
+/**
+ * The engine, the device in use and the Auto / GPU / CPU choice for a built-in service. Windows
+ * only: a PC can have several GPUs or none, while a Mac always runs on its own GPU (Metal), so
+ * there is nothing to choose there.
+ */
 export function BuiltinBackendCard({ kind }: { kind: 'ai' | 'speech' }) {
   const { t } = useTranslation()
   const selectId = useId()
@@ -38,7 +43,7 @@ export function BuiltinBackendCard({ kind }: { kind: 'ai' | 'speech' }) {
     }
   }, [choice])
 
-  if (!info) {
+  if (!info || info.platform !== 'windows') {
     return null
   }
 
