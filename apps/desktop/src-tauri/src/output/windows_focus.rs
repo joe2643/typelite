@@ -34,13 +34,13 @@ pub fn should_attempt_focus_restore(
     current.map(|fg| fg.hwnd) != Some(target.hwnd)
 }
 
+/// A window as the log names it: its handle and process id. The program's name is left out on
+/// purpose: the log is a file users send with a bug report, and it must not record which apps
+/// they dictate into (the macOS log does not name the app either).
 pub fn format_foreground_summary(info: Option<&ForegroundWindowInfo>) -> String {
     match info {
-        Some(fg) => format!(
-            "hwnd=0x{:x}, pid={}, exe={}",
-            fg.hwnd as usize, fg.pid, fg.exe_name
-        ),
-        None => "hwnd=0x0, pid=0, exe=<none>".to_string(),
+        Some(fg) => format!("hwnd=0x{:x}, pid={}", fg.hwnd as usize, fg.pid),
+        None => "hwnd=0x0, pid=0".to_string(),
     }
 }
 
@@ -121,9 +121,8 @@ pub fn ensure_recording_target_foreground_before_paste() -> Option<ForegroundWin
     };
     if !unsafe { win::is_valid_target_hwnd(target.hwnd) } {
         tracing::info!(
-            "Windows focus restore skipped: recorded target hwnd=0x{:x} ({}) no longer exists",
-            target.hwnd as usize,
-            target.exe_name
+            "Windows focus restore skipped: recorded target hwnd=0x{:x} no longer exists",
+            target.hwnd as usize
         );
         return current;
     }
@@ -291,6 +290,13 @@ mod tests {
             thread_id: 100,
             exe_name: exe.to_string(),
         }
+    }
+
+    #[test]
+    fn the_log_summary_never_names_the_program() {
+        let summary = format_foreground_summary(Some(&info(0x1234, "notepad.exe")));
+        assert_eq!(summary, "hwnd=0x1234, pid=42");
+        assert_eq!(format_foreground_summary(None), "hwnd=0x0, pid=0");
     }
 
     #[test]
