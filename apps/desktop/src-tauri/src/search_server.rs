@@ -385,11 +385,6 @@ fn run(command: &mut Command, what: &str) -> Result<(), String> {
     ))
 }
 
-#[cfg(not(target_os = "windows"))]
-fn tar_program() -> PathBuf {
-    PathBuf::from("tar")
-}
-
 #[cfg(any(target_os = "windows", test))]
 fn is_windows_safe_component(name: &str) -> bool {
     if name.is_empty() || name.ends_with('.') || name.ends_with(' ') {
@@ -1175,7 +1170,7 @@ async fn install_searxng(
                 .and_then(|mut f| f.write_all(&archive))
                 .map_err(|e| format!("save SearXNG: {e}"))?;
             let unpacked = run(
-                Command::new(tar_program())
+                Command::new("tar")
                     .arg("-xzf")
                     .arg(&tarball)
                     .arg("-C")
