@@ -1,9 +1,7 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { UI_LANGUAGES } from '../../i18n/languages'
 import { WINDOWS_TEXT_KEYS, platformTextKey, tp } from '../platformText'
 
-const LOCALES = ['en', 'zh-Hant', 'zh', 'ja', 'de', 'es', 'fr'] as const
 const FORBIDDEN_WINDOWS_TERMS = [
   /\bmac\b/i,
   /macos/i,
@@ -64,10 +62,7 @@ describe('platformText & Windows copy across all 7 locales', () => {
   })
 
   it('provides non-empty Windows translations without Mac/Keychain wording in all 7 locales', () => {
-    for (const lang of LOCALES) {
-      const json = JSON.parse(
-        readFileSync(resolve(__dirname, `../../i18n/locales/${lang}.json`), 'utf8'),
-      ) as unknown
+    for (const { value: lang, messages: json } of UI_LANGUAGES) {
       for (const baseKey of WINDOWS_TEXT_KEYS) {
         const winKey = `${baseKey}Windows`
         const value = readPath(json, winKey)
