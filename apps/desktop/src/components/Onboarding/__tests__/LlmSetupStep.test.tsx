@@ -182,7 +182,9 @@ describe('LlmSetupStep', () => {
       await renderStep()
 
       expect(
-        within(card()).getByText('This computer: NVIDIA GeForce RTX 4060 (8 GB VRAM), 16 GB memory.'),
+        within(card()).getByText(
+          'This computer: NVIDIA GeForce RTX 4060 (8 GB VRAM), 16 GB memory.',
+        ),
       ).toBeInTheDocument()
       expect(within(card()).getByRole('radiogroup', { name: 'Model' })).toBeInTheDocument()
       expect(cardButtons()).toEqual(['Set up'])

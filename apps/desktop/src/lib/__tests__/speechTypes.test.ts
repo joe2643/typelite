@@ -156,7 +156,11 @@ describe('speech engines (plan `two-tab-speech`)', () => {
         memoryBytes: 16 * GB,
         freeBytes: 50_000_000_000,
       },
-      offer: { models: [{ id: 'qwen3-4b', sizeBytes: 1, recommended: true }], leftOut: null, neededBytes: null },
+      offer: {
+        models: [{ id: 'qwen3-4b', sizeBytes: 1, recommended: true }],
+        leftOut: null,
+        neededBytes: null,
+      },
     }
     expect(hardwareNote(winGpuCheck, translate, 'long', 'aiSetup')).toBe(
       'This computer: NVIDIA GeForce RTX 4060 (8 GB VRAM), 16 GB memory.',
@@ -189,7 +193,11 @@ describe('speech engines (plan `two-tab-speech`)', () => {
         memoryBytes: 16 * GB,
         freeBytes: 50_000_000_000,
       },
-      offer: { models: [{ id: 'small', sizeBytes: 1, recommended: false }], leftOut: 'needs_vram', neededBytes: null },
+      offer: {
+        models: [{ id: 'small', sizeBytes: 1, recommended: false }],
+        leftOut: 'needs_vram',
+        neededBytes: null,
+      },
     }
     expect(hardwareNote(winLowVramSpeechCheck, translate, 'long', 'speechSetup')).toBe(
       'This computer: NVIDIA GeForce MX450 (2 GB VRAM), 16 GB memory. The larger model needs a GPU with at least 4 GB of VRAM.',

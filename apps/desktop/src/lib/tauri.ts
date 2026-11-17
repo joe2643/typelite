@@ -1226,10 +1226,7 @@ export async function setCapsuleFrame(
   return invoke('set_capsule_frame', { x, y, width, height })
 }
 
-export async function setOverlayVisible(
-  label: 'capsule' | 'ask',
-  visible: boolean,
-): Promise<void> {
+export async function setOverlayVisible(label: 'capsule' | 'ask', visible: boolean): Promise<void> {
   return invoke('set_overlay_visible', { label, visible })
 }
 

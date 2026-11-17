@@ -72,7 +72,10 @@ describe('platformText & Windows copy across all 7 locales', () => {
         const winKey = `${baseKey}Windows`
         const value = readPath(json, winKey)
         expect(typeof value, `${lang}:${winKey} must be a string`).toBe('string')
-        expect((value as string).trim().length, `${lang}:${winKey} must be non-empty`).toBeGreaterThan(0)
+        expect(
+          (value as string).trim().length,
+          `${lang}:${winKey} must be non-empty`,
+        ).toBeGreaterThan(0)
         for (const forbidden of FORBIDDEN_WINDOWS_TERMS) {
           expect(value, `${lang}:${winKey} leaked ${forbidden}`).not.toMatch(forbidden)
         }

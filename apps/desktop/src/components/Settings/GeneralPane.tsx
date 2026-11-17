@@ -313,10 +313,7 @@ export function GeneralPane() {
           value={config.input_device}
           onChange={(v) => updateConfig({ input_device: v })}
         />
-        <Row
-          label={t('settings.muteOutputWhileRecording')}
-          help={tp(t, 'settings.muteOutputHint')}
-        >
+        <Row label={t('settings.muteOutputWhileRecording')} help={tp(t, 'settings.muteOutputHint')}>
           <Toggle
             checked={config.mute_output_while_recording}
             onChange={(checked) => updateConfig({ mute_output_while_recording: checked })}

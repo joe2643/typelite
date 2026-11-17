@@ -182,7 +182,9 @@ export function hardwareNote(
           },
         )
       : t(style === 'short' ? 'speechSetup.hardware.short' : 'speechSetup.hardware.long', {
-          chip: hardware.chipName || t(isWindows ? 'speechSetup.hardware.unknownGpu' : 'speechSetup.hardware.unknownChip'),
+          chip:
+            hardware.chipName ||
+            t(isWindows ? 'speechSetup.hardware.unknownGpu' : 'speechSetup.hardware.unknownChip'),
           memory,
         })
   const reason = offer.leftOut
