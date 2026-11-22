@@ -121,6 +121,7 @@ pub fn build_whisper_config(preset: &SpeechPreset) -> Result<WhisperCompatConfig
         endpoint: transcription_endpoint(&preset.base_url)?,
         model: model.to_string(),
         verbose_json: true,
+        builtin_llama_server: false,
     })
 }
 
@@ -206,6 +207,7 @@ mod tests {
             "http://127.0.0.1:8178/v1/audio/transcriptions"
         );
         assert_eq!(cfg.model, "large-v3-turbo");
+        assert!(!cfg.builtin_llama_server);
     }
 
     #[test]

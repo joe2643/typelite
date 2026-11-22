@@ -45,6 +45,9 @@ pub fn speech_prompt(words: &[String]) -> Option<String> {
     (!kept.is_empty()).then(|| kept.join(", "))
 }
 
+/// Minimum normalised characters for a punctuation-free contiguous prompt-prefix match.
+const MIN_CONTIGUOUS_PREFIX_ECHO_CHARS: usize = 12;
+
 /// True when a transcript is the word list read back rather than speech: two or more items,
 /// split at commas, each one of the dictionary's words. Whisper can repeat its prompt when the
 /// audio has little to say; a person rarely dictates only a list of their dictionary words.
@@ -60,6 +63,70 @@ pub fn is_prompt_echo(text: &str, words: &[String]) -> bool {
         .filter(|item| !item.is_empty())
         .collect();
     items.len() >= 2 && items.iter().all(|item| known.contains(item))
+}
+
+/// Prefix-aware variant of [`is_prompt_echo`] for the built-in `llama-server` provider.
+///
+/// When `max_tokens` cuts off a prompt-echo response mid-word, the trailing item is only a prefix
+/// of a dictionary entry (or the entire transcript is a truncated prefix of the formatted prompt),
+/// so strict [`is_prompt_echo`] misses it. High specificity is preserved by keeping strict
+/// single-word/short-address guards intact so genuine Cantonese dictation is never dropped.
+pub fn is_prompt_echo_prefix_aware(text: &str, words: &[String]) -> bool {
+    if is_prompt_echo(text, words) {
+        return true;
+    }
+    let Some(prompt) = speech_prompt(words) else {
+        return false;
+    };
+    let known: Vec<String> = words
+        .iter()
+        .map(|w| super::hallucination::normalise(w))
+        .filter(|w| !w.is_empty())
+        .collect();
+    let sent_words: Vec<String> = prompt
+        .split([',', '，', '、'])
+        .map(super::hallucination::normalise)
+        .filter(|w| !w.is_empty())
+        .collect();
+    if sent_words.len() < 2 {
+        return false;
+    }
+
+    let items: Vec<String> = text
+        .split([',', '，', '、'])
+        .map(super::hallucination::normalise)
+        .filter(|item| !item.is_empty())
+        .collect();
+    if let Some((last, prefix_items)) = items.split_last() {
+        if prefix_items.len() >= 2
+            && prefix_items.iter().all(|item| known.contains(item))
+            && known.iter().any(|w| w.starts_with(last))
+        {
+            return true;
+        }
+        if prefix_items.len() == 1
+            && last.chars().count() >= 2
+            && sent_words
+                .windows(2)
+                .any(|pair| pair[0] == prefix_items[0] && pair[1].starts_with(last))
+        {
+            return true;
+        }
+    }
+
+    if sent_words.len() >= 3 {
+        let norm_text = super::hallucination::normalise(text);
+        let norm_prompt: String = sent_words.concat();
+        if !norm_text.is_empty() && norm_prompt.starts_with(&norm_text) {
+            let text_chars = norm_text.chars().count();
+            let first_two_chars = sent_words[0].chars().count() + sent_words[1].chars().count();
+            if text_chars >= MIN_CONTIGUOUS_PREFIX_ECHO_CHARS && text_chars > first_two_chars {
+                return true;
+            }
+        }
+    }
+
+    false
 }
 
 #[cfg(test)]
@@ -119,5 +186,77 @@ mod tests {
         assert!(!is_prompt_echo("Ask Sennett about OraType.", &dictionary));
         assert!(!is_prompt_echo("OraType, and the rest", &dictionary));
         assert!(!is_prompt_echo("OraType, Sennett", &[]));
+    }
+
+    #[test]
+    fn prefix_aware_echo_catches_truncated_prompt_tails_without_false_positives() {
+        let dictionary = words(&[
+            "OraType",
+            "Sennett",
+            "鰂魚涌",
+            "太古坊",
+            "Hong Kong Observatory",
+            "港鐵",
+            "我哋",
+            "今日",
+        ]);
+
+        // Truncated comma-delimited prompt echoes are caught by prefix-aware check,
+        // while strict `is_prompt_echo` stays false (preserving external behavior).
+        for truncated in [
+            "OraType, Sennett, 鰂魚",
+            "OraType, Sennett, 鰂",
+            "OraType, Senn",
+            "鰂魚涌，太古",
+            "OraType, Sennett, Hong Kong Obser",
+            "OraType, Sennett, OraType, Senn",
+            "OraType, Sennett, 鰂魚涌, 太古坊, 港",
+            "OraType Sennett 鰂魚涌 太古",
+        ] {
+            assert!(
+                !is_prompt_echo(truncated, &dictionary),
+                "strict check must not match truncated {truncated:?}"
+            );
+            assert!(
+                is_prompt_echo_prefix_aware(truncated, &dictionary),
+                "prefix-aware check must catch {truncated:?}"
+            );
+        }
+
+        // Real short Cantonese dictation & hotword-bearing speech must never be dropped.
+        let hk_dict = words(&[
+            "香港",
+            "今日",
+            "OraType",
+            "Sennett",
+            "鰂魚涌",
+            "太古坊",
+            "港鐵",
+            "中環站",
+            "我哋",
+        ]);
+        for genuine in [
+            "OraType",
+            "Ora",
+            "OraType，我",
+            "香港，今",
+            "鰂魚涌太古坊",
+            "港鐵中環站",
+            "我陣間用 OraType 寫完份報告就去鰂魚涌食飯。",
+            "OraType, Sennett，聽日見",
+            "港鐵、八達通都好方便",
+            "去鰂魚涌，太古坊嗰邊開會",
+        ] {
+            assert!(
+                !is_prompt_echo_prefix_aware(genuine, &hk_dict),
+                "must not drop real speech {genuine:?}"
+            );
+        }
+
+        // Single-word and empty dictionaries never trigger prefix-aware suppression.
+        let single = words(&["OraType"]);
+        assert!(!is_prompt_echo_prefix_aware("OraType", &single));
+        assert!(!is_prompt_echo_prefix_aware("OraTy", &single));
+        assert!(!is_prompt_echo_prefix_aware("OraType, Sennett", &[]));
     }
 }

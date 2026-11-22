@@ -169,9 +169,28 @@ pub fn accept_transcript_given(
     text: Option<String>,
     vocabulary: &[String],
 ) -> Option<String> {
+    accept_transcript_given_with_prefix_echo(provider, activity, text, vocabulary, false)
+}
+
+/// [`accept_transcript_given`] with an optional prefix-aware prompt-echo check for the built-in
+/// `llama-server` provider, catching hotword prompt echoes truncated mid-word by `max_tokens`.
+pub fn accept_transcript_given_with_prefix_echo(
+    provider: &str,
+    activity: &VoiceActivity,
+    text: Option<String>,
+    vocabulary: &[String],
+    prefix_aware_echo: bool,
+) -> Option<String> {
     let text = text.filter(|t| !t.trim().is_empty());
+    let prompt_echo = match &text {
+        Some(text) if prefix_aware_echo => {
+            super::vocabulary::is_prompt_echo_prefix_aware(text, vocabulary)
+        }
+        Some(text) => super::vocabulary::is_prompt_echo(text, vocabulary),
+        None => false,
+    };
     match text {
-        Some(text) if super::vocabulary::is_prompt_echo(&text, vocabulary) => {
+        Some(_) if prompt_echo => {
             log_decision(provider, activity, Some(NoSpeechGuard::PromptEcho));
             None
         }
@@ -346,6 +365,53 @@ mod tests {
         assert_eq!(
             accept_transcript("p", &long, Some("Thank you.".into())).as_deref(),
             Some("Thank you.")
+        );
+    }
+
+    #[test]
+    fn prefix_aware_prompt_echo_only_drops_when_enabled() {
+        let activity = VoiceActivity {
+            duration_ms: 2000,
+            peak_db: -18.0,
+            noise_floor_db: -55.0,
+            voiced_ms: 1200,
+        };
+        let vocabulary = vec![
+            "OraType".to_string(),
+            "Sennett".to_string(),
+            "鰂魚涌".to_string(),
+        ];
+        let truncated = "OraType, Sennett, 鰂魚";
+
+        // Strict path (external Whisper servers) leaves truncated echo untouched.
+        assert_eq!(
+            accept_transcript_given("ext", &activity, Some(truncated.into()), &vocabulary)
+                .as_deref(),
+            Some(truncated)
+        );
+        // Prefix-aware path (built-in llama-server) drops it.
+        assert_eq!(
+            accept_transcript_given_with_prefix_echo(
+                "builtin",
+                &activity,
+                Some(truncated.into()),
+                &vocabulary,
+                true,
+            ),
+            None
+        );
+        // Real Cantonese speech containing hotwords still passes when enabled.
+        let genuine = "我陣間去鰂魚涌用 OraType 測試。";
+        assert_eq!(
+            accept_transcript_given_with_prefix_echo(
+                "builtin",
+                &activity,
+                Some(genuine.into()),
+                &vocabulary,
+                true,
+            )
+            .as_deref(),
+            Some(genuine)
         );
     }
 
