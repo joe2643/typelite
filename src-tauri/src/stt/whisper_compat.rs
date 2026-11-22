@@ -21,8 +21,9 @@ pub struct WhisperCompatConfig {
     /// answers only plain JSON, and Qwen3-ASR's own language tag gives the language anyway.
     pub verbose_json: bool,
     /// Enable runtime guards specific to OraType's built-in `llama-server` (Qwen3-ASR) speech
-    /// provider (`temperature=0`, duration-scaled `max_tokens`, prefix-aware prompt-echo filtering,
-    /// fail-fast on timeout without 3x60s retries, and privacy-safe output-cap logging).
+    /// provider (`temperature=0`, duration-scaled `max_tokens`, duration-scaled request timeout
+    /// `max(60, ceil(30 + 1.5 * dur_s))` s, prefix-aware prompt-echo filtering, fail-fast on
+    /// timeout without 3x60s retries, and privacy-safe output-cap logging).
     ///
     /// Must stay `false` for all external OpenAI / Groq / Whisper-compatible servers.
     pub builtin_llama_server: bool,
@@ -78,6 +79,25 @@ pub(crate) fn builtin_llama_max_tokens(pcm_bytes: usize, sample_rate: u32) -> u3
     scaled.max(32).min(u64::from(u32::MAX)) as u32
 }
 
+/// Duration-scaled request timeout for built-in `llama-server` (`builtin_llama_server == true`):
+/// `max(60, ceil(30.0 + 1.5 * dur_s))` seconds.
+///
+/// Short recordings (`<= 20 s`) stay at 60 s; longer recordings scale linearly (`60 s -> 120 s`,
+/// `180 s -> 300 s`, `600 s -> 930 s`, `720 s -> 1110 s`) to prevent premature timeouts on
+/// slower CPUs or entry-level GPUs once timeout retries are disabled. External servers keep
+/// [`DEFAULT_REQUEST_TIMEOUT`] (60 s) unchanged.
+fn builtin_llama_request_timeout(dur_s: f64) -> std::time::Duration {
+    let min_secs = DEFAULT_REQUEST_TIMEOUT.as_secs();
+    if !dur_s.is_finite() || dur_s <= 0.0 {
+        return DEFAULT_REQUEST_TIMEOUT;
+    }
+    let scaled = 30.0 + 1.5 * dur_s;
+    if !scaled.is_finite() {
+        return DEFAULT_REQUEST_TIMEOUT;
+    }
+    std::time::Duration::from_secs((scaled.ceil() as u64).max(min_secs))
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct CapHitMetrics {
     max_tokens: u32,
@@ -110,7 +130,8 @@ pub struct WhisperCompatProvider {
     stt_config: Option<SttConfig>,
     audio_buffer: Vec<u8>,
     client: reqwest::Client,
-    request_timeout: std::time::Duration,
+    #[cfg(test)]
+    request_timeout_override: Option<std::time::Duration>,
     #[cfg(test)]
     retry_backoff_base_ms: u64,
     upload_probe: Option<crate::timing::UploadProbe>,
@@ -129,7 +150,8 @@ impl WhisperCompatProvider {
             stt_config: None,
             audio_buffer: Vec::new(),
             client,
-            request_timeout: DEFAULT_REQUEST_TIMEOUT,
+            #[cfg(test)]
+            request_timeout_override: None,
             #[cfg(test)]
             retry_backoff_base_ms: DEFAULT_RETRY_BACKOFF_MS,
             upload_probe: None,
@@ -140,7 +162,7 @@ impl WhisperCompatProvider {
 
     #[cfg(test)]
     fn with_request_timeout(mut self, timeout: std::time::Duration) -> Self {
-        self.request_timeout = timeout;
+        self.request_timeout_override = Some(timeout);
         self
     }
 
@@ -148,6 +170,18 @@ impl WhisperCompatProvider {
     fn with_retry_backoff_ms(mut self, base_ms: u64) -> Self {
         self.retry_backoff_base_ms = base_ms;
         self
+    }
+
+    fn request_timeout_for(&self, audio_len_secs: f64) -> std::time::Duration {
+        #[cfg(test)]
+        if let Some(override_timeout) = self.request_timeout_override {
+            return override_timeout;
+        }
+        if self.provider_config.builtin_llama_server {
+            builtin_llama_request_timeout(audio_len_secs)
+        } else {
+            DEFAULT_REQUEST_TIMEOUT
+        }
     }
 
     fn retry_delay(&self, attempt: u32) -> std::time::Duration {
@@ -366,7 +400,7 @@ impl WhisperCompatProvider {
                 .client
                 .post(&self.provider_config.endpoint)
                 .multipart(form)
-                .timeout(self.request_timeout);
+                .timeout(self.request_timeout_for(audio_len_secs));
 
             if !config.api_key.trim().is_empty() {
                 request = request.header("Authorization", format!("Bearer {}", config.api_key));
@@ -1323,5 +1357,57 @@ mod tests {
         provider.connect(&SttConfig::default()).await.unwrap();
         provider.send_audio(&test_audio_2s()).await.unwrap();
         assert_eq!(provider.disconnect().await.unwrap(), None);
+    }
+
+    #[test]
+    fn builtin_llama_request_timeout_scales_with_duration_while_external_stays_60s() {
+        let builtin = WhisperCompatProvider::new(WhisperCompatConfig {
+            provider_name: "builtin-qwen".to_string(),
+            endpoint: "http://127.0.0.1:4321/v1/audio/transcriptions".to_string(),
+            model: "qwen3-asr-1.7b".to_string(),
+            verbose_json: false,
+            builtin_llama_server: true,
+        });
+        let external = WhisperCompatProvider::new(WhisperCompatConfig {
+            provider_name: "external-whisper".to_string(),
+            endpoint: "https://example.test/v1/audio/transcriptions".to_string(),
+            model: "whisper-1".to_string(),
+            verbose_json: true,
+            builtin_llama_server: false,
+        });
+
+        for (dur_s, expected_secs) in [
+            (0.0, 60),
+            (10.0, 60),
+            (20.0, 60),
+            (20.1, 61),
+            (60.0, 120),
+            (180.0, 300),
+            (600.0, 930),
+            (720.0, 1110),
+            (-1.0, 60),
+            (-600.0, 60),
+            (f64::NAN, 60),
+            (f64::INFINITY, 60),
+            (f64::NEG_INFINITY, 60),
+            (f64::MAX, 60),
+        ] {
+            let expected = std::time::Duration::from_secs(expected_secs);
+            assert_eq!(
+                builtin_llama_request_timeout(dur_s),
+                expected,
+                "dur_s={dur_s:?}"
+            );
+            assert_eq!(
+                builtin.request_timeout_for(dur_s),
+                expected,
+                "builtin provider dur_s={dur_s:?}"
+            );
+            assert_eq!(
+                external.request_timeout_for(dur_s),
+                std::time::Duration::from_secs(60),
+                "external provider must stay at 60s for dur_s={dur_s:?}"
+            );
+        }
     }
 }
