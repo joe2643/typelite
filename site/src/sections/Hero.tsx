@@ -10,6 +10,10 @@ export function Hero({ stats }: { stats: RepoStats | null }) {
     <section className="hero" id="top" aria-labelledby="hero-title">
       <div className="container">
         <div className="hero-intro">
+          <div className="hero-flock" aria-hidden="true">
+            <KoelBird variant="background" />
+            <KoelBird variant="background" />
+          </div>
           <div className="hero-headline">
             <h1 id="hero-title" className="hero-title hero-rise">
               Just say it<span className="hero-period">.</span>

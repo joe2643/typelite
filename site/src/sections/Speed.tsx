@@ -185,7 +185,7 @@ export function Speed() {
                     icon={<IconMic size={16} />}
                     wpm={SPEAKING_WPM}
                     words={SPEAKING_WPM * p}
-                    color="var(--accent)"
+                    color="var(--text)"
                     caret={false}
                     lead={Math.floor(SPEAKING_WPM * p) - Math.floor(TYPING_WPM * p)}
                     finished={finished}

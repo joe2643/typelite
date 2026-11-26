@@ -16,13 +16,21 @@ export function KoelMark({ size }: { size: number }) {
   )
 }
 
-export function KoelBird() {
+export function KoelBird({ variant = 'foreground' }: { variant?: 'foreground' | 'background' }) {
+  const background = variant === 'background'
   return (
-    <svg className="koel-bird" viewBox="-160 -100 672 612" aria-hidden="true" focusable="false">
-      <g className="koel-bird-perched">
-        <path d={art.perched.body} />
-        <circle className="koel-eye" {...art.perched.eye} />
-      </g>
+    <svg
+      className={background ? 'koel-bird koel-bird--background' : 'koel-bird'}
+      viewBox="-160 -100 672 612"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {!background && (
+        <g className="koel-bird-perched">
+          <path d={art.perched.body} />
+          <circle className="koel-eye" {...art.perched.eye} />
+        </g>
+      )}
       <g className="koel-bird-flight">
         <g transform="translate(50 40)">
           <g transform="translate(26 -2) rotate(16 268 208)">
@@ -30,7 +38,7 @@ export function KoelBird() {
           </g>
           <path d={art.flying.body} />
           <path className="koel-bird-wing" d={art.flying.wing} />
-          <circle className="koel-eye" {...art.flying.eye} />
+          {!background && <circle className="koel-eye" {...art.flying.eye} />}
         </g>
       </g>
     </svg>

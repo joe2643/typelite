@@ -239,7 +239,7 @@ function ComparePresets({ runs }: { runs: RunTiming[] }) {
         aria-expanded={open}
         aria-controls="compare-presets"
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full cursor-pointer items-center gap-1.5 border-x-0 border-t border-b-0 border-solid border-hairline bg-transparent px-3.5 py-2.5 text-left text-[12.5px] font-semibold text-accent"
+        className="flex w-full cursor-pointer items-center gap-1.5 border-x-0 border-t border-b-0 border-solid border-hairline bg-transparent px-3.5 py-2.5 text-left text-[12.5px] font-semibold text-text-primary"
       >
         <ChevronRight
           size={13}

@@ -94,9 +94,9 @@
 
   /* Speed board steps. The inline styles reference these variables by name. */
   --color-step-recording: var(--koel-soft);
-  --color-step-speech: var(--koel-red-text);
-  --color-step-ai: var(--koel-slate);
-  --color-step-paste: var(--koel-success);
+  --color-step-speech: var(--koel-ink);
+  --color-step-ai: color-mix(in srgb, var(--koel-ink) 74%, var(--koel-surface));
+  --color-step-paste: color-mix(in srgb, var(--koel-ink) 58%, var(--koel-surface));
 }
 
 /*
@@ -234,6 +234,18 @@ body,
     --koel-bird-width: 56px;
     flex: none;
     margin-block: -8px;
+  }
+  .home-koel-background {
+    --koel-bird-width: 112px;
+    --koel-bird-opacity: 0.16;
+    position: absolute;
+    z-index: -1;
+    inset: 0 clamp(54px, 10vw, 124px) 14px auto;
+    display: grid;
+    width: min(42%, 230px);
+    place-items: center;
+    overflow: hidden;
+    pointer-events: none;
   }
   .onboarding-koel {
     --koel-bird-width: 72px;
@@ -392,18 +404,15 @@ body,
     }
   }
 
-  /* "Fastest" tag in the preset comparison; a darker green on light backgrounds for contrast. */
+  /* The text identifies the fastest preset independently of the bar shade. */
   .fastest-tag {
     flex: none;
     padding: 0 6px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--color-success) 18%, transparent);
-    color: color-mix(in srgb, var(--color-success) 60%, black);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
     font-size: 10px;
     font-weight: 700;
-  }
-  .dark .fastest-tag {
-    color: var(--color-success);
   }
 
   /* Key cap */

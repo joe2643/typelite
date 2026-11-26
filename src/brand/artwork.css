@@ -13,7 +13,8 @@
   height: auto;
   overflow: hidden;
 }
-.koel-bird-flight {
+.koel-bird-flight,
+.koel-bird--background {
   opacity: 0;
 }
 .koel-bird-wing {
@@ -31,6 +32,19 @@
   }
   .koel-bird-wing-far {
     animation-delay: -0.06s;
+  }
+  /* The distant bird passes once and leaves the foreground perch to anchor the viewport. */
+  .koel-bird--background {
+    fill: var(--koel-soft);
+    animation: koel-pass 3.4s linear var(--koel-bird-delay, 0.2s) both;
+  }
+  .koel-bird--background .koel-bird-flight {
+    opacity: 1;
+    animation: none;
+  }
+  .koel-bird--background .koel-bird-wing {
+    animation-duration: 0.34s;
+    animation-iteration-count: 9;
   }
   .koel-bird-perched {
     transform-box: fill-box;
@@ -77,5 +91,19 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+@keyframes koel-pass {
+  from {
+    opacity: 0;
+    transform: translate(-65%, 24%) rotate(-8deg);
+  }
+  26%,
+  68% {
+    opacity: var(--koel-bird-opacity, 0.22);
+  }
+  to {
+    opacity: 0;
+    transform: translate(70%, -28%) rotate(4deg);
   }
 }

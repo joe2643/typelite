@@ -428,7 +428,7 @@ kbd {
 .scroll-progress i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--aurora-a), var(--aurora-b));
+  background: var(--koel-line);
   transform: scaleX(0);
   transform-origin: 0 50%;
 }
@@ -604,7 +604,30 @@ section {
   position: relative;
   padding-block: 18px 26px;
   border-block: 1px solid var(--koel-hair);
+  isolation: isolate;
 }
+
+.hero-flock {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 50%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-flock .koel-bird {
+  --koel-bird-width: clamp(56px, 11vw, 132px);
+  position: absolute;
+  inset: 12% auto auto 43%;
+}
+
+.hero-flock .koel-bird + .koel-bird {
+  --koel-bird-width: clamp(34px, 7vw, 76px);
+  --koel-bird-delay: 0.65s;
+  --koel-bird-opacity: 0.15;
+  inset: 35% auto auto 27%;
+}
+
 
 .hero-headline {
   display: flex;
@@ -1641,7 +1664,7 @@ section {
   .story-meter b {
     display: block;
     height: 100%;
-    background: linear-gradient(90deg, var(--aurora-a), var(--aurora-b));
+    background: var(--koel-line);
     transform-origin: 0 50%;
   }
   .story-steps {
@@ -2137,8 +2160,8 @@ section {
   justify-self: end;
   padding: 6px 10px;
   border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent-ink);
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 15px;
   font-weight: 700;
   text-align: center;
@@ -2189,7 +2212,7 @@ section {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--f-ask);
+  background: var(--text-2);
 }
 .prow .t {
   color: var(--text-2);
@@ -2200,8 +2223,8 @@ section {
   margin-left: 6px;
   padding: 0 6px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--success) 18%, transparent);
-  color: color-mix(in srgb, var(--success) 55%, var(--text));
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 10.5px;
   font-weight: 700;
 }
@@ -2715,9 +2738,6 @@ section {
   background: var(--lane);
   transform-origin: 0 50%;
 }
-.lane:last-child .lane-bar i {
-  background: linear-gradient(90deg, var(--aurora-a), var(--aurora-b));
-}
 .lane-text {
   display: flex;
   flex-direction: column;
@@ -2737,8 +2757,8 @@ section {
   margin-right: 8px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent-ink);
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 12px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -2747,8 +2767,8 @@ section {
 /* The finish: the speaking lane lights up, a sheen crosses it and sparks fly off the count. */
 .lane.lane-done {
   box-shadow:
-    0 0 0 1.5px color-mix(in srgb, var(--accent) 70%, transparent),
-    0 12px 36px color-mix(in srgb, var(--accent) 22%, transparent);
+    0 0 0 1.5px var(--koel-line),
+    0 12px 36px color-mix(in srgb, var(--text) 12%, transparent);
 }
 .lane-sheen-clip {
   position: absolute;
@@ -2765,8 +2785,7 @@ section {
   background: linear-gradient(
     100deg,
     transparent,
-    color-mix(in srgb, var(--aurora-a) 18%, transparent),
-    color-mix(in srgb, var(--aurora-b) 18%, transparent),
+    color-mix(in srgb, var(--text) 10%, transparent),
     transparent
   );
 }
@@ -2807,8 +2826,8 @@ section {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent-ink);
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 18px;
   font-weight: 800;
 }

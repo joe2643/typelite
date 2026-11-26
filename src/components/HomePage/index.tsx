@@ -297,6 +297,11 @@ export function HomePage() {
         </div>
       }
       subtitle={t('home.subtitle')}
+      headerDecoration={
+        <div className="home-koel-background" aria-hidden="true">
+          <KoelBird variant="background" />
+        </div>
+      }
     >
       <UpdateBar />
       <FinishSetup />
