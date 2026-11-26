@@ -2070,14 +2070,10 @@ body,
     place-items: center;
     padding: 18px 12px;
     border-radius: 12px;
-    background:
-      radial-gradient(70% 90% at 15% 0%, #c9d6ec, transparent 70%),
-      radial-gradient(60% 80% at 90% 100%, #e3d6f0, transparent 70%), #dfe5ef;
+    background: linear-gradient(148deg, #e2dacb, #cbbda8);
   }
   .dark .pill-preview-stage {
-    background:
-      radial-gradient(70% 90% at 15% 0%, #1d3246, transparent 70%),
-      radial-gradient(60% 80% at 90% 100%, #2c1f40, transparent 70%), #12151c;
+    background: linear-gradient(148deg, #3c3933, #22221f);
   }
   .pill-preview {
     position: relative;

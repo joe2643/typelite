@@ -142,7 +142,7 @@ hold-to-talk is available too.
   </tr>
   <tr>
     <td><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/home-dark.png"><img src="docs/media/home.png" alt="Home: shortcuts and Insights, speaking against typing speed and a comparison of presets"></picture><br><b>Home</b>: shortcuts and Insights</td>
-    <td><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/settings-languages-dark.png"><img src="docs/media/settings-languages.png" alt="Settings, AI: translation languages with their language presets"></picture><br><b>Languages</b>: presets per language</td>
+    <td><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/settings-languages-dark.png"><img src="docs/media/settings-languages.png" alt="Settings, General: spoken languages with their writing presets"></picture><br><b>Languages</b>: presets per language</td>
   </tr>
   <tr>
     <td><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/onboarding-dark.png"><img src="docs/media/onboarding.png" alt="Guided setup: the Translate shortcut with its key caps and the pill preview"></picture><br><b>Guided setup</b> with a hands-on tutorial</td>
