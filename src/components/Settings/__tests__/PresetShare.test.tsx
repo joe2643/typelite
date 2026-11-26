@@ -211,7 +211,7 @@ describe('import flow', () => {
     invokeMock.mockRejectedValue({ code: 'newer_version', version: 2 })
     render(<PresetShareButtons service="speech" />)
     fireEvent.click(screen.getByRole('button', { name: 'Import…' }))
-    expect(await screen.findByRole('status')).toHaveTextContent('newer version of OraType')
+    expect(await screen.findByRole('status')).toHaveTextContent('newer version of KoelType')
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 })
