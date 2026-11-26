@@ -160,14 +160,36 @@ The Cantonese clips so far:
 | `sp-yue-cv-*` (20) | [Common Voice](https://commonvoice.mozilla.org/) zh-HK 23.0, test split | CC0-1.0 | Committed in `audio/common-voice/`: Common Voice now needs an account to download, so CI and new contributors could not fetch it. |
 | `sp-yue-fleurs-*` (40) | [FLEURS](https://huggingface.co/datasets/google/fleurs) `yue_hant_hk`, test split (Conneau et al., 2022, [arXiv:2205.12446](https://arxiv.org/abs/2205.12446)) | CC-BY-4.0 | Fetched (one 480 MB archive, once). Formal written Chinese read aloud. |
 
-Both were picked at random, one clip per speaker for Common Voice, from the clips whose text an
-independent Cantonese recognizer matched (at most 10% character error), so that a failure here
-means the recognizer under test, not a wrong transcript. Clips with digits were left out (the
-sets write `120` for a spoken 一百二十). Every clip must also pass OraType's voice check
-(`stt/silence.rs`: at least 200 ms louder than −45 dBFS and 12 dB above the noise floor), or the
-app drops it as "no speech" and the case measures the voice check, not the recognizer. Two FLEURS
-recordings failed it (loudest 20 ms at −41 and −46 dBFS), so `sp-yue-fleurs-024` and `-033` use
-another speaker's recording of the same sentence.
+Both were picked at random (seeded `20261110`, one clip per speaker for Common Voice) from the
+clips whose transcript `joe2643/Qwen3-ASR-1.7B-Cantonese-HK` v2 (BF16, greedy, language forced to
+Cantonese, `qwen-asr` 0.0.6; Hugging Face revision `5afb91dc`, v2 tip `5c1df898`, fine-tuned from
+`Qwen/Qwen3-ASR-1.7B` revision `7278e1e`) matched at 10% CER or less (after OpenCC `t2s`, number
+normalisation and space removal), so that a failure here points at the recognizer under test rather
+than a wrong transcript. Because the filter used a fine-tuned Qwen3-ASR model rather than a separate
+recognizer family, clips where it exceeded 10% CER were excluded before sampling, which leans the
+subset towards Qwen3-ASR models (on stock `Qwen/Qwen3-ASR-1.7B` BF16, 16/20 Common Voice and 38/40
+FLEURS clips are at or below 10% CER, with the remaining 6 clips at 10.3%-11.8%). Clips with digits
+were left out (the sets write `120` for a spoken 一百二十). Every clip must also pass OraType's
+voice check (`stt/silence.rs`: at least 200 ms louder than −45 dBFS and 12 dB above the noise
+floor), or the app drops it as "no speech" and the case measures the voice check, not the
+recognizer. Two FLEURS recordings failed it (loudest 20 ms at −41 and −46 dBFS), so
+`sp-yue-fleurs-024` and `-033` use another speaker's recording of the same sentence (both
+replacements also pass the 10% CER filter at 7.1% and 0.0% CER under v2).
+
+Training-set overlap audit for `Qwen3-ASR-1.7B-Cantonese-HK` (v1, v2, v2.1) and
+`Qwen3-ASR-0.6B-Cantonese-HK` across all training and dev manifests (`Common Voice zh-HK 23.0`,
+`FLEURS yue_hant_hk`, `Common Voice 21.0 yue`, `MDCC`, `LegCo`, `zoengjyutgaai`, `MCE`, plus
+additional colloquial Cantonese speech manifests and short-command clips): **0/20** Common Voice
+and **0/40** FLEURS clips (including the two swapped FLEURS recordings in `224e613`) overlap by
+clip filename/ID or audio-bytes SHA-256; **0/20** and **0/40** overlap by normalized transcript text
+(exact, punctuation-stripped, OpenCC `t2s`, and `咗`/`左` variants), **0/40** by FLEURS sentence ID,
+and **0/20** by Common Voice test speaker. Two caveats remain for model selection: the fine-tunes
+trained on the disjoint `train` splits of both corpora (`Common Voice zh-HK 23.0` train and `FLEURS
+yue_hant_hk` train), so both test sets are in-domain; and 9/20 Common Voice clips (`sp-yue-cv-001`,
+`-002`, `-003`, `-005`, `-006`, `-007`, `-009`, `-013`, `-019`) use Common Voice Hong Kong
+place/street-name sentence templates whose carrier frames (with different place names) appear in
+`Common Voice zh-HK 23.0` train (0/40 FLEURS clips share a carrier template or near-duplicate
+sentence with `FLEURS` train).
 
 ## Adding a language
 
