@@ -1,12 +1,12 @@
 # Third-party notices
 
-OraType includes the following third-party software.
+KoelType includes the following third-party software.
 
 ## whisper.cpp, llama.cpp and ggml
 
 whisper.cpp is used for built-in speech recognition (through the `whisper-rs` crate, which is
 released under the Unlicense). llama.cpp's `llama-server` (release b11177) is built from source
-and shipped inside OraType for Built-in AI polish. Both are released by the ggml authors under
+and shipped inside KoelType for Built-in AI polish. Both are released by the ggml authors under
 the MIT License (llama.cpp: Copyright (c) 2023-2026 The ggml authors).
 
 MIT License
@@ -47,17 +47,17 @@ Qwen3-ASR-1.7B-HK-Cantonese, Koelony's fine-tune of the Qwen team's Qwen3-ASR-1.
 Q6_K model and Q8_0 projector GGUF from the koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF Hugging Face
 repository), and Qwen3-ASR-0.6B-HK-Cantonese, Koelony's fine-tune of the Qwen team's
 Qwen3-ASR-0.6B (a Q6_K model and Q8_0 projector GGUF from the
-koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF Hugging Face repository). Earlier versions downloaded the stock Qwen3-ASR-1.7B: OraType 1.2.1 a Q4_K_M model
-and Q8_0 projector from mradermacher's repository, OraType 1.1.3 to 1.2.0 Q8_0 files from
+koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF Hugging Face repository). Earlier versions downloaded the stock Qwen3-ASR-1.7B: KoelType 1.2.1 a Q4_K_M model
+and Q8_0 projector from mradermacher's repository, KoelType 1.1.3 to 1.2.0 Q8_0 files from
 ggml-org's. All of them are released under the Apache License 2.0
-(https://www.apache.org/licenses/LICENSE-2.0). They are downloaded, not shipped with OraType.
+(https://www.apache.org/licenses/LICENSE-2.0). They are downloaded, not shipped with KoelType.
 
 ## AI models
 
 The Qwen3 and Qwen 3.5 model files downloaded by Built-in AI (Qwen3-4B-Instruct-2507 and Qwen3-1.7B
 as Q4_K_M, and Qwen3.5-4B as Q4_0, GGUF files from Unsloth's Hugging Face repositories) are released by the Qwen team under
 the Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0). They are downloaded, not
-shipped with OraType.
+shipped with KoelType.
 
 ## Evaluation data
 
@@ -65,5 +65,5 @@ The Cantonese speech evaluation (`evals/speech/yue/`) uses clips from two public
 FLEURS clips (Conneau et al., 2022, https://huggingface.co/datasets/google/fleurs) are released
 by Google under the Creative Commons Attribution 4.0 licence
 (https://creativecommons.org/licenses/by/4.0/); their transcripts are copied into the manifest
-and the audio is downloaded by `npm run eval -- fetch`, not shipped with OraType. The Common Voice
+and the audio is downloaded by `npm run eval -- fetch`, not shipped with KoelType. The Common Voice
 zh-HK clips (Mozilla, https://commonvoice.mozilla.org/) are released under CC0 1.0.

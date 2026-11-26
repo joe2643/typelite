@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src-tauri/icons/128x128.png" width="96" height="96" alt="OraType icon">
+  <img src="src-tauri/icons/128x128.png" width="96" height="96" alt="KoelType icon">
 </p>
 
-<h1 align="center">OraType</h1>
+<h1 align="center">KoelType</h1>
 
 <p align="center"><b>Just say it.</b> Press a shortcut in any app, speak, and clean text lands where you're typing.</p>
 
@@ -10,19 +10,19 @@
   Free and open source (MIT) · No account · No telemetry · Runs on your computer or your own servers
 </p>
 
-<p align="center"><i>OraType was called Typelite until version 1.2.0.</i></p>
+<p align="center"><i>KoelType was called Typelite until version 1.2.0.<br>KoelType was called OraType until version 1.3.0.</i></p>
 
 <p align="center">
   <a href="https://oratype.sennettlau.me/">Website</a> ·
-  <a href="https://github.com/sennett-lau/oratype/releases">Download</a> ·
+  <a href="https://github.com/koelony/koeltype/releases">Download</a> ·
   <a href="docs/guides/README.md">Guides</a>
 </p>
 
 <p align="center">
-  <img src="docs/media/hero.gif" width="800" alt="OraType's pill listening at the bottom of the screen, then clean text is pasted into a chat: fillers and a self-correction are removed">
+  <img src="docs/media/hero.gif" width="800" alt="KoelType's pill listening at the bottom of the screen, then clean text is pasted into a chat: fillers and a self-correction are removed">
 </p>
 
-OraType is a voice keyboard for macOS. Hold or tap a shortcut and speak. OraType turns your
+KoelType is a voice keyboard for macOS. Hold or tap a shortcut and speak. KoelType turns your
 speech into text, removes fillers, applies your self-corrections, adds punctuation and pastes the
 result where you are typing. It can also translate what you say, or answer a question about the
 text you have highlighted.
@@ -31,25 +31,25 @@ text you have highlighted.
 
 ### Download
 
-OraType 1.0 runs on Macs with Apple Silicon (M1 or later).
+KoelType runs on Macs with Apple Silicon (M1 or later).
 
-1. Download `OraType_X.Y.Z_aarch64.dmg` from the
-   [latest release](https://github.com/sennett-lau/oratype/releases/latest). To check it,
+1. Download `KoelType_X.Y.Z_aarch64.dmg` from the
+   [latest release](https://github.com/koelony/koeltype/releases/latest). Historical releases use their original product name. To check the download,
    download `SHA256SUMS.txt` too and run `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`.
-2. Open the DMG and drag **OraType** to **Applications**.
+2. Open the DMG and drag **KoelType** to **Applications**.
 3. Start it once as described in [First launch](#first-launch).
 
 ### Build from source
 
-You need Rust ([rustup](https://rustup.rs/)), Node.js 20 or later, the Xcode Command Line Tools
+You need Rust ([rustup](https://rustup.rs/)), Node.js 22.12 or later, the Xcode Command Line Tools
 and CMake.
 
 ```bash
-git clone https://github.com/sennett-lau/oratype.git
-cd oratype
+git clone https://github.com/koelony/koeltype.git
+cd koeltype
 npm ci
 npm run build:app      # builds llama-server, then the app
-open src-tauri/target/release/bundle/macos/OraType.app
+open src-tauri/target/release/bundle/macos/KoelType.app
 ```
 
 More detail is in the [Contributing guide](CONTRIBUTING.md#setup).
@@ -57,15 +57,15 @@ More detail is in the [Contributing guide](CONTRIBUTING.md#setup).
 ### First launch
 
 1. Downloaded builds are not signed by Apple yet, so macOS blocks the first launch. Right-click
-   OraType.app and choose **Open** (on macOS 15 and later: **System Settings → Privacy &
-   Security → Open Anyway**), or run `xattr -dr com.apple.quarantine /Applications/OraType.app`
+   KoelType.app and choose **Open** (on macOS 15 and later: **System Settings → Privacy &
+   Security → Open Anyway**), or run `xattr -dr com.apple.quarantine /Applications/KoelType.app`
    once.
-2. Allow **Microphone** and **Accessibility** when macOS asks. Accessibility lets OraType paste.
+2. Allow **Microphone** and **Accessibility** when macOS asks. Accessibility lets KoelType paste.
 3. Follow the guided setup: microphone, speech, AI, then a short hands-on tutorial.
 
-OraType is macOS first and runs best on Apple Silicon.
+KoelType is macOS first and runs best on Apple Silicon.
 
-## What makes OraType different
+## What makes KoelType different
 
 ### Language presets and a router
 
@@ -92,21 +92,21 @@ text and press Translate to replace it with its translation.
 On Apple Silicon, both halves can run on your computer with nothing else to install.
 [whisper.cpp](https://github.com/ggml-org/whisper.cpp) handles speech recognition inside the app,
 and [llama.cpp](https://github.com/ggml-org/llama.cpp)'s server handles AI polish. Press
-**Set up** and OraType picks models that suit your hardware, downloads them and checks each
+**Set up** and KoelType picks models that suit your hardware, downloads them and checks each
 download against a SHA-256.
 
 ### Bring your own server or key
 
-Prefer a GPU computer on your network or a cloud key? OraType works with any OpenAI-compatible
+Prefer a GPU computer on your network or a cloud key? KoelType works with any OpenAI-compatible
 speech or chat server (whisper.cpp server, Speaches, Ollama, LM Studio, OpenAI, Groq, OpenRouter
 and more) and with the Qwen Cloud and ElevenLabs speech APIs. Cloud services are opt-in and use your own key. See
 the [Guides](docs/guides/README.md).
 
 ## How it compares with Typeless
 
-OraType is inspired by [Typeless](https://www.typeless.com/), a polished commercial product.
+KoelType is inspired by [Typeless](https://www.typeless.com/), a polished commercial product.
 
-|  | Typeless | OraType |
+|  | Typeless | KoelType |
 |---|---|---|
 | Source | Closed | Open source (MIT) |
 | Price | Free tier and paid plans | Free |
@@ -150,8 +150,8 @@ hold-to-talk is available too.
   </tr>
 </table>
 
-The images are rendered from the app's own components and the website's demos; see
-[docs/media](docs/media/README.md).
+App screenshots use fixture data. The animated walkthroughs use the website’s demo components.
+See [media generation](docs/media/README.md) for recording and Copy capsule stills.
 
 ## Documentation
 
@@ -174,7 +174,7 @@ The images are rendered from the app's own components and the website's demos; s
 - No accounts, no analytics, no telemetry.
 - No history of what you say. Insights keep only timings and a keystroke count (never which keys).
   You can turn typing measurement off, and **Settings → System → Clear insights data** deletes them.
-- Logs (`~/Library/Logs/OraType/oratype.log`) hold timings and errors, never your text.
+- Logs (`~/Library/Logs/KoelType/oratype.log`) hold timings and errors, never your text.
 - Audio goes only where you point it: the built-in models, your own server, or a service you chose.
 
 ## Related projects
@@ -182,7 +182,7 @@ The images are rendered from the app's own components and the website's demos; s
 - [qwen3-asr-cantonese-hk](https://github.com/koelony/qwen3-asr-cantonese-hk):
   [Koelony](https://koelony.com)'s fine-tune of Qwen3-ASR-1.7B for Hong Kong Cantonese with
   English mixed in (Apache-2.0).
-  OraType's built-in speech uses it for any language list with Cantonese. The repository has
+  KoelType's built-in speech uses it for any language list with Cantonese. The repository has
   the BF16, GGUF, FP8 and NVFP4 weights and their benchmarks; the weights are published on
   Hugging Face under [koelony](https://huggingface.co/koelony).
 

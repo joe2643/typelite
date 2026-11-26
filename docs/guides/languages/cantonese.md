@@ -24,11 +24,11 @@ preset.
 |---|---|---|
 | Speech recognition | [Qwen3-ASR-1.7B-HK-Cantonese](https://huggingface.co/koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF) (Apache-2.0), Koelony's fine-tune of [Qwen3-ASR-1.7B](../speech/openai-compatible.md#qwen3-asr) | Writes what you said in Cantonese (我哋, 聽日, 咗, 緊, 咯), in Hong Kong characters, and keeps the English words you mix in. |
 | AI polish | [Huihui-Qwen3.5-4B-abliterated](https://huggingface.co/huihui-ai/Huihui-Qwen3.5-4B-abliterated) (tested) | Given a Cantonese transcript, it only has to clean up: fillers, self-corrections, punctuation. Use an uncensored model: stock instruct models soften or drop Cantonese slang and swear words, so the text stops sounding native. |
-| Language preset | [Cantonese (Hong Kong)](../../../presets/languages/cantonese-hong-kong/preset.md) | Tells polish how Hongkongers write, and lets OraType recognise that you spoke Cantonese. |
+| Language preset | [Cantonese (Hong Kong)](../../../presets/languages/cantonese-hong-kong/preset.md) | Tells polish how Hongkongers write, and lets KoelType recognise that you spoke Cantonese. |
 
 ## Why
 
-Speech recognition decides which words reach polish, and whisper, OraType's Built-in model,
+Speech recognition decides which words reach polish, and whisper, KoelType's Built-in model,
 rewrites Cantonese into formal written Chinese. For the sentence
 
 > 我一直都keep住試緊廣東話，但出嚟嘅效果好似唔係咁好咯
@@ -40,7 +40,7 @@ was said.
 
 ## Set it up
 
-1. **Easiest: Built-in.** OraType runs Qwen3-ASR-1.7B-HK-Cantonese itself. Add Cantonese (Hong
+1. **Easiest: Built-in.** KoelType runs Qwen3-ASR-1.7B-HK-Cantonese itself. Add Cantonese (Hong
    Kong) under **Your languages** (onboarding, or **Settings → General**); the Built-in card then
    has **Qwen3-ASR-1.7B-HK-Cantonese** chosen, or **Qwen3-ASR-0.6B-HK-Cantonese** (709 MB,
    about twice as fast) on a Mac with less than 16 GB of memory.
@@ -59,21 +59,21 @@ was said.
    computers, use `--host 0.0.0.0` and allow the port through that computer's firewall for your
    network only.
 
-2. **Add your server in OraType** (skip this with Built-in): **Settings → Speech → Your server
+2. **Add your server in KoelType** (skip this with Built-in): **Settings → Speech → Your server
    or API key**, address
    `http://127.0.0.1:8180/v1` (or that computer's address), model `qwen3-asr`, no API key, and
    leave **Spoken language** on **Auto-detect**. Press **Test**, then **Save**.
 
 3. **The Cantonese preset:** add Cantonese (Hong Kong) to **Settings → General → Your
    languages** if it is not in your list. It gets the official **Cantonese (Hong Kong)** preset
-   at once, built into OraType, and its row says so. With it OraType tells Cantonese from
+   at once, built into KoelType, and its row says so. With it KoelType tells Cantonese from
    Mandarin, and applies the Cantonese notes and the Hong Kong characters (next step). This works
    with the built-in models and with your own servers alike, and the same preset is used when you
    translate into Cantonese. If the row shows another preset or your own text, press **Edit**,
    then **Change** to pick **Cantonese (Hong Kong)**.
 
 4. **Characters:** Qwen3-ASR-1.7B-HK-Cantonese writes Hong Kong Traditional characters itself.
-   With the stock Qwen3-ASR, which writes Simplified, OraType converts a dictation recognised as
+   With the stock Qwen3-ASR, which writes Simplified, KoelType converts a dictation recognised as
    Cantonese (Hong Kong) to Hong Kong Traditional characters, with Cantonese 係 and 覆 where a
    plain conversion would write 系 or 復. Nothing to set.
 
@@ -98,7 +98,7 @@ was said.
 Measured with 11 Cantonese clips and 1 English clip made with the macOS Cantonese voice (Sinji):
 ten everyday sentences with fillers, a self-correction, English words and a swear word, plus the
 13-second sentence above. The error rate is the character error rate against the known text,
-punctuation and spaces ignored, on the text as OraType writes it; times are medians of 3 runs
+punctuation and spaces ignored, on the text as KoelType writes it; times are medians of 3 runs
 after a warm-up. Speed on other hardware: [Benchmarks](../benchmarks/README.md).
 
 | Speech model | Error rate | Cantonese words kept | English words kept |
@@ -116,7 +116,7 @@ With the Qwen3-ASR transcript, polish with the Cantonese preset kept the text 96
 was said, with no formal written Chinese left; with whisper's transcript, 62%.
 
 The tables above were measured with the stock Qwen3-ASR-1.7B. Qwen3-ASR-1.7B-HK-Cantonese, which
-replaced it in OraType 1.2.2, passed as many of OraType's 41 speech clips (34) with more
+replaced it in OraType 1.2.2, passed as many of KoelType's 41 speech clips (34) with more
 Cantonese clips right; it takes about 25% longer on a Mac
 ([report](../../benchmarks/reports/2026-11-10-hk-cantonese-asr/README.md)).
 Qwen3-ASR-0.6B-HK-Cantonese, added for Macs with less memory, passed as many clips as the 1.7B

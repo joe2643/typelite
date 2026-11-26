@@ -1,8 +1,8 @@
 # Languages
 
-OraType handles languages in two places: **speech recognition** decides which language it heard,
+KoelType handles languages in two places: **speech recognition** decides which language it heard,
 and **AI polish** writes the text, following instructions for that language. This page covers
-the language guides, your languages, translation languages, their instructions, how OraType
+the language guides, your languages, translation languages, their instructions, how KoelType
 recognises the language you spoke, and the language presets from the repository.
 
 ## Language guides
@@ -26,7 +26,7 @@ recognition gives it: if the speech model has already changed what you said, no 
 prompt can bring it back. So check your speech model first:
 
 1. Dictate a few sentences the way you normally talk, including slang and mixed-in English words.
-2. Turn off **Settings → AI → Clean up dictation** for a moment, so OraType pastes exactly what
+2. Turn off **Settings → AI → Clean up dictation** for a moment, so KoelType pastes exactly what
    speech recognition heard.
 3. If the raw text keeps your words, the general setup is fine (see
    [Choosing models](../models/README.md)); a [language preset](#language-presets) takes care of
@@ -45,7 +45,7 @@ recording into it, but saves a detection pass and can help very short clips.
 - The speech model decides which words reach AI polish. whisper (Built-in, or a whisper.cpp or
   Speaches server) writes Cantonese as standard written Chinese and translates some English words
   (email → 電郵). [Qwen3-ASR](../speech/openai-compatible.md#qwen3-asr) and Qwen Cloud write Cantonese as it is
-  spoken, with English words kept, in Simplified characters. OraType writes a Qwen3-ASR transcript
+  spoken, with English words kept, in Simplified characters. KoelType writes a Qwen3-ASR transcript
   in the characters of the Chinese language it is recognised as (Hong Kong Traditional for
   Cantonese (Hong Kong)); Qwen Cloud's text keeps its characters, and AI polish writes the final
   script.
@@ -56,12 +56,12 @@ recording into it, but saves a detection pass and can help very short clips.
 ## Your languages
 
 **Settings → General → Your languages** lists the languages you speak and dictate in (up to
-twelve), one row each. When you dictate or ask, OraType picks the language you spoke from this
+twelve), one row each. When you dictate or ask, KoelType picks the language you spoke from this
 list and follows its instructions. This works the same with every speech and AI service: the
 built-in models, your own server, or an API key.
 
 - A language you add gets its official preset at once when there is one (today: English,
-  Cantonese (Hong Kong) and Mandarin (Traditional)). These presets are built into OraType, so
+  Cantonese (Hong Kong) and Mandarin (Traditional)). These presets are built into KoelType, so
   nothing is downloaded; their automatic updates are on, so newer versions still arrive (see
   [Updates](#updates)). A language that already has settings of its own keeps them.
 - Every language in the list can be recognised: by its preset's rules, or, without a preset, by
@@ -73,7 +73,7 @@ built-in models, your own server, or an API key.
 - The **switch**, ✕ and **＋ Add language** work as in the Translate list below.
 - A language has one set of instructions, shared with the Translate list: the Cantonese preset
   used here is also used when you translate into Cantonese (Hong Kong).
-- The list also decides which built-in models OraType suggests (onboarding asks for it, and
+- The list also decides which built-in models KoelType suggests (onboarding asks for it, and
   starts from your Mac's preferred languages).
 
 Cantonese (Hong Kong), Mandarin (Simplified) and Mandarin (Traditional) are the same languages
@@ -110,7 +110,7 @@ script, which words stay in English, with a few examples. They come from one of 
 | A language preset | A text from the repository's [preset catalogue](../../../presets/languages/README.md), written and reviewed by people who speak the language. |
 | Your own edit | Any of the above, changed by you in the language's settings. |
 
-OraType always adds its own rules around the instructions (output only the result, keep the line
+KoelType always adds its own rules around the instructions (output only the result, keep the line
 breaks, use the right Chinese script), so a preset or an edit cannot make the AI add notes or
 answer in another language.
 
@@ -130,7 +130,7 @@ part of it. See [the Cantonese guide](cantonese.md).
 ## Language presets
 
 A language preset tells the AI how to write one language. Presets live in the
-[`presets/languages`](../../../presets/languages/README.md) folder of the OraType repository; anyone
+[`presets/languages`](../../../presets/languages/README.md) folder of the KoelType repository; anyone
 can add one with a pull request (see [Contributing a language preset](../../../CONTRIBUTING.md#language-presets)).
 
 ### Choosing a preset
@@ -152,7 +152,7 @@ to default** goes back to the built-in instructions.
 - **Translating into the language** uses them whenever the language is on.
 - **Dictating in the language** (Dictate, no translation, no selected text) uses them too, and
   so does Ask for a spoken question, when the language is in
-  [your languages](#your-languages) and OraType recognises that you spoke it. The
+  [your languages](#your-languages) and KoelType recognises that you spoke it. The
   **Recognition** tab shows how:
   1. **Hint characters and words** found in what you said pick the language with the most
      hits. The preset brings its own (Cantonese: 嘅 咗 喺 唔 聽日 …); add your own with
@@ -179,19 +179,19 @@ to default** goes back to the built-in instructions.
   **Update**. If you edited the text, it is never replaced: **Keep mine** keeps your text, **Use
   vN instead** shows the new text first.
 - Tick **Update this preset automatically** to let a language follow new versions by itself.
-  Then OraType checks GitHub at most once a day, only while such a language is in use, and
+  Then KoelType checks GitHub at most once a day, only while such a language is in use, and
   never replaces text you edited.
 
 ### Privacy and offline use
 
-- The official presets are built into OraType: a language gets one without going online.
+- The official presets are built into KoelType: a language gets one without going online.
 - Other presets are downloaded with plain requests to `raw.githubusercontent.com`: no account, no
   identifiers, nothing about you, your languages or your text. GitHub sees your IP address, as
-  with any download. OraType goes online only when you browse presets, or once a day for
+  with any download. KoelType goes online only when you browse presets, or once a day for
   languages where you ticked automatic updates. A built-in preset gets newer versions with
-  OraType's own updates, without going online.
+  KoelType's own updates, without going online.
 - Every download is checked against the size and SHA-256 hash in the library's index, and
-  validated, before it is used. Downloaded presets are kept in OraType's data folder.
+  validated, before it is used. Downloaded presets are kept in KoelType's data folder.
 - Offline, the built-in instructions and downloaded presets keep working; Browse shows what is
   downloaded and offers **Try again**.
 

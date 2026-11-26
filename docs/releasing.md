@@ -1,6 +1,6 @@
 # Releasing
 
-How a maintainer cuts a OraType release. The
+How a maintainer cuts a KoelType release. The
 [Release workflow](../.github/workflows/release.yml) builds the app on GitHub Actions and creates
 a **draft** release. Nothing is public until you publish the draft by hand.
 
@@ -33,8 +33,8 @@ a **draft** release. Nothing is public until you publish the draft by hand.
 
 | File | What it is |
 |---|---|
-| `OraType_X.Y.Z_aarch64.dmg` | Disk image with the app, for Macs with Apple Silicon |
-| `OraType_X.Y.Z_aarch64.zip` | The same app bundle, zipped with `ditto` |
+| `KoelType_X.Y.Z_aarch64.dmg` | Disk image with the app, for Macs with Apple Silicon |
+| `KoelType_X.Y.Z_aarch64.zip` | The same app bundle, zipped with `ditto` |
 | `SHA256SUMS.txt` | SHA-256 of the DMG and the ZIP |
 
 It runs on a `macos-15` runner (Apple Silicon; GitHub retired `macos-14` on 2026-11-02). It builds `llama-server`
@@ -43,7 +43,7 @@ then the DMG with `scripts/build-dmg.sh`: a window with large icons, the app on 
 arrow to Applications on the right (`scripts/dmg-settings.py`, background
 `src-tauri/icons/dmg/background.svg`). dmgbuild writes that layout itself; Tauri's own DMG step
 needs Finder for it and skips it on CI. To try it locally:
-`bash scripts/build-dmg.sh "$PWD/src-tauri/target/release/bundle/macos/OraType.app" /tmp/OraType.dmg`.
+`bash scripts/build-dmg.sh "$PWD/src-tauri/target/release/bundle/macos/KoelType.app" /tmp/KoelType.dmg`.
 The release notes come from What's New for that version
 (`node scripts/release-notes.mjs X.Y.Z`), followed by install steps.
 
@@ -65,7 +65,7 @@ The release notes come from What's New for that version
    ```sh
    git switch main && git pull
    git switch -c release/X.Y && git push -u origin release/X.Y
-   git tag -a vX.Y.0 -m "OraType X.Y.0"
+   git tag -a vX.Y.0 -m "KoelType X.Y.0"
    git push origin vX.Y.0
    ```
 
@@ -79,7 +79,7 @@ The release notes come from What's New for that version
 
    ```sh
    git switch release/X.Y && git pull
-   git tag -a vX.Y.Z+1 -m "OraType X.Y.Z+1"
+   git tag -a vX.Y.Z+1 -m "KoelType X.Y.Z+1"
    git push origin vX.Y.Z+1
    ```
 
@@ -98,7 +98,7 @@ Each release gets a 10–15 s video of what is new, made from the app's real UI 
 `promo-video` skill (`.claude/skills/promo-video/SKILL.md`): stills from the capture harness
 (`site/scripts/capture-promo-stills.mjs`), a film recorded frame by frame
 (`site/scripts/record-film.mjs`) and synthesised music (`site/scripts/promo-music.py`). It lives
-in `output/promo-X.Y.Z/` with the video as `oratype-X.Y.Z-promo.mp4`; nothing in `output/` is
+in `output/promo-X.Y.Z/` with the video as `koeltype-X.Y.Z-promo.mp4`; nothing in `output/` is
 committed. Make it once the version's What's New is written.
 
 ## Updates
@@ -144,7 +144,7 @@ the grant survives updates and rebuilds.
 What it does not do: Gatekeeper does not trust it, and the app is not notarised. So macOS still
 blocks the first launch of a downloaded copy: users right-click the app and choose **Open** (on
 macOS 15 and later: System Settings → Privacy & Security → **Open Anyway**), or run
-`xattr -dr com.apple.quarantine /Applications/OraType.app`. The release notes and the README
+`xattr -dr com.apple.quarantine /Applications/KoelType.app`. The release notes and the README
 say so.
 
 How it is set up:
