@@ -1019,7 +1019,7 @@ fn dispatch_cli_action(app: &tauri::AppHandle, action: CliAction) {
     }
 }
 
-/// The app's name in the menu bar tooltip: "OraType Dev" for the development build, so the two
+/// The app's name in the menu bar tooltip: "KoelType Dev" for the development build, so the two
 /// apps can be told apart when both are installed.
 #[cfg(not(feature = "dev-build"))]
 pub(crate) const APP_NAME: &str = "KoelType";
@@ -1308,7 +1308,7 @@ pub fn run() {
                 .map_err(|e| anyhow::anyhow!("Failed to build tray menu: {}", e))?;
 
             // macOS: a black-on-transparent "template image" (from
-            // icons/source/oratype-tray.svg). macOS then tints it itself, so it reads
+            // icons/source/koeltype-tray.svg). macOS then tints it itself, so it reads
             // correctly on light and dark menu bars. Other platforms keep the app icon.
             // The development build adds a dot (icons/dev/tray.svg), since a template image
             // has no colour to tell the two apps apart.

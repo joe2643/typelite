@@ -9,7 +9,7 @@ import {
   searchState,
   type EndpointState,
 } from '../../lib/connectionStatus'
-import appIcon from '../../assets/oratype-icon.png'
+import appIcon from '../../assets/koeltype-icon.png'
 import { AccessibilityBanner } from './AccessibilityBanner'
 
 interface NavItem {
@@ -133,7 +133,7 @@ export function MainLayout({ children }: Props) {
       <aside className="sidebar flex w-[208px] shrink-0 flex-col px-2.5 pt-11 pb-3">
         {/* Plan `home-refresh`: the app icon (28 pt, rounded) left of the name in 18 pt bold. */}
         <div
-          className="flex items-center gap-[9px] px-2 pb-4 text-[18px] font-bold tracking-[-0.01em]"
+          className="flex items-center gap-[9px] px-2 pb-4 font-display text-[18px] font-bold tracking-[-0.01em]"
           data-testid="sidebar-brand"
         >
           <img
