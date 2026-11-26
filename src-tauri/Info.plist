@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>OraType needs microphone access to capture voice input for speech-to-text.</string>
+    <string>KoelType needs microphone access to capture voice input for speech-to-text.</string>
     <key>NSAppleEventsUsageDescription</key>
-    <string>OraType needs automation access to detect the active application for context-aware text output.</string>
+    <string>KoelType needs automation access to detect the active application for context-aware text output.</string>
 </dict>
 </plist>

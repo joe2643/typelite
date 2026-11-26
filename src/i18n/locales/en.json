@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "OraType",
+    "name": "{{appName}}",
     "tagline": "AI Voice Input"
   },
   "nav": {
@@ -89,7 +89,7 @@
     "output_wayland_clipboard_copy_only": "Copied to clipboard. Paste manually on Wayland.",
     "mic_fallback_default": "Your selected microphone \"{{details}}\" is not connected, so the system default was used.",
     "stt_unreachable": "Could not reach the speech server ({{details}}). Check the address in Settings → Speech and that the server is running.",
-    "output_held_no_accessibility": "Accessibility permission is missing, so OraType cannot type. The result is in the Copy pill. Allow OraType in System Settings → Privacy & Security → Accessibility."
+    "output_held_no_accessibility": "Accessibility permission is missing, so {{appName}} cannot type. The result is in the Copy pill. Allow {{appName}} in System Settings → Privacy & Security → Accessibility."
   },
   "home": {
     "headline": "Just say it.",
@@ -120,7 +120,7 @@
       "editSelectionDesc": "Say how to change the selected text",
       "switchScene": "Switch prompt preset",
       "switchSceneDesc": "Move to the next prompt preset",
-      "openApp": "Open OraType",
+      "openApp": "Open {{appName}}",
       "openAppDesc": "Bring up the main window"
     },
     "subtitle": "Press a shortcut anywhere, speak, and clean text lands where you're typing.",
@@ -178,7 +178,7 @@
   },
   "onboarding": {
     "welcome": {
-      "intro": "Welcome to OraType. Press a shortcut, speak, and polished text lands wherever you type. First, allow the three things OraType needs.",
+      "intro": "Welcome to {{appName}}. Press a shortcut, speak, and polished text lands wherever you type. First, allow the three things {{appName}} needs.",
       "skipForNow": "Skip for now"
     },
     "permissions": {
@@ -197,7 +197,7 @@
       }
     },
     "microphone": {
-      "intro": "Pick the microphone OraType should use. Speak and watch the meter move."
+      "intro": "Pick the microphone {{appName}} should use. Speak and watch the meter move."
     },
     "shortcut": {
       "notLive": "Shortcuts are not active: {{error}}"
@@ -250,7 +250,7 @@
       "listeningHold": "Listening… let go of {{key}} when you finish.",
       "listeningStop": "Listening… press {{stop}} to stop.",
       "listeningTranslate": "Listening… press {{stop}} to stop, {{switch}} to switch language.",
-      "writing": "OraType is writing…",
+      "writing": "{{appName}} is writing…",
       "thinking": "Thinking…",
       "miss": "Not quite what we expected.",
       "noSpeech": "Didn't catch that.",
@@ -312,7 +312,7 @@
       "webSearch": "Web search",
       "webSearchSub": "Optional: lets Ask anything look up news, scores and schedules.",
       "languages": "Your languages",
-      "languagesSub": "OraType checks for a setup that suits the languages you speak."
+      "languagesSub": "{{appName}} checks for a setup that suits the languages you speak."
     },
     "layout": {
       "back": "Back",
@@ -537,9 +537,9 @@
     "dictationMode": "Dictation mode",
     "system": "System",
     "showInDock": "Show in Dock",
-    "showInDockHint": "When off, OraType has no Dock icon. Open it from the menu-bar icon.",
+    "showInDockHint": "When off, {{appName}} has no Dock icon. Open it from the menu-bar icon.",
     "siMode": "Super intelligence mode",
-    "siModeHint": "Promotes every artificial kind of intelligence in OraType to the super kind. Interface text only; just for fun.",
+    "siModeHint": "Promotes every artificial kind of intelligence in {{appName}} to the super kind. Interface text only; just for fun.",
     "audio": "Audio",
     "muteOutputWhileRecording": "Mute other audio while recording",
     "sections": "Settings sections",
@@ -881,7 +881,7 @@
       "resetToPreset": "Reset to preset",
       "resetToDefault": "Reset to default",
       "defaultsFailed": "The built-in instructions could not be loaded. Leave this empty to use them.",
-      "contractNote": "OraType always adds its own rules around these, so they cannot change what it does or the output language.",
+      "contractNote": "{{appName}} always adds its own rules around these, so they cannot change what it does or the output language.",
       "recognitionHelp": "Decides when polish uses these instructions. Translation always uses them, since you pick the target.",
       "hears": "Speech recognition hears",
       "fromThePreset": "from the preset",
@@ -901,7 +901,7 @@
       "loading": "Loading presets…",
       "builtinItem": "Built-in default",
       "builtinTag": "Built in",
-      "builtinSummary": "Ships with OraType; always available offline.",
+      "builtinSummary": "Ships with {{appName}}; always available offline.",
       "downloaded": "Downloaded",
       "notesFor": "notes for {{variant}}",
       "byAuthors": "by {{authors}}",
@@ -922,7 +922,7 @@
   "presetShare": {
     "import": "Import…",
     "export": "Export…",
-    "fileType": "OraType presets",
+    "fileType": "{{appName}} presets",
     "exportTitle": "Export presets",
     "exportHelp": "Choose the saved presets to put in the file. Built-in presets stay on this computer.",
     "exportListLabel": "Presets to export",
@@ -938,16 +938,16 @@
     "importNone": "This file has no presets for this page.",
     "importConfirm": "Add ({{count}})",
     "keyIncluded": "API key",
-    "skippedUnknown": "Skipped {{count}} of a kind this version of OraType does not know.",
+    "skippedUnknown": "Skipped {{count}} of a kind this version of {{appName}} does not know.",
     "otherService": "The file also holds {{count}} for {{page}}. Import it there to add them.",
     "pageSpeech": "Settings → Speech",
     "pageAi": "Settings → AI",
     "imported": "Added {{count}}. Test them before you use them.",
     "keysFailed": "{{count}} API keys could not be saved in the Keychain; enter them again.",
     "errors": {
-      "not_json": "This file is not a OraType presets file (it is not valid JSON).",
-      "wrong_format": "This file is not a OraType presets file.",
-      "newer_version": "This file was made by a newer version of OraType (format {{version}}). Update OraType to import it.",
+      "not_json": "This file is not a {{appName}} presets file (it is not valid JSON).",
+      "wrong_format": "This file is not a {{appName}} presets file.",
+      "newer_version": "This file was made by a newer version of {{appName}} (format {{version}}). Update {{appName}} to import it.",
       "invalid_version": "This presets file has no valid format version.",
       "too_large": "This file is too large to be a presets file.",
       "too_many_entries": "This file holds too many presets.",
@@ -972,7 +972,7 @@
     "failed": "Could not start recording the shortcut: {{error}}"
   },
   "whatsNew": {
-    "hkCantoneseModel": "Built-in speech for Cantonese is now Qwen3-ASR-1.7B-HK-Cantonese, the OraType team's own fine-tune of Qwen3-ASR for Hong Kong Cantonese: it writes Hong Kong characters and keeps the English words you mix in. It is the suggested model for any language list with Cantonese. If you set up Qwen3-ASR before, Settings shows Update (1.8 GB); your files keep working until then.",
+    "hkCantoneseModel": "Built-in speech for Cantonese is now Qwen3-ASR-1.7B-HK-Cantonese, the {{appName}} team's own fine-tune of Qwen3-ASR for Hong Kong Cantonese: it writes Hong Kong characters and keeps the English words you mix in. It is the suggested model for any language list with Cantonese. If you set up Qwen3-ASR before, Settings shows Update (1.8 GB); your files keep working until then.",
     "dictionaryToSpeech": "Your dictionary now reaches speech recognition too (built-in and OpenAI-compatible servers), so names and terms come out spelled your way before polish sees them.",
     "textBeforeCursor": "Use text before the cursor (Settings → AI → Advanced, off by default): Dictate sends up to about 300 characters before the cursor to the AI, so a dictation continues the sentence that is there, with the right capital letters and punctuation. Never from password fields.",
     "polishWritesDown": "Dictated questions and requests are written down, not answered, and a sentence you leave unfinished is no longer completed with points you never said.",
@@ -981,14 +981,14 @@
     "fasterCantoneseModels": "The built-in Cantonese setup is smaller and faster: speech is 21–28% faster on long dictations (1.6 GB instead of 2.5 GB) and polish writes about a third faster. If you set it up before, Settings shows Update; your files keep working until then.",
     "readyFirstDictation": "Built-in AI is ready for your first dictation. When it starts, it reads your languages’ instructions in the background, so the first polish takes about a second instead of 5–11 seconds. Dictating straight away stops this, so it never slows you down.",
     "fastLanguageSwitching": "Fast language switching (Settings → AI → Built-in AI, on by default): each of your languages stays ready, so switching between them takes about a second instead of up to 15. It uses about 1–2 GB more memory per extra language; turn it off on a Mac that is short of memory.",
-    "yourLanguages": "Your languages moved to Settings → General. Each language comes with its preset, and OraType uses the one you speak with every AI service: built-in, your own server or an API key. The Translate list is now only for Translate.",
+    "yourLanguages": "Your languages moved to Settings → General. Each language comes with its preset, and {{appName}} uses the one you speak with every AI service: built-in, your own server or an API key. The Translate list is now only for Translate.",
     "renamed": "Typelite is now OraType. Your settings, models and dictionary come along. Grant Accessibility and Microphone again once (System Settings → Privacy & Security), and if macOS asks to let OraType use “Typelite” in your keychain, choose Always Allow: those are your saved API keys.",
     "handsFree": "Hands-free mode: say “Hey Sam”, pause, then speak, with no shortcut. Your words are typed into the app; say “ask …” to ask instead. Finish with “Thanks, Sam” or a 3-second pause. Turn it on in Settings → General → Hands-free; a small model (60 MB) listens on your Mac, so nothing is sent before the wake phrase.",
     "pillAfterIdle": "The pill shows again after a quiet spell. After about eight minutes without dictating, it could stop appearing while dictation still worked.",
     "polishCutOff": "Long dictations, especially in Cantonese, are no longer cut short by polish. Built-in AI has twice the room, and an answer that still runs out is replaced by your transcript.",
-    "ownKeystrokes": "With a shortcut on a single Command key, Ask no longer stops the moment it starts in apps where OraType copies your highlight to read it.",
-    "languageModels": "Your languages: tell OraType which languages you speak (in onboarding or Settings → Speech). For Cantonese it suggests two built-in models to download: Qwen3-ASR, which writes Cantonese the way you say it, and Qwen 3.5 4B for polish.",
-    "clipboardSafe": "OraType leaves your clipboard alone: a result it cannot type waits in the Copy pill, a paste brings back everything you had copied (images and files too), and clipboard managers no longer record dictations.",
+    "ownKeystrokes": "With a shortcut on a single Command key, Ask no longer stops the moment it starts in apps where {{appName}} copies your highlight to read it.",
+    "languageModels": "Your languages: tell {{appName}} which languages you speak (in onboarding or Settings → Speech). For Cantonese it suggests two built-in models to download: Qwen3-ASR, which writes Cantonese the way you say it, and Qwen 3.5 4B for polish.",
+    "clipboardSafe": "{{appName}} leaves your clipboard alone: a result it cannot type waits in the Copy pill, a paste brings back everything you had copied (images and files too), and clipboard managers no longer record dictations.",
     "typeAfterSwitch": "Clicking into an app and dictating right away now types the text instead of copying it.",
     "askReadsPages": "Ask anything with web search reads the top result pages, so questions about news, scores and upcoming games get an answer. A date it cannot confirm is flagged.",
     "translateHighlight": "Highlight text, press Ask and say “translate this into English”: the translation opens in the Ask panel with Copy and Replace.",
@@ -1011,9 +1011,9 @@
     "sourceIcons": "Source cards show Open and Copy link as always-visible icons, so a stray click no longer opens or copies a link.",
     "whatsNewPaging": "What's New shows one release at a time, with arrows to step through older ones.",
     "lighterApp": "Lighter and faster: less work while recording, a cheaper speech check, and a quicker dictionary with large word lists.",
-    "webSearch": "Ask anything can search the web for live questions (news, scores, schedules, prices) with SearXNG: OraType sets it up on your Mac in one click, or uses your own server.",
+    "webSearch": "Ask anything can search the web for live questions (news, scores, schedules, prices) with SearXNG: {{appName}} sets it up on your Mac in one click, or uses your own server.",
     "askSources": "Answers from the web cite their sources: open the sources column beside the answer to see each page, open it or copy its link.",
-    "autoUpdate": "Updates from GitHub Releases: OraType downloads a new version in the background and asks you to restart. Only the version file is requested; turn it off in Settings → System.",
+    "autoUpdate": "Updates from GitHub Releases: {{appName}} downloads a new version in the background and asks you to restart. Only the version file is requested; turn it off in Settings → System.",
     "keepAccessibility": "From 1.1.0 on, the Accessibility permission stays granted after each update. Coming from 1.0, turn it on once more after installing.",
     "copyPill": "When the text cannot be typed into the app in front, the pill offers it with a Copy button instead.",
     "translateLanguageLive": "A translation language added in Settings shows in the Translate pill straight away, without a restart.",
@@ -1024,7 +1024,7 @@
     "polishRequests": "AI polish writes down a request you dictate (\"write an email in Japanese…\") instead of carrying it out or switching language.",
     "polishCodeWords": "AI polish keeps file names, commands and short code words whole: \"dot gitignore\" becomes .gitignore.",
     "polishSpelledNames": "AI polish writes a name you spell out letter by letter once, with that spelling, and drops the letters.",
-    "installWindow": "The installer shows the usual window: large icons and an arrow to drag OraType to Applications.",
+    "installWindow": "The installer shows the usual window: large icons and an arrow to drag {{appName}} to Applications.",
     "tutorialClose": "The setup tutorial's close button sits beside the window buttons and is easier to see.",
     "builtin": "First release. Built-in speech recognition and AI polish: set up in one click, and your voice and text stay on your Mac.",
     "ownServer": "Or use your own server or API key: any OpenAI-compatible speech or chat service, Qwen Cloud or ElevenLabs.",
@@ -1038,7 +1038,7 @@
     "microphonePicker": "Microphone picker with a live input level.",
     "setupTutorial": "A step-by-step setup tutorial.",
     "nativeGlass": "Native Glass look that follows light and dark mode.",
-    "noHistory": "No history: OraType keeps no record of what you say."
+    "noHistory": "No history: {{appName}} keeps no record of what you say."
   },
   "status": {
     "label": "Connection status",
@@ -1078,7 +1078,7 @@
     },
     "builtinTitle": "Built-in",
     "recommended": "Recommended",
-    "builtinBody": "Runs a speech model inside OraType on this computer. No other software needed.",
+    "builtinBody": "Runs a speech model inside {{appName}} on this computer. No other software needed.",
     "changeModel": "Change model",
     "download": "Download",
     "use": "Use",
@@ -1160,7 +1160,7 @@
     "engines": {
       "builtin": {
         "title": "Built-in",
-        "detail": "Runs a speech model inside OraType on this computer"
+        "detail": "Runs a speech model inside {{appName}} on this computer"
       },
       "server": {
         "title": "Your server or API key",
@@ -1190,7 +1190,7 @@
     "skipHint": "Dictation still works; you get the raw transcript"
   },
   "aiSetup": {
-    "builtinBody": "Runs a small open model inside OraType on this computer. No other software needed.",
+    "builtinBody": "Runs a small open model inside {{appName}} on this computer. No other software needed.",
     "progressLabel": "AI model download",
     "testing": "Starting the model and running a test…",
     "models": {
@@ -1205,11 +1205,11 @@
     },
     "errors": {
       "load": "{{reason}}",
-      "serverMissing": "This copy of OraType was built without the built-in AI server. Use your own server or API key instead."
+      "serverMissing": "This copy of {{appName}} was built without the built-in AI server. Use your own server or API key instead."
     },
     "hardware": {
       "none": "This computer can’t run a built-in AI model well. Use your own server or API key instead.",
-      "serverMissing": "This copy of OraType was built without the built-in AI server. Use your own server or API key instead.",
+      "serverMissing": "This copy of {{appName}} was built without the built-in AI server. Use your own server or API key instead.",
       "leftOut": {
         "needs_apple_silicon": "Built-in AI needs an Apple Silicon Mac.",
         "needs_memory": "The larger model needs 16 GB of memory.",
@@ -1237,12 +1237,12 @@
     "optional": "Optional",
     "uses": "Search uses",
     "builtin": "Built-in",
-    "builtinDetail": "OraType sets up SearXNG on this Mac",
+    "builtinDetail": "{{appName}} sets up SearXNG on this Mac",
     "recommended": "Recommended",
     "own": "Your own SearXNG",
     "ownDetail": "An address on your network, and an optional key",
     "setupTitle": "Set up SearXNG on this Mac",
-    "setupBody": "OraType downloads SearXNG, a free search engine that asks several search engines at once, with its own copy of Python. About 230 MB, from GitHub. It runs only on this Mac and only while OraType is open.",
+    "setupBody": "{{appName}} downloads SearXNG, a free search engine that asks several search engines at once, with its own copy of Python. About 230 MB, from GitHub. It runs only on this Mac and only while {{appName}} is open.",
     "setupLicence": "SearXNG is separate open-source software (AGPL), downloaded when you press Set up.",
     "setup": "Set up",
     "settingUp": "Setting up SearXNG…",
@@ -1283,19 +1283,19 @@
   "updates": {
     "group": "Updates",
     "auto": "Update automatically",
-    "autoHint": "Checks GitHub for a new version when OraType starts and every 6 hours, downloads it in the background, and asks you to restart. Only the version file is requested; nothing about you or what you say is sent.",
-    "version": "OraType {{version}}",
+    "autoHint": "Checks GitHub for a new version when {{appName}} starts and every 6 hours, downloads it in the background, and asks you to restart. Only the version file is requested; nothing about you or what you say is sent.",
+    "version": "{{appName}} {{version}}",
     "check": "Check for updates",
     "checking": "Checking for updates…",
     "upToDate": "You have the newest version.",
-    "availableTitle": "OraType {{version}} is available.",
+    "availableTitle": "{{appName}} {{version}} is available.",
     "availableBody": "Update to get the latest fixes and features.",
     "update": "Update",
-    "downloadingTitle": "Downloading OraType {{version}}…",
+    "downloadingTitle": "Downloading {{appName}} {{version}}…",
     "downloading": "This takes a moment.",
     "downloadingPercent": "{{percent}}%",
-    "readyTitle": "OraType {{version}} is ready.",
-    "readyBody": "Restart to start using it. If a shortcut stops working after the update, turn OraType off and on again in Privacy & Security → Accessibility.",
+    "readyTitle": "{{appName}} {{version}} is ready.",
+    "readyBody": "Restart to start using it. If a shortcut stops working after the update, turn {{appName}} off and on again in Privacy & Security → Accessibility.",
     "restart": "Restart to update",
     "failed": "The update did not work: {{message}}",
     "disabled": "The development build does not update itself."
@@ -1329,7 +1329,7 @@
     "homeBodySpeech": "{{speech}} for speech recognition. It runs on this Mac; {{size}} to download.",
     "homeBodyAi": "{{ai}} for AI polish. It runs on this Mac; {{size}} to download.",
     "dontShowAgain": "Don’t show again",
-    "generalHelp": "When you dictate or ask, OraType picks the language you spoke from this list and follows its preset, with built-in models, your own server or an API key. A language’s preset also applies when you translate into it.",
+    "generalHelp": "When you dictate or ask, {{appName}} picks the language you spoke from this list and follows its preset, with built-in models, your own server or an API key. A language’s preset also applies when you translate into it.",
     "useMac": "Add {{languages}}",
     "changeLanguages": "Change your languages"
   }

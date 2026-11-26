@@ -38,7 +38,6 @@ pub use tray::{refresh_tray, TrayHandle};
 
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager};
-use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_store::StoreExt;
 use tracing_subscriber::EnvFilter;
 
@@ -252,7 +251,7 @@ fn build_ask_window(handle: &tauri::AppHandle) -> tauri::Result<tauri::WebviewWi
         "ask",
         tauri::WebviewUrl::App("index.html#ask".into()),
     )
-    .title("OraType Ask")
+    .title(format!("{APP_NAME} Ask"))
     .inner_size(452.0, 192.0)
     .resizable(false)
     .decorations(false)
@@ -1023,9 +1022,9 @@ fn dispatch_cli_action(app: &tauri::AppHandle, action: CliAction) {
 /// The app's name in the menu bar tooltip: "OraType Dev" for the development build, so the two
 /// apps can be told apart when both are installed.
 #[cfg(not(feature = "dev-build"))]
-pub(crate) const APP_NAME: &str = "OraType";
+pub(crate) const APP_NAME: &str = "KoelType";
 #[cfg(feature = "dev-build")]
-pub(crate) const APP_NAME: &str = "OraType Dev";
+pub(crate) const APP_NAME: &str = "KoelType Dev";
 
 /// The log folder's name under `~/Library/Logs`. The development build (`dev-build` feature)
 /// writes to its own folder, so its log never mixes with the release app's.
@@ -1132,10 +1131,12 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_clipboard_manager::init())
-        .plugin(tauri_plugin_autostart::init(
-            MacosLauncher::LaunchAgent,
-            None,
-        ))
+        // Keep the existing login item label for in-place upgrades.
+        .plugin(
+            tauri_plugin_autostart::Builder::new()
+                .app_name(LOG_FOLDER)
+                .build(),
+        )
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())
         // Plan `preset-sharing`: the save and open dialogs of preset Export and Import (used from Rust only).

@@ -1,5 +1,6 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import { APP_NAME } from '../lib/constants'
 import { UI_LANGUAGES } from './languages'
 import { siModePostProcessor } from './siMode'
 
@@ -21,7 +22,7 @@ i18n
     // `zh-Hant` is a whole code here, not `zh` plus a region.
     load: 'currentOnly',
     nonExplicitSupportedLngs: false,
-    interpolation: { escapeValue: false },
+    interpolation: { escapeValue: false, defaultVariables: { appName: APP_NAME } },
     // Plan `si-mode`: does nothing until the switch is on.
     postProcess: ['siMode'],
   })

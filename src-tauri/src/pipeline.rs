@@ -1451,14 +1451,14 @@ impl PipelineHandle {
         // Update tray tooltip + menu to reflect pipeline state
         if let Some(tray_handle) = self.app_handle.try_state::<crate::TrayHandle>() {
             let tooltip = match new_state {
-                PipelineState::Preparing => "OraType - Preparing...",
-                PipelineState::Recording => "OraType - Recording...",
-                PipelineState::Transcribing => "OraType - Transcribing...",
-                PipelineState::Polishing => "OraType - Polishing...",
-                PipelineState::Outputting => "OraType - Outputting...",
-                PipelineState::AskRecording => "OraType - Ask...",
-                PipelineState::AskThinking => "OraType - Answering...",
-                PipelineState::Idle => crate::APP_NAME,
+                PipelineState::Preparing => format!("{} - Preparing...", crate::APP_NAME),
+                PipelineState::Recording => format!("{} - Recording...", crate::APP_NAME),
+                PipelineState::Transcribing => format!("{} - Transcribing...", crate::APP_NAME),
+                PipelineState::Polishing => format!("{} - Polishing...", crate::APP_NAME),
+                PipelineState::Outputting => format!("{} - Outputting...", crate::APP_NAME),
+                PipelineState::AskRecording => format!("{} - Ask...", crate::APP_NAME),
+                PipelineState::AskThinking => format!("{} - Answering...", crate::APP_NAME),
+                PipelineState::Idle => crate::APP_NAME.to_owned(),
             };
             if let Ok(t) = tray_handle.tray.lock() {
                 let _ = t.set_tooltip(Some(tooltip));
@@ -2261,7 +2261,7 @@ impl PipelineHandle {
         // Update tray for transcribing state
         if let Some(tray_handle) = self.app_handle.try_state::<crate::TrayHandle>() {
             if let Ok(t) = tray_handle.tray.lock() {
-                let _ = t.set_tooltip(Some("OraType - Transcribing..."));
+                let _ = t.set_tooltip(Some(format!("{} - Transcribing...", crate::APP_NAME)));
             }
         }
         crate::refresh_tray(&self.app_handle);

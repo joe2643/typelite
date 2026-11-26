@@ -63,9 +63,9 @@ async fn choose_file(builder: FileDialogBuilder<tauri::Wry>, save: bool) -> Opti
 
 fn file_dialog(window: &Window, filter_name: &str) -> FileDialogBuilder<tauri::Wry> {
     let name = if filter_name.trim().is_empty() {
-        "OraType presets"
+        format!("{} presets", crate::APP_NAME)
     } else {
-        filter_name.trim()
+        filter_name.trim().to_owned()
     };
     window
         .dialog()

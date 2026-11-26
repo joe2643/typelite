@@ -53,7 +53,7 @@ const HEALTH_POLL: Duration = Duration::from_millis(250);
 /// Why the built-in server is not available.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ServerError {
-    /// This copy of OraType has no `llama-server` program.
+    /// This copy of KoelType has no `llama-server` program.
     BinaryMissing,
     /// The model file is not downloaded (or the models folder is unknown).
     ModelMissing,
@@ -72,7 +72,7 @@ impl std::fmt::Display for ServerError {
         match self {
             ServerError::BinaryMissing => write!(
                 f,
-                "The built-in AI server (llama-server) is missing from this copy of OraType."
+                "The built-in AI server (llama-server) is missing from this copy of KoelType."
             ),
             ServerError::ModelMissing => write!(f, "The built-in AI model is not downloaded."),
             ServerError::Spawn(reason) => {
