@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use async_trait::async_trait;
 
 use crate::error::AppError;
@@ -5,7 +7,10 @@ use crate::error::AppError;
 use super::silence::{
     accept_transcript_given_with_prefix_echo, log_decision, NoSpeechGuard, VoiceActivity,
 };
-use super::transcript::{normalize_transcript, split_language_tag};
+use super::transcript::{
+    collapse_repetitions, is_no_speech_language_tag, normalize_transcript, split_language_tag,
+    QWEN3_ASR_REPETITION_THRESHOLD,
+};
 use super::{SttConfig, SttProvider, TranscriptEvent};
 
 /// Configuration for a Whisper-compatible HTTP file-upload STT provider.
@@ -58,6 +63,8 @@ struct Answer {
     /// Plan `qwen3-asr-support`: the text carried Qwen3-ASR's language tag.
     qwen3_asr: bool,
     hit_output_cap: bool,
+    /// Qwen3-ASR explicitly tagged the audio as no speech (`language None<asr_text>`).
+    language_none: bool,
 }
 
 /// Max audio buffer: ~24 MB PCM ≈ 12.5 min at 16kHz 16-bit mono.
@@ -341,6 +348,14 @@ impl SttProvider for WhisperCompatProvider {
                 self.provider_config.provider_name
             );
         }
+        if answer.language_none {
+            log_decision(
+                &self.provider_config.provider_name,
+                &activity,
+                Some(NoSpeechGuard::QwenLanguageNone),
+            );
+            return Ok(None);
+        }
         // llama-server can read its default instruction back on short bursts of noise.
         if self.provider_config.builtin_llama_server
             && activity.voiced_ms < super::hallucination::MAX_VOICED_MS
@@ -469,7 +484,21 @@ impl WhisperCompatProvider {
                         // Plan `qwen3-asr-support`: Qwen3-ASR servers put the language in
                         // front of the text; a `language` field, when present, wins.
                         let (body, tagged) = split_language_tag(v["text"].as_str().unwrap_or(""));
-                        let text = normalize_transcript(body);
+                        if tagged.is_some_and(is_no_speech_language_tag) {
+                            return Ok(Answer {
+                                text: None,
+                                language: None,
+                                qwen3_asr: true,
+                                hit_output_cap: cap_hit.is_some(),
+                                language_none: true,
+                            });
+                        }
+                        let cleaned = if tagged.is_some() {
+                            Cow::Owned(collapse_repetitions(body, QWEN3_ASR_REPETITION_THRESHOLD))
+                        } else {
+                            Cow::Borrowed(body)
+                        };
+                        let text = normalize_transcript(&cleaned);
                         let language = v["language"]
                             .as_str()
                             .and_then(super::normalize_detected_language)
@@ -486,6 +515,7 @@ impl WhisperCompatProvider {
                             language,
                             qwen3_asr: tagged.is_some(),
                             hit_output_cap: cap_hit.is_some(),
+                            language_none: false,
                         });
                     } else if status.as_u16() >= 500 && attempt < 2 {
                         let truncate_at = body
@@ -772,6 +802,30 @@ mod tests {
             }
         });
         (url, seen)
+    }
+
+    async fn transcribe_answer(endpoint: &str) -> (Option<String>, WhisperCompatProvider) {
+        let mut audio = vec![0u8; 16_000];
+        audio.extend(pcm_tone(0.3, 1.0, 16_000));
+        audio.extend(vec![0u8; 16_000]);
+        transcribe_answer_with_audio(endpoint, &audio).await
+    }
+
+    async fn transcribe_answer_with_audio(
+        endpoint: &str,
+        audio: &[u8],
+    ) -> (Option<String>, WhisperCompatProvider) {
+        let mut provider = WhisperCompatProvider::new(WhisperCompatConfig {
+            provider_name: "test-whisper".to_string(),
+            endpoint: endpoint.to_string(),
+            model: "test-model".to_string(),
+            verbose_json: false,
+            builtin_llama_server: true,
+        });
+        provider.connect(&SttConfig::default()).await.unwrap();
+        provider.send_audio(audio).await.unwrap();
+        let text = provider.disconnect().await.unwrap();
+        (text, provider)
     }
 
     async fn transcribe_given(endpoint: &str, vocabulary: &[&str]) -> Option<String> {
@@ -1470,5 +1524,174 @@ mod tests {
                 "external provider must stay at 60s for dur_s={dur_s:?}"
             );
         }
+    }
+
+    #[tokio::test]
+    async fn qwen3_asr_language_none_drops_empty_and_trailing_leakage() {
+        for raw in [
+            "language None<asr_text>",
+            "language None<asr_text>language Cantonese<asr_text>我哋嘅生活",
+            "language None<asr_text>係呀",
+            "language none<asr_text>雜字",
+        ] {
+            let payload = serde_json::json!({ "text": raw }).to_string();
+            let (url, _) = recording_server(payload).await;
+            let (text, provider) = transcribe_answer(&url).await;
+            assert_eq!(text, None, "{raw:?}");
+            assert_eq!(provider.detected_language(), None, "{raw:?}");
+            assert!(provider.answered_as_qwen3_asr(), "{raw:?}");
+        }
+    }
+
+    #[tokio::test]
+    async fn qwen3_asr_repetition_tail_is_collapsed_before_hallucination_guard() {
+        let cases = [
+            (
+                format!("最後尾嗰首歌唔知乜嘢內容{}", " 唔好講".repeat(41)),
+                "最後尾嗰首歌唔知乜嘢內容唔好講",
+            ),
+            (
+                format!(
+                    "諗下先啦。 佢喺度搣嗰啲鬚呢，其實開始喺度縮嘅。 {}絲毫",
+                    "絲毫絲毫。 ".repeat(31)
+                ),
+                "諗下先啦。佢喺度搣嗰啲鬚呢，其實開始喺度縮嘅。絲毫絲毫。絲毫",
+            ),
+            (
+                format!(
+                    "加油啦！擘開隻眼。腫腫咗呀？Streaming spectator，哎呀幾好睇喎講真。冇啦冇啦冇啦，心態已崩。{}哎",
+                    "哎呀！".repeat(68)
+                ),
+                "加油啦！擘開隻眼。腫腫咗呀？Streaming spectator，哎呀幾好睇喎講真。冇啦冇啦冇啦，心態已崩。哎呀！哎",
+            ),
+            ("係呀！".repeat(84), "係呀！"),
+        ];
+
+        for (raw_body, expected_clean) in cases {
+            // Red check: without repetition collapsing, the full-segment loop guard drops it.
+            let raw_normalized = normalize_transcript(&raw_body);
+            assert!(
+                super::super::hallucination::is_likely_hallucination(&raw_normalized, 1000, 2000,),
+                "expected uncollapsed loop to be dropped by full-segment guard: {raw_normalized:?}"
+            );
+
+            // Green check: collapsing before hallucination guard recovers the spoken prefix.
+            let payload = serde_json::json!({
+                "text": format!("language Cantonese<asr_text>{raw_body}")
+            })
+            .to_string();
+            let (url, _) = recording_server(payload).await;
+            let (text, provider) = transcribe_answer(&url).await;
+            assert_eq!(text.as_deref(), Some(expected_clean));
+            assert_eq!(provider.detected_language().as_deref(), Some("yue"));
+            assert!(provider.answered_as_qwen3_asr());
+        }
+
+        // Natural Cantonese reduplication and mixed-language dictation stay untouched.
+        let natural = "慢慢行，睇睇先，我哋聽日 three o'clock 喺會議室開會，記得帶齊 laptop 呀。";
+        let payload = serde_json::json!({
+            "text": format!("language Cantonese<asr_text>{natural}")
+        })
+        .to_string();
+        let (url, _) = recording_server(payload).await;
+        let (text, provider) = transcribe_answer(&url).await;
+        assert_eq!(text.as_deref(), Some(natural));
+        assert_eq!(provider.detected_language().as_deref(), Some("yue"));
+        assert!(provider.answered_as_qwen3_asr());
+    }
+
+    #[tokio::test]
+    async fn extreme_loops_and_collapsed_subtitle_echoes_are_dropped() {
+        // Without a Qwen3-ASR tag, a high token-rate loop is still dropped by the guard.
+        let untagged_loop = serde_json::json!({
+            "text": "有好多嘅節奏，".repeat(25)
+        })
+        .to_string();
+        let (url, _) = recording_server(untagged_loop).await;
+        let (text, provider) = transcribe_answer(&url).await;
+        assert_eq!(text, None);
+        assert!(!provider.answered_as_qwen3_asr());
+
+        // Below the Qwen3-ASR pattern threshold (< 20), an extreme >12 tok/s loop is still dropped.
+        let short_qwen_loop = serde_json::json!({
+            "text": format!("language Cantonese<asr_text>{}", "有好多嘅節奏，".repeat(12))
+        })
+        .to_string();
+        let (url, _) = recording_server(short_qwen_loop).await;
+        let (text, provider) = transcribe_answer(&url).await;
+        assert_eq!(text, None);
+        assert_eq!(provider.detected_language().as_deref(), Some("yue"));
+        assert!(provider.answered_as_qwen3_asr());
+
+        // The repeat collapse leaves an exact subtitle echo that the short-audio guard drops.
+        let prior_loop = serde_json::json!({
+            "text": format!("language Cantonese<asr_text>{}", "多謝收看。".repeat(25))
+        })
+        .to_string();
+        let (url, _) = recording_server(prior_loop).await;
+        let (text, provider) = transcribe_answer(&url).await;
+        assert_eq!(text, None);
+        assert_eq!(provider.detected_language().as_deref(), Some("yue"));
+        assert!(provider.answered_as_qwen3_asr());
+    }
+
+    #[test]
+    fn qwen3_asr_language_none_logs_single_unified_speech_check_decision() {
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let buffer = TestLogBuffer::default();
+        let writer = buffer.clone();
+        let subscriber = tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::INFO)
+            .with_ansi(false)
+            .with_writer(move || writer.clone())
+            .finish();
+        tracing::subscriber::with_default(subscriber, || {
+            rt.block_on(async {
+                let payload = serde_json::json!({
+                    "text": "language None<asr_text>我哋嘅生活"
+                })
+                .to_string();
+                let (url, _) = recording_server(payload).await;
+                let (text, provider) = transcribe_answer(&url).await;
+                assert_eq!(text, None);
+                assert_eq!(provider.detected_language(), None);
+                assert!(provider.answered_as_qwen3_asr());
+            });
+        });
+        let logs = buffer.text();
+        let speech_check_lines: Vec<&str> = logs
+            .lines()
+            .filter(|line| line.contains("test-whisper: speech check:"))
+            .collect();
+        assert_eq!(speech_check_lines.len(), 1, "{logs}");
+        assert!(
+            speech_check_lines[0].contains("no speech (qwen3-asr language none)"),
+            "{logs}"
+        );
+        assert!(!logs.contains("empty transcript"), "{logs}");
+        assert!(!logs.contains("reported no speech"), "{logs}");
+    }
+
+    #[tokio::test]
+    async fn qwen3_asr_preserves_slow_short_dictation() {
+        // Leave enough quiet windows after edge trimming to establish the noise floor.
+        // The measured rate is still below the old 2.5 chars/s threshold.
+        let mut audio = vec![0u8; 9_600];
+        audio.extend(pcm_tone(0.3, 3.4, 16_000));
+        audio.extend(vec![0u8; 9_600]);
+        let activity = VoiceActivity::measure(&audio, 16_000);
+        assert_eq!(activity.duration_ms, 4000);
+        assert_eq!(activity.voiced_ms, 3400);
+        assert!(activity.has_speech());
+
+        let payload = r#"{"text":"language Cantonese<asr_text>我哋嘅生活好開心"}"#;
+        let (url, _) = recording_server(payload).await;
+        let (text, provider) = transcribe_answer_with_audio(&url, &audio).await;
+        assert_eq!(text.as_deref(), Some("我哋嘅生活好開心"));
+        assert_eq!(provider.detected_language().as_deref(), Some("yue"));
+        assert!(provider.answered_as_qwen3_asr());
     }
 }

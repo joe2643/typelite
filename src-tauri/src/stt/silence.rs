@@ -115,7 +115,9 @@ pub enum NoSpeechGuard {
     VoiceCheck,
     /// The built-in model marked every segment as probably not speech.
     WhisperNoSpeech,
-    /// Short audio whose whole transcript is a phrase Whisper invents for noise.
+    /// Qwen3-ASR reported no speech (`language None<asr_text>`).
+    QwenLanguageNone,
+    /// A short known subtitle echo or an extreme transcription loop.
     Hallucination,
     /// The speech engine returned no text.
     EmptyTranscript,
@@ -129,6 +131,7 @@ impl NoSpeechGuard {
         match self {
             Self::VoiceCheck => "voice check",
             Self::WhisperNoSpeech => "whisper no-speech",
+            Self::QwenLanguageNone => "qwen3-asr language none",
             Self::Hallucination => "hallucination guard",
             Self::EmptyTranscript => "empty transcript",
             Self::PromptEcho => "dictionary echo",
@@ -194,7 +197,13 @@ pub fn accept_transcript_given_with_prefix_echo(
             log_decision(provider, activity, Some(NoSpeechGuard::PromptEcho));
             None
         }
-        Some(text) if super::hallucination::is_likely_hallucination(&text, activity.voiced_ms) => {
+        Some(text)
+            if super::hallucination::is_likely_hallucination(
+                &text,
+                activity.voiced_ms,
+                activity.duration_ms,
+            ) =>
+        {
             log_decision(provider, activity, Some(NoSpeechGuard::Hallucination));
             None
         }
