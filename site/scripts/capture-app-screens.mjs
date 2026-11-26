@@ -32,6 +32,7 @@ export const APP_SCREENS = [
     scale: 1.6,
   },
   { name: 'onboarding', screen: 'onboarding', width: 1000, height: 820, scale: 1.6 },
+  { name: 'recording-pill', screen: 'pill', width: 500, height: 150, scale: 3.2 },
   { name: 'copy-pill', screen: 'copy-pill', width: 500, height: 150, scale: 3.2 },
 ]
 
@@ -116,13 +117,20 @@ export async function captureAppScreens({ browser, outDir, themes = ['light', 'd
         const page = await browser.newPage({ width, height, scale, dark })
         await page.goto(`${url}?screen=${screen}&theme=${theme}`)
         await page.waitFor('window.__captureReady === true', 60000)
+        if (screen === 'pill') {
+          await page.waitFor(`document.querySelector('[data-testid="waveform"]')`)
+        }
+        if (screen === 'copy-pill') {
+          await page.waitFor('document.querySelector(".pill-copy-button")')
+        }
         if (screen === 'home') {
           // Open "Compare presets" in Insights.
           await page.evaluate(`document.querySelector('button[aria-expanded="false"]')?.click()`)
           await new Promise((r) => setTimeout(r, 700))
         }
         if (screen === 'settings-languages') {
-          // Scroll the settings page so the Translation group starts near the top.
+          // Scroll General so the Your languages group starts near the top.
+          await page.waitFor('document.querySelector(".language-rows")')
           await page.evaluate(`(() => {
             const rows = document.querySelector('.language-rows')
             let scroller = rows?.parentElement

@@ -15,7 +15,7 @@ import { join } from 'node:path'
 const DEFAULT_CHROMIUM = '/Applications/Chromium.app/Contents/MacOS/Chromium'
 
 export async function launch({ executable = process.env.CHROMIUM || DEFAULT_CHROMIUM } = {}) {
-  const profile = await mkdtemp(join(tmpdir(), 'oratype-capture-'))
+  const profile = await mkdtemp(join(tmpdir(), 'koeltype-capture-'))
   const child = spawn(
     executable,
     [
@@ -25,6 +25,7 @@ export async function launch({ executable = process.env.CHROMIUM || DEFAULT_CHRO
       '--no-first-run',
       '--no-default-browser-check',
       '--hide-scrollbars',
+      '--mute-audio',
       '--force-color-profile=srgb',
       '--font-render-hinting=none',
       'about:blank',
@@ -94,9 +95,7 @@ function makePage(conn, viewport) {
   const page = {
     conn,
     async goto(url, { waitFor } = {}) {
-      const loaded = conn.once('Page.loadEventFired')
-      await conn.send('Page.navigate', { url })
-      await loaded
+      await Promise.all([conn.once('Page.loadEventFired'), conn.send('Page.navigate', { url })])
       if (waitFor) await page.waitFor(waitFor)
     },
     /** Evaluates an expression (awaiting promises) and returns its JSON value. */
@@ -165,6 +164,15 @@ async function connect(url) {
   const pending = new Map()
   const waiters = new Map()
   const listeners = new Map()
+  ws.addEventListener('close', () => {
+    const error = new Error('Chromium closed the DevTools connection')
+    for (const { reject } of pending.values()) reject(error)
+    for (const list of waiters.values()) {
+      for (const { reject } of list) reject(error)
+    }
+    pending.clear()
+    waiters.clear()
+  })
   ws.addEventListener('message', (event) => {
     const msg = JSON.parse(event.data)
     if (msg.id && pending.has(msg.id)) {
@@ -178,19 +186,25 @@ async function connect(url) {
     if (msg.method && waiters.has(msg.method)) {
       const list = waiters.get(msg.method)
       waiters.delete(msg.method)
-      list.forEach((fn) => fn(msg.params))
+      list.forEach(({ resolve }) => resolve(msg.params))
     }
   })
   return {
     send(method, params = {}) {
+      if (ws.readyState !== WebSocket.OPEN)
+        return Promise.reject(new Error('Chromium is disconnected'))
       const id = nextId++
       ws.send(JSON.stringify({ id, method, params }))
       return new Promise((resolve, reject) => pending.set(id, { resolve, reject }))
     },
     once(method) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
+        if (ws.readyState !== WebSocket.OPEN) {
+          reject(new Error('Chromium is disconnected'))
+          return
+        }
         const list = waiters.get(method) ?? []
-        list.push(resolve)
+        list.push({ resolve, reject })
         waiters.set(method, list)
       })
     },

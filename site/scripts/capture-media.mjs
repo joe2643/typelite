@@ -5,7 +5,7 @@
 // - hero.gif, translate.gif, ask.gif: the site's own demo components (src/demos), rendered
 //   frame by frame on capture/index.html in headless Chromium, then encoded by ffmpeg with a
 //   generated palette.
-// - home.png, settings-languages.png, onboarding.png, copy-pill.png (+ -dark): the real app's
+// - home.png, settings-languages.png, onboarding.png, copy-pill.png, recording-pill.png (+ -dark): the real app's
 //   components with a mocked backend (scripts/capture-app-screens.mjs; needs `npm ci` at the
 //   repository root too).
 // - public/og.png: the 1200 × 630 link preview card.
@@ -104,7 +104,7 @@ async function captureGif(
   await page.goto(`${base}/capture/?scene=${scene}&theme=${theme}`)
   await page.waitFor('window.__oratypeCapture && document.querySelector("#frame > *")')
   await document_fonts(page)
-  const frames = await mkdtemp(join(tmpdir(), `oratype-${name}-`))
+  const frames = await mkdtemp(join(tmpdir(), `koeltype-${name}-`))
   const step = 1 / fps
   let i = 0
   for (let t = from; t < to - 1e-6; t += step) {

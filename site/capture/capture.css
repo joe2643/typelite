@@ -33,10 +33,8 @@ body.capture::before {
   margin: -20px;
   padding: 64px 80px;
   overflow: hidden;
-  color: #f1f6ff;
-  background:
-    radial-gradient(60% 70% at 0% 0%, rgba(63, 216, 194, 0.32), transparent 70%),
-    radial-gradient(55% 70% at 100% 100%, rgba(175, 82, 222, 0.34), transparent 70%), #07090e;
+  color: #e6e2da;
+  background: #1e1e1d;
 }
 .og-brand {
   display: flex;
@@ -53,15 +51,10 @@ body.capture::before {
   letter-spacing: -0.05em;
   line-height: 1;
 }
-.og .gradient-text {
-  background: linear-gradient(95deg, #3fd8c2, #af52de);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
 .og p {
   max-width: 700px;
   margin-top: 26px;
-  color: #a6b3c8;
+  color: #c2beb6;
   font-size: 30px;
   line-height: 1.35;
 }
@@ -71,13 +64,12 @@ body.capture::before {
   top: 250px;
   transform: scale(2.2);
   transform-origin: right center;
-  --aurora-a: #3fd8c2;
 }
 .og-foot {
   position: absolute;
   left: 80px;
   bottom: 56px;
-  color: #7d8ba3;
+  color: #a19d95;
   font-size: 22px;
   font-weight: 500;
 }

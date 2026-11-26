@@ -18,7 +18,7 @@ export type Screen =
 
 export const SCREENS: Record<Screen, { hash: string }> = {
   home: { hash: '#/' },
-  'settings-languages': { hash: '#/settings?pane=llm' },
+  'settings-languages': { hash: '#/settings?pane=general' },
   onboarding: { hash: '#/' },
   'copy-pill': { hash: '#capsule' },
   // Settings → General with Hands-free on (plan `hands-free-mode`).
@@ -39,11 +39,15 @@ const OLLAMA_ID = 'capture-ollama'
 const SPEECH_SERVER_ID = 'capture-whisper-server'
 
 let baseConfig: AppConfig | null = null
+let appName: string
+let appVersion: string
 let config: AppConfig | null = null
 
 /** Called by app.ts with the store's own defaults before anything renders. */
-export function setBaseConfig(defaults: AppConfig) {
+export function setBaseConfig(defaults: AppConfig, name: string, version: string) {
   baseConfig = defaults
+  appName = name
+  appVersion = version
 }
 
 type LibraryEntry = (typeof libraryIndex.presets)[number]
@@ -248,9 +252,12 @@ export function handleCommand(
     case 'plugin:store|save':
       return null
     case 'plugin:app|version':
-      return '0.1.0'
+      return appVersion
     case 'plugin:app|name':
-      return 'OraType'
+      return appName
+
+    case 'update_status':
+      return { state: 'disabled' }
 
     // Config and data
     case 'get_config':

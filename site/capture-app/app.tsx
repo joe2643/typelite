@@ -1,6 +1,7 @@
 // Mounts the real app (src/App.tsx) into the capture frame, after main.ts installed the mocks.
 import { createRoot } from 'react-dom/client'
 import '../../src/i18n'
+import { APP_NAME, APP_VERSION } from '../../src/lib/constants'
 import './app.css'
 import './capture.css'
 import App from '../../src/App'
@@ -24,7 +25,7 @@ const COPY_TEXT =
 
 export function mount(screen: Screen) {
   const defaults = useAppStore.getState().config
-  setBaseConfig(defaults)
+  setBaseConfig(defaults, APP_NAME, APP_VERSION)
   // Both services passed a check (green dots in the sidebar).
   useAppStore.setState({
     speechHealth: { presetId: defaults.speech_presets[0].id, ok: true },

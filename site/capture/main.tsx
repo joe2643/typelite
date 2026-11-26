@@ -9,6 +9,7 @@ import { enableCaptureClock } from '../src/lib/clock'
 import { HeroDemo } from '../src/demos/HeroDemo'
 import { AskVignette, TranslateVignette } from '../src/demos/Vignettes'
 import { Aurora, Pill, PillRecording, speechBetween } from '../src/components/Pill'
+import { PRODUCT_NAME } from '../src/links'
 import { App } from '../src/App'
 import '../src/styles.css'
 import './capture.css'
@@ -27,10 +28,10 @@ function Og() {
     <div className="og">
       <div className="og-brand">
         <img src={`${import.meta.env.BASE_URL}icon-256.png`} alt="" width={64} height={64} />
-        OraType
+        {PRODUCT_NAME}
       </div>
       <h1>
-        Just <span className="gradient-text">say it.</span>
+        Just say it<span className="hero-period">.</span>
       </h1>
       <p>Press a shortcut in any app, speak, and clean text lands where you’re typing.</p>
       <div className="og-pill">
