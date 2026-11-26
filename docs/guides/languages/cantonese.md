@@ -22,7 +22,7 @@ preset.
 
 | Step | Model | Why |
 |---|---|---|
-| Speech recognition | [Qwen3-ASR-1.7B-HK-Cantonese](https://huggingface.co/joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF) (Apache-2.0), the OraType team's fine-tune of [Qwen3-ASR-1.7B](../speech/openai-compatible.md#qwen3-asr) | Writes what you said in Cantonese (我哋, 聽日, 咗, 緊, 咯), in Hong Kong characters, and keeps the English words you mix in. |
+| Speech recognition | [Qwen3-ASR-1.7B-HK-Cantonese](https://huggingface.co/koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF) (Apache-2.0), Koelony's fine-tune of [Qwen3-ASR-1.7B](../speech/openai-compatible.md#qwen3-asr) | Writes what you said in Cantonese (我哋, 聽日, 咗, 緊, 咯), in Hong Kong characters, and keeps the English words you mix in. |
 | AI polish | [Huihui-Qwen3.5-4B-abliterated](https://huggingface.co/huihui-ai/Huihui-Qwen3.5-4B-abliterated) (tested) | Given a Cantonese transcript, it only has to clean up: fillers, self-corrections, punctuation. Use an uncensored model: stock instruct models soften or drop Cantonese slang and swear words, so the text stops sounding native. |
 | Language preset | [Cantonese (Hong Kong)](../../../presets/languages/cantonese-hong-kong/preset.md) | Tells polish how Hongkongers write, and lets OraType recognise that you spoke Cantonese. |
 
@@ -52,7 +52,7 @@ was said.
    [Qwen3-ASR](../speech/openai-compatible.md#qwen3-asr) for vLLM and other options):
 
    ```sh
-   llama-server -hf joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF:Q6_K --host 127.0.0.1 --port 8180 -c 4096 -np 1
+   llama-server -hf koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF:Q6_K --host 127.0.0.1 --port 8180 -c 4096 -np 1
    ```
 
    The first start downloads the model and its audio encoder (about 1.8 GB). To serve other
@@ -131,7 +131,7 @@ with one Cantonese clip fewer, in about half the time
   model; tell us how it does with yours.
 - Qwen3-ASR-1.7B needs about 3.4 GB of VRAM with llama.cpp (Q8_0), about 7 GB with vLLM. On a
   smaller GPU, use Qwen3-ASR-0.6B-HK-Cantonese
-  (`joe2643/Qwen3-ASR-0.6B-Cantonese-HK-GGUF:Q6_K`).
+  (`koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF:Q6_K`).
 - Qwen3-ASR-1.7B-HK-Cantonese was trained on Cantonese and Cantonese–English speech. It sometimes
   writes Mandarin speech in Cantonese words (請喺呢度簽名 for 请在这里签名), and it usually leaves
   out the final 。, which polish adds back.

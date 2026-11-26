@@ -103,12 +103,12 @@ pub struct AsrFiles {
 
 /// The `llama-server` speech models, pinned to one commit of their Hugging Face repository; sizes
 /// and SHA-256 values are the files' LFS size and object id. Plan `hk-cantonese-asr`: the
-/// Qwen3-ASR model is Qwen3-ASR-1.7B-HK-Cantonese (`joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF`), a
+/// Qwen3-ASR model is Qwen3-ASR-1.7B-HK-Cantonese (`koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF`), a
 /// fine-tune for Hong Kong Cantonese with English mixed in, which writes Hong Kong Traditional
 /// characters. Version 2, Q6_K: its Q4_K_M wrote some English clips in Chinese, and its Q8_0 is
 /// slower for no gain (benchmark report `2026-11-10-hk-cantonese-asr`). Plan
 /// `small-cantonese-asr` adds Qwen3-ASR-0.6B-HK-Cantonese
-/// (`joe2643/Qwen3-ASR-0.6B-Cantonese-HK-GGUF`), Q6_K: as many speech clips passed as the 1.7B at about half the time and 1 GB less memory
+/// (`koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF`), Q6_K: as many speech clips passed as the 1.7B at about half the time and 1 GB less memory
 /// (benchmark report `2026-11-14-hk-cantonese-0.6b`). Largest first.
 pub const ASR_MODELS: &[AsrModel] = &[
     AsrModel {
@@ -124,7 +124,7 @@ pub const ASR_MODELS: &[AsrModel] = &[
             size_bytes: 355_709_216,
             sha256: "0ec38c2b7a8a81b6a011af5203197a4df3e61fd63cea780ff2004eef1ef7265e",
         },
-        base_url: "https://huggingface.co/joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF/resolve/c2b90a46d61a5fc93ec07955aeaf18b8ffdc5ed9",
+        base_url: "https://huggingface.co/koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF/resolve/c2b90a46d61a5fc93ec07955aeaf18b8ffdc5ed9",
         min_memory_bytes: 8 * GIB,
         previous: &[
             // OraType 1.2.1: Qwen3-ASR 1.7B, mradermacher's Q4_K_M (1.28 GB) and its Q8_0 projector
@@ -173,7 +173,7 @@ pub const ASR_MODELS: &[AsrModel] = &[
             size_bytes: 214_392_416,
             sha256: "e9140ebcb5b9f5c666e01884da51914bc9e204c1c268c142868ebd859eb6448f",
         },
-        base_url: "https://huggingface.co/joe2643/Qwen3-ASR-0.6B-Cantonese-HK-GGUF/resolve/9b67dd08958900879ef34939485bb977a308a2f5",
+        base_url: "https://huggingface.co/koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF/resolve/9b67dd08958900879ef34939485bb977a308a2f5",
         min_memory_bytes: 8 * GIB,
         previous: &[],
     },
@@ -740,7 +740,7 @@ mod tests {
         assert_eq!(model, qwen.file);
         assert_eq!(projector, qwen.projector);
         assert!(model_url.starts_with(
-            "https://huggingface.co/joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF/resolve/"
+            "https://huggingface.co/koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF/resolve/"
         ));
         assert!(model_url.ends_with("/Qwen3-ASR-1.7B-Cantonese-HK.Q6_K.gguf"));
         assert!(projector_url.ends_with("/Qwen3-ASR-1.7B-Cantonese-HK.mmproj-Q8_0.gguf"));
@@ -797,7 +797,7 @@ mod tests {
         assert_eq!(small.all_files().len(), 2);
         let [(_, model_url), (_, projector_url)] = small.downloads();
         assert!(model_url.starts_with(
-            "https://huggingface.co/joe2643/Qwen3-ASR-0.6B-Cantonese-HK-GGUF/resolve/"
+            "https://huggingface.co/koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF/resolve/"
         ));
         assert!(model_url.ends_with("/Qwen3-ASR-0.6B-Cantonese-HK.Q6_K.gguf"));
         assert!(projector_url.ends_with("/Qwen3-ASR-0.6B-Cantonese-HK.mmproj-Q8_0.gguf"));

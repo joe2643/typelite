@@ -179,10 +179,12 @@ The images are rendered from the app's own components and the website's demos; s
 
 ## Related projects
 
-- [qwen3-asr-cantonese-hk](https://github.com/joe2643/qwen3-asr-cantonese-hk): the OraType team's
-  fine-tune of Qwen3-ASR-1.7B for Hong Kong Cantonese with English mixed in (Apache-2.0).
+- [qwen3-asr-cantonese-hk](https://github.com/koelony/qwen3-asr-cantonese-hk):
+  [Koelony](https://koelony.com)'s fine-tune of Qwen3-ASR-1.7B for Hong Kong Cantonese with
+  English mixed in (Apache-2.0).
   OraType's built-in speech uses it for any language list with Cantonese. The repository has
-  the BF16, GGUF, FP8 and NVFP4 weights and their benchmarks.
+  the BF16, GGUF, FP8 and NVFP4 weights and their benchmarks; the weights are published on
+  Hugging Face under [koelony](https://huggingface.co/koelony).
 
 ## Contributing
 

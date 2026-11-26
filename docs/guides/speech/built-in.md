@@ -21,10 +21,10 @@ loads it. A download that breaks off resumes where it stopped.
 
 - The whisper models come from the official whisper.cpp repository on Hugging Face,
   Qwen3-ASR-1.7B-HK-Cantonese from
-  [joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF](https://huggingface.co/joe2643/Qwen3-ASR-1.7B-Cantonese-HK-GGUF)
+  [koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF](https://huggingface.co/koelony/Qwen3-ASR-1.7B-Cantonese-HK-GGUF)
   and Qwen3-ASR-0.6B-HK-Cantonese from
-  [joe2643/Qwen3-ASR-0.6B-Cantonese-HK-GGUF](https://huggingface.co/joe2643/Qwen3-ASR-0.6B-Cantonese-HK-GGUF)
-  (both Apache-2.0), fine-tunes of Qwen3-ASR 1.7B and 0.6B by the OraType team. They are stored in
+  [koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF](https://huggingface.co/koelony/Qwen3-ASR-0.6B-Cantonese-HK-GGUF)
+  (both Apache-2.0), fine-tunes of Qwen3-ASR 1.7B and 0.6B by Koelony. They are stored in
   `~/Library/Application Support/dev.oratype.mac/models/`.
 - The fine-tune writes Hong Kong Cantonese in Hong Kong Traditional characters and keeps English
   words in English. It is the Q6_K file: its Q4_K_M wrote some English clips in Chinese, and its
