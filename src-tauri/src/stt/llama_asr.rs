@@ -81,6 +81,7 @@ fn upload_config(config: &LlamaAsrConfig, endpoint: &Endpoint) -> WhisperCompatC
         endpoint: format!("{}/audio/transcriptions", endpoint.base_url),
         model: config.model_id.clone(),
         verbose_json: false,
+        builtin_llama_server: true,
     }
 }
 
@@ -215,6 +216,7 @@ pub async fn self_test(config: &LlamaAsrConfig) -> Result<u32, String> {
     let endpoint = ensure_server(config).await.map_err(start_error)?;
     let upload = upload_config(config, &endpoint);
     let silence = vec![0u8; 32_000];
+    let max_tokens = super::whisper_compat::builtin_llama_max_tokens(silence.len(), 16_000);
     let wav = WhisperCompatProvider::build_wav(&silence, 16_000);
     let part = reqwest::multipart::Part::bytes(wav)
         .file_name("test.wav")
@@ -222,6 +224,8 @@ pub async fn self_test(config: &LlamaAsrConfig) -> Result<u32, String> {
         .map_err(|error| error.to_string())?;
     let form = reqwest::multipart::Form::new()
         .text("model", upload.model.clone())
+        .text("temperature", "0")
+        .text("max_tokens", max_tokens.to_string())
         .part("file", part);
     let started = std::time::Instant::now();
     let response = local_client()
@@ -320,6 +324,23 @@ mod tests {
         );
         assert_eq!(upload.model, "qwen3-asr-1.7b");
         assert!(!upload.verbose_json);
+        assert!(upload.builtin_llama_server);
+
+        let small_config = config_for(&SpeechPreset::builtin_whisper(
+            models::QWEN3_ASR_SMALL_MODEL_ID,
+            "Qwen3-ASR-0.6B-Cantonese-HK.Q6_K.gguf",
+        ))
+        .unwrap();
+        let small_upload = upload_config(
+            &small_config,
+            &Endpoint {
+                base_url: "http://127.0.0.1:4321/v1".into(),
+                api_key: "k".into(),
+            },
+        );
+        assert_eq!(small_upload.model, "qwen3-asr-0.6b");
+        assert!(!small_upload.verbose_json);
+        assert!(small_upload.builtin_llama_server);
     }
 
     #[test]
