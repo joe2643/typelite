@@ -32,7 +32,7 @@ none of that, and it can spend many seconds on it, or use up its token limit and
 Signs of a thinking model:
 
 - Test passes, but polish takes several seconds even for one short sentence.
-- Polish returns nothing, or the log (`~/Library/Logs/KoelType/oratype.log`) says the content was
+- Polish returns nothing, or the log (`~/Library/Logs/OraType/oratype.log`) says the content was
   empty and reasoning text was used instead.
 - The model's name has "thinking" or "reasoning" in it, or it thinks by default (Qwen3 base
   models, Qwen3.5, DeepSeek-R1 and others).
@@ -61,5 +61,5 @@ If thinking is off:
 
 ## Still stuck
 
-Check `~/Library/Logs/KoelType/oratype.log` (timings and errors, never your text) and attach it to
+Check `~/Library/Logs/OraType/oratype.log` (timings and errors, never your text) and attach it to
 an issue; see [Reporting bugs](../../../CONTRIBUTING.md#reporting-bugs).

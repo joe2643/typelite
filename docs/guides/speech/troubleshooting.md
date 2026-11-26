@@ -37,6 +37,6 @@ recognition and the reply. Ways to speed it up:
 
 ## Still stuck
 
-Check `~/Library/Logs/KoelType/oratype.log`: each speech request logs the endpoint, status and
+Check `~/Library/Logs/OraType/oratype.log`: each speech request logs the endpoint, status and
 duration (never your text). Attach it to an issue; see
 [Reporting bugs](../../../CONTRIBUTING.md#reporting-bugs).

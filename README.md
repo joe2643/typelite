@@ -174,7 +174,7 @@ See [media generation](docs/media/README.md) for recording and Copy capsule stil
 - No accounts, no analytics, no telemetry.
 - No history of what you say. Insights keep only timings and a keystroke count (never which keys).
   You can turn typing measurement off, and **Settings → System → Clear insights data** deletes them.
-- Logs (`~/Library/Logs/KoelType/oratype.log`) hold timings and errors, never your text.
+- Logs (`~/Library/Logs/OraType/oratype.log`) hold timings and errors, never your text.
 - Audio goes only where you point it: the built-in models, your own server, or a service you chose.
 
 ## Related projects
