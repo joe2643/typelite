@@ -1,0 +1,103 @@
+/* Warm Slate values from Koelony’s public-safe Koel export. Success and warning are local. */
+:root {
+  --koel-paper: #faf8f4;
+  --koel-surface: #f4f1ea;
+  --koel-surface-2: #eae6dc;
+  --koel-ink: #2a2926;
+  --koel-ink-2: #3d3f44;
+  --koel-soft: #625f59;
+  --koel-hair: #d6d0c5;
+  --koel-line: #8c877d;
+  --koel-rule: #e2dcd2;
+  --koel-slate: #3b5b78;
+  --koel-slate-deep: #2b455d;
+  --koel-slate-soft: #e9f0f6;
+  --koel-on-slate: #faf8f4;
+  --koel-logo-ink: #0c0c0c;
+  --koel-btn-red: #d0201a;
+  --koel-btn-red-deep: #b01b16;
+  --koel-btn-red-deeper: #8f1612;
+  --koel-on-red: #fff;
+  --koel-eye: #d0201a;
+  --koel-red-text: #b01f1a;
+  --koel-error-text: color-mix(in srgb, var(--koel-red-text) 90%, var(--koel-ink));
+  --koel-success: #2b654d;
+  --koel-warning: #7a531b;
+  --koel-panel: rgba(244, 241, 234, 0.98);
+  --koel-sheet: rgba(250, 248, 244, 0.98);
+}
+
+:root.dark,
+:root[data-theme='dark'] {
+  --koel-paper: #1e1e1d;
+  --koel-surface: #262625;
+  --koel-surface-2: #2e2e2c;
+  --koel-ink: #e6e2da;
+  --koel-ink-2: #c2beb6;
+  --koel-soft: #a19d95;
+  --koel-hair: #3a3936;
+  --koel-line: #77756f;
+  --koel-rule: #2f2f2d;
+  --koel-slate: #93abc1;
+  --koel-slate-deep: #b3c7d9;
+  --koel-slate-soft: #26303a;
+  --koel-on-slate: #1e1e1d;
+  --koel-logo-ink: #f4f1ea;
+  --koel-red-text: #ec6c65;
+  --koel-success: #84c5a2;
+  --koel-warning: #e4bb7f;
+  --koel-panel: rgba(38, 38, 37, 0.98);
+  --koel-sheet: rgba(30, 30, 29, 0.98);
+}
+
+/* The prerendered site follows the system before JavaScript and when no theme is pinned. */
+@media (prefers-color-scheme: dark) {
+  :root.koeltype-site:not([data-theme='light']) {
+    --koel-paper: #1e1e1d;
+    --koel-surface: #262625;
+    --koel-surface-2: #2e2e2c;
+    --koel-ink: #e6e2da;
+    --koel-ink-2: #c2beb6;
+    --koel-soft: #a19d95;
+    --koel-hair: #3a3936;
+    --koel-line: #77756f;
+    --koel-rule: #2f2f2d;
+    --koel-slate: #93abc1;
+    --koel-slate-deep: #b3c7d9;
+    --koel-slate-soft: #26303a;
+    --koel-on-slate: #1e1e1d;
+    --koel-logo-ink: #f4f1ea;
+    --koel-red-text: #ec6c65;
+    --koel-success: #84c5a2;
+    --koel-warning: #e4bb7f;
+    --koel-panel: rgba(38, 38, 37, 0.98);
+    --koel-sheet: rgba(30, 30, 29, 0.98);
+  }
+}
+
+/* The recording and Ask surfaces use the same dark palette in either app theme. */
+:root {
+  --koel-capsule-bg: rgba(30, 30, 29, 0.96);
+  --koel-capsule-menu: #262625;
+  --koel-capsule-line: rgba(230, 226, 218, 0.2);
+  --koel-capsule-text: #e6e2da;
+  --koel-capsule-slate: #93abc1;
+  --koel-capsule-red: #ec6c65;
+  --koel-capsule-warning: #e4bb7f;
+  --koel-capsule-chip-text: #1e1e1d;
+}
+
+@font-face {
+  font-family: 'Chiron GoRound TC';
+  src: url('./fonts/goround-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2010-205E;
+}
+@font-face {
+  font-family: 'Chiron GoRound TC';
+  src: url('./fonts/goround-latin-900.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2010-205E;
+}

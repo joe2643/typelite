@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/',
   plugins: [react()],
+  resolve: { dedupe: ['react', 'react-dom'] },
   // The language section reads the preset library from ../presets/languages/index.json.
   server: { fs: { allow: ['..'] } },
   build: {

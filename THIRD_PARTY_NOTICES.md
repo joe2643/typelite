@@ -2,6 +2,11 @@
 
 KoelType includes the following third-party software.
 
+## Chiron GoRound TC
+
+The Latin webfont subsets are by the Chiron GoRound TC Project Authors and distributed under
+the [SIL Open Font License 1.1](src/brand/fonts/OFL.txt).
+
 ## whisper.cpp, llama.cpp and ggml
 
 whisper.cpp is used for built-in speech recognition (through the `whisper-rs` crate, which is

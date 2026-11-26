@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { KoelMark } from '../../../src/brand/KoelArtwork'
 import { IconMoon, IconStar, IconSun } from '../components/Icons'
 import {
   formatCount,
@@ -30,7 +31,7 @@ export function TopBar({ stats }: { stats: RepoStats | null }) {
     <header className={`topbar ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container topbar-inner">
         <a className="brand" href="#top" aria-label={`${PRODUCT_NAME}, back to top`}>
-          <img src={`${import.meta.env.BASE_URL}icon-256.png`} alt="" width={30} height={30} />
+          <KoelMark size={30} />
           {PRODUCT_NAME}
         </a>
         <nav className="topnav" aria-label="Sections">

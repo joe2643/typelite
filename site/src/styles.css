@@ -1,122 +1,59 @@
-/* Warm paper and charcoal from Koelony’s public palette. The capsule stays dark in both themes. */
+@import '../../src/brand/palette.css';
+@import '../../src/brand/artwork.css';
 
 :root {
-  color-scheme: light;
-  --bg: #faf8f4;
-  --bg-deep: #f4f1ea;
-  --surface: rgba(250, 248, 244, 0.92);
-  --surface-solid: #faf8f4;
-  --surface-2: rgba(0, 0, 0, 0.045);
-  --field: rgba(0, 0, 0, 0.045);
-  --text: #2a2926;
-  --text-2: #3d3f44;
-  --text-3: #625f59;
-  --accent: #b01b16;
-  --accent-hover: #8f1612;
-  --accent-soft: rgba(176, 27, 22, 0.1);
-  --accent-ink: #3b5b78;
-  --on-accent: #faf8f4;
-  --success: #30d158;
-  --warning: #ff9f0a;
-  --error: #f0715d;
-  --border: rgba(0, 0, 0, 0.09);
-  --hairline: rgba(0, 0, 0, 0.06);
-  --f-dictate: #b01b16;
-  --f-translate: #3b5b78;
-  --f-ask: #81551d;
-  --key: #faf8f4;
-  --key-line: #c8c0b2;
+  color-scheme: light dark;
+  --bg: var(--koel-paper);
+  --bg-deep: var(--koel-surface);
+  --surface: var(--koel-panel);
+  --surface-solid: var(--koel-surface);
+  --surface-2: var(--koel-surface-2);
+  --field: var(--koel-surface-2);
+  --text: var(--koel-ink);
+  --text-2: var(--koel-ink-2);
+  --text-3: var(--koel-soft);
+  --accent: var(--koel-btn-red);
+  --accent-hover: var(--koel-btn-red-deep);
+  --accent-soft: var(--koel-slate-soft);
+  --accent-ink: var(--koel-slate);
+  --on-accent: var(--koel-on-red);
+  --success: var(--koel-success);
+  --error: var(--koel-error-text);
+  --border: var(--koel-hair);
+  --hairline: var(--koel-hair);
+  --f-dictate: var(--koel-red-text);
+  --f-translate: var(--koel-slate);
+  --f-ask: var(--koel-warning);
+  --key: var(--koel-paper);
+  --key-line: var(--koel-line);
 
-  --aurora-a: #f09582;
-  --aurora-b: #e4bb7f;
-
-  --pill-bg: rgba(26, 25, 24, 0.94);
-  --pill-line: rgba(255, 255, 255, 0.14);
-  --pill-chip-text: #231713;
-  --desk: linear-gradient(148deg, #e2dacb, #cbbda8);
-  --window: rgba(250, 248, 244, 0.88);
-  --window-side: rgba(244, 241, 234, 0.86);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(20, 30, 60, 0.06);
-  --shadow-float: 0 30px 60px rgba(20, 20, 50, 0.22), 0 0 0 0.5px rgba(0, 0, 0, 0.18);
-  --code-bg: #262625;
+  --aurora-a: var(--koel-capsule-slate);
+  --aurora-b: var(--koel-capsule-red);
+  --pill-bg: var(--koel-capsule-bg);
+  --pill-line: var(--koel-capsule-line);
+  --pill-text: var(--koel-capsule-text);
+  --pill-chip-text: var(--koel-capsule-chip-text);
+  --desk: linear-gradient(148deg, var(--koel-surface), var(--koel-surface-2));
+  --window: var(--koel-sheet);
+  --window-side: var(--koel-panel);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08), 0 8px 28px rgba(0, 0, 0, 0.1);
+  --shadow-float: 0 30px 60px rgba(0, 0, 0, 0.24), 0 0 0 0.5px var(--koel-line);
+  --code-bg: var(--koel-capsule-menu);
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, Roboto,
-    'Helvetica Neue', Arial, 'PingFang HK', 'PingFang TC', 'Hiragino Sans', 'Noto Sans CJK TC',
+    system-ui, -apple-system, 'Segoe UI', 'PingFang HK', 'Noto Sans HK', 'Microsoft JhengHei',
     sans-serif;
-  --font-display: 'Avenir Next', 'Century Gothic', 'PingFang HK', 'Segoe UI', sans-serif;
+  --font-display: 'Chiron GoRound TC', 'PingFang HK', 'Noto Sans HK', system-ui, sans-serif;
   --font-mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --radius-card: 20px;
   --gutter: 24px;
 }
 
-/* Dark tokens, twice: once for the system setting (unless the visitor picked light), once for
-   an explicit choice. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --bg: #1e1e1d;
-    --bg-deep: #191918;
-    --surface: rgba(38, 38, 37, 0.92);
-    --surface-solid: #262625;
-    --surface-2: rgba(255, 255, 255, 0.06);
-    --field: rgba(255, 255, 255, 0.06);
-    --text: #e6e2da;
-    --text-2: #c2beb6;
-    --text-3: #a19d95;
-    --accent: #f09582;
-    --accent-hover: #ffb2a2;
-    --accent-soft: rgba(240, 149, 130, 0.16);
-    --accent-ink: #93abc1;
-    --on-accent: #231713;
-    --border: rgba(255, 255, 255, 0.11);
-    --hairline: rgba(255, 255, 255, 0.07);
-    --f-dictate: #f09582;
-    --f-translate: #93abc1;
-    --f-ask: #e4bb7f;
-    --key: #33312d;
-    --key-line: #625f59;
-
-    --desk: linear-gradient(148deg, #3c3933, #22221f);
-    --window: rgba(30, 30, 29, 0.94);
-    --window-side: rgba(38, 38, 37, 0.92);
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
-    --shadow-float: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
-    --code-bg: #191918;
-  }
+:root[data-theme='light'] {
+  color-scheme: light;
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #1e1e1d;
-  --bg-deep: #191918;
-  --surface: rgba(38, 38, 37, 0.92);
-  --surface-solid: #262625;
-  --surface-2: rgba(255, 255, 255, 0.06);
-  --field: rgba(255, 255, 255, 0.06);
-  --text: #e6e2da;
-  --text-2: #c2beb6;
-  --text-3: #a19d95;
-  --accent: #f09582;
-  --accent-hover: #ffb2a2;
-  --accent-soft: rgba(240, 149, 130, 0.16);
-  --accent-ink: #93abc1;
-  --on-accent: #231713;
-  --border: rgba(255, 255, 255, 0.11);
-  --hairline: rgba(255, 255, 255, 0.07);
-  --f-dictate: #f09582;
-  --f-translate: #93abc1;
-  --f-ask: #e4bb7f;
-  --key: #33312d;
-  --key-line: #625f59;
-
-  --aurora-a: #f09582;
-  --pill-chip-text: #231713;
-  --desk: linear-gradient(148deg, #3c3933, #22221f);
-  --window: rgba(30, 30, 29, 0.94);
-  --window-side: rgba(38, 38, 37, 0.92);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
-  --shadow-float: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
-  --code-bg: #191918;
 }
 
 /* ─── Base ─── */
@@ -155,7 +92,7 @@ a:hover {
   text-underline-offset: 3px;
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 3px;
   border-radius: 6px;
 }
@@ -246,6 +183,7 @@ kbd {
 }
 .btn-primary:hover {
   background: var(--accent-hover);
+  color: var(--on-accent);
 }
 /* Primary buttons: a light under the pointer and a small pull towards it (useMagneticButtons). */
 .btn-primary {
@@ -255,6 +193,7 @@ kbd {
   transform: translate(var(--tx, 0px), var(--ty, 0px));
 }
 .btn-primary:active {
+  background: var(--koel-btn-red-deeper);
   transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(0.98);
 }
 .btn-primary::before {
@@ -265,7 +204,7 @@ kbd {
   border-radius: inherit;
   background: radial-gradient(
     120px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.38),
+    rgba(255, 255, 255, 0.12),
     transparent 70%
   );
   opacity: 0;
@@ -423,14 +362,11 @@ kbd {
   align-items: center;
   gap: 10px;
   color: var(--text);
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 17px;
   letter-spacing: -0.02em;
   text-decoration: none !important;
-}
-.brand img {
-  width: 30px;
-  height: 30px;
 }
 .topnav {
   display: flex;
@@ -582,7 +518,7 @@ section {
   line-height: 1.55;
 }
 .gradient-text {
-  color: var(--accent);
+  color: var(--koel-red-text);
 }
 
 /* Glass card */
@@ -667,19 +603,40 @@ section {
 .hero-intro {
   position: relative;
   padding-block: 18px 26px;
-  border-block: 1px solid var(--key-line);
+  border-block: 1px solid var(--koel-hair);
 }
 
-/* Five quiet staff lines carry through the open side of the page. */
+.hero-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hero-koel {
+  --koel-bird-width: clamp(64px, 15vw, 164px);
+  position: relative;
+  flex: none;
+  display: grid;
+  justify-items: end;
+}
+.hero-koel::before {
+  content: '';
+  position: absolute;
+  inset: 36% 0 auto;
+  height: 51%;
+  background: repeating-linear-gradient(
+    to bottom, var(--koel-rule) 0 1px, transparent 1px 24%
+  );
+  pointer-events: none;
+}
+.hero-koel .koel-bird {
+  position: relative;
+}
 @media (min-width: 960px) {
-  .hero-intro::before {
-    content: '';
-    position: absolute;
-    inset: 30px 0 auto auto;
+  .hero-koel {
     width: 28%;
-    height: 81px;
-    background: repeating-linear-gradient(to bottom, var(--key-line) 0 1px, transparent 1px 20px);
-    pointer-events: none;
+    padding-right: 4%;
+    margin-block: -14px;
   }
 }
 
@@ -695,13 +652,13 @@ section {
 }
 .hero h1 {
   margin: 0;
-  font-size: clamp(3.1rem, 11vw, 7rem);
-  font-weight: 800;
+  font-size: clamp(2.6rem, 10vw, 7rem);
+  font-weight: 900;
   letter-spacing: -0.065em;
   line-height: 1;
 }
 .hero-period {
-  color: var(--accent);
+  color: var(--koel-red-text);
 }
 .hero-sub {
   max-width: 34rem;
@@ -1083,7 +1040,7 @@ section {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #f0715d;
+  background: var(--koel-capsule-red);
 }
 .pill-ask-icon {
   flex: none;
@@ -1356,7 +1313,7 @@ section {
   width: 420px;
   max-width: calc(100vw - 48px);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--pill-line);
   border-radius: 16px;
   background:
     radial-gradient(
@@ -1369,11 +1326,11 @@ section {
       color-mix(in srgb, var(--aurora-b) 20%, transparent),
       transparent 70%
     ),
-    rgba(28, 28, 30, 0.72);
+    var(--pill-bg);
   -webkit-backdrop-filter: blur(28px) saturate(1.8);
   backdrop-filter: blur(28px) saturate(1.8);
   box-shadow: 0 6px 10px rgba(10, 10, 30, 0.34);
-  color: #f2f2f5;
+  color: var(--pill-text);
   color-scheme: dark;
   text-align: left;
   transform-origin: 50% 100%;
@@ -2010,6 +1967,7 @@ section {
 }
 .ask-stack {
   position: relative;
+  max-width: 100%;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -2466,7 +2424,7 @@ section {
     background-color 0.3s ease;
 }
 .no-preset.chosen {
-  border-color: var(--accent);
+  border-color: var(--koel-red-text);
   background: var(--accent-soft);
   color: var(--text);
 }
@@ -2627,7 +2585,7 @@ section {
   height: 18px;
   border-radius: 50%;
   background: var(--success);
-  color: #fff;
+  color: var(--bg);
 }
 .chips {
   display: flex;
@@ -2713,6 +2671,7 @@ section {
 }
 .lane-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
@@ -2993,19 +2952,11 @@ thead .col-us {
   line-height: 1.7;
 }
 .code .c {
-  color: #7f8aa0;
+  color: var(--koel-capsule-slate);
 }
 .code .p {
-  color: var(--aurora-a);
+  color: var(--koel-capsule-red);
   user-select: none;
-}
-:root:not([data-theme='dark']) .code .p {
-  color: #6cb6ff;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .code .p {
-    color: #f09582;
-  }
 }
 .code-head {
   display: flex;
@@ -3013,7 +2964,7 @@ thead .col-us {
   justify-content: space-between;
   padding: 8px 10px 8px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  color: #8f9ab0;
+  color: var(--koel-capsule-slate);
   font-size: 12.5px;
   font-weight: 600;
 }

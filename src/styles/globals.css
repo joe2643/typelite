@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import '../brand/palette.css';
+@import '../brand/artwork.css';
 
 /* Plan `ask-hover`: the Ask window gets no mouse moves (never key, app in the background), so its
    page marks the element under the cursor with `.is-hover`; Tailwind's `hover:` matches it too. */
@@ -10,52 +12,41 @@
  * Tailwind utilities (`bg-bg-elevated`, `text-text-secondary`, ...) or the component classes below.
  */
 @theme {
-  /* Surfaces */
-  /* Opaque surface for dialogs, menus and toasts. */
-  --color-bg-primary: #faf8f4;
-  /* Field fill and quiet buttons (a hairline tint over whatever is below). */
-  --color-bg-secondary: rgba(0, 0, 0, 0.06);
-  --color-bg-tertiary: rgba(0, 0, 0, 0.09);
-  --color-bg-hover: rgba(0, 0, 0, 0.045);
-  /* Card / grouped rows. */
-  --color-bg-elevated: #faf8f4;
-  /* Window glass (whole window, over the native blur) and the content area on top of it. */
-  --color-glass: rgba(244, 241, 234, 0.88);
-  --color-content: rgba(250, 248, 244, 0.88);
+  /* Material and typography, mapped to Koelony’s Warm Slate palette. */
+  --color-bg-primary: var(--koel-paper);
+  --color-bg-secondary: var(--koel-surface-2);
+  --color-bg-tertiary: var(--koel-hair);
+  --color-bg-hover: color-mix(in srgb, var(--koel-ink) 6%, transparent);
+  --color-bg-elevated: var(--koel-surface);
+  --color-glass: var(--koel-panel);
+  --color-content: var(--koel-sheet);
 
-  /* Text */
-  --color-text-primary: #2a2926;
-  --color-text-secondary: #514e48;
-  --color-text-tertiary: #625f59;
+  --color-text-primary: var(--koel-ink);
+  --color-text-secondary: var(--koel-ink-2);
+  --color-text-tertiary: var(--koel-soft);
 
-  /* Accent */
-  --color-accent: #b01b16;
-  --color-accent-hover: #8f1612;
-  --color-accent-light: rgba(176, 27, 22, 0.1);
-  /* Text and icons drawn on an accent fill. */
-  --color-on-accent: #faf8f4;
+  --color-accent: var(--koel-slate);
+  --color-accent-hover: var(--koel-slate-deep);
+  --color-accent-light: var(--koel-slate-soft);
+  --color-on-accent: var(--koel-on-slate);
 
-  --color-success: #30d158;
-  --color-warning: #ff9f0a;
-  --color-error: #f0715d;
+  --color-success: var(--koel-success);
+  --color-warning: var(--koel-warning);
+  --color-error: var(--koel-error-text);
 
-  /* Lines */
-  --color-border: rgba(0, 0, 0, 0.09);
-  --color-hairline: rgba(0, 0, 0, 0.06);
-  --color-border-focus: #b01b16;
+  --color-border: var(--koel-hair);
+  --color-hairline: var(--koel-hair);
+  --color-border-focus: var(--koel-slate);
 
-  /* Home tile icons: one colour per feature */
-  --color-feature-dictate: #b01b16;
-  --color-feature-translate: #3b5b78;
-  --color-feature-ask: #81551d;
+  --color-feature-dictate: var(--koel-red-text);
+  --color-feature-translate: var(--koel-slate);
+  --color-feature-ask: var(--koel-warning);
 
-  /* Key caps */
-  --color-key: #faf8f4;
-  --color-key-line: #c8c0b2;
+  --color-key: var(--koel-paper);
+  --color-key-line: var(--koel-line);
 
-  /* Font: the macOS system font (SF Pro) and SF Mono */
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-  --font-display: 'Avenir Next', 'PingFang HK', -apple-system, system-ui, sans-serif;
+  --font-display: 'Chiron GoRound TC', 'PingFang HK', 'Noto Sans HK', system-ui, sans-serif;
   --font-mono: 'SF Mono', ui-monospace, Menlo, monospace;
 
   /* Font sizes */
@@ -89,26 +80,23 @@
  * reads them through `var(--color-aurora-a)` etc. in inline styles, which Tailwind cannot see.
  */
 @theme static {
-  --color-pill-bg: rgba(26, 25, 24, 0.94);
-  --color-pill-line: rgba(255, 255, 255, 0.14);
-  --color-pill-error-bg: rgba(60, 24, 24, 0.78);
-  --color-pill-error-line: rgba(255, 69, 58, 0.35);
-  --color-pill-menu: rgba(26, 25, 24, 0.97);
-  --color-pill-text: #faf8f4;
-  --color-recording: #f0715d;
-  /* Warm light for the waveform and the listening and processing states. */
-  --color-aurora-a: #f09582;
-  --color-aurora-b: #e4bb7f;
-  /* The active translation chip. */
-  --color-pill-chip: #f09582;
-  --color-pill-chip-text: #231713;
+  --color-pill-bg: var(--koel-capsule-bg);
+  --color-pill-line: var(--koel-capsule-line);
+  --color-pill-error-bg: color-mix(in srgb, var(--koel-capsule-menu) 86%, var(--koel-btn-red));
+  --color-pill-error-line: var(--koel-capsule-red);
+  --color-pill-menu: var(--koel-capsule-menu);
+  --color-pill-text: var(--koel-capsule-text);
+  --color-recording: var(--koel-capsule-red);
+  --color-aurora-a: var(--koel-capsule-slate);
+  --color-aurora-b: var(--koel-capsule-red);
+  --color-pill-chip: var(--koel-capsule-slate);
+  --color-pill-chip-text: var(--koel-capsule-chip-text);
 
-  /* Speed board steps (plan `speed-board`): the colour follows the step, not the feature. Read
-     through var() in inline styles, so they live here to be always emitted. */
-  --color-step-recording: #aeaeb2;
-  --color-step-speech: #b01b16;
-  --color-step-ai: #81551d;
-  --color-step-paste: #30d158;
+  /* Speed board steps. The inline styles reference these variables by name. */
+  --color-step-recording: var(--koel-soft);
+  --color-step-speech: var(--koel-red-text);
+  --color-step-ai: var(--koel-slate);
+  --color-step-paste: var(--koel-success);
 }
 
 /*
@@ -123,39 +111,6 @@
 
 /* ─── Dark mode ─── */
 .dark {
-  --color-bg-primary: #262625;
-  --color-bg-secondary: rgba(255, 255, 255, 0.08);
-  --color-bg-tertiary: rgba(255, 255, 255, 0.12);
-  --color-bg-hover: rgba(255, 255, 255, 0.06);
-  --color-bg-elevated: #2c2b29;
-  --color-glass: rgba(38, 38, 37, 0.92);
-  --color-content: rgba(30, 30, 29, 0.92);
-
-  --color-text-primary: #e6e2da;
-  --color-text-secondary: #c2beb6;
-  --color-text-tertiary: #a19d95;
-
-  --color-accent: #f09582;
-  --color-accent-hover: #ffb2a2;
-  --color-accent-light: rgba(240, 149, 130, 0.16);
-  --color-on-accent: #231713;
-
-  --color-border: rgba(255, 255, 255, 0.12);
-  --color-hairline: rgba(255, 255, 255, 0.08);
-  --color-border-focus: #f09582;
-
-  --color-feature-dictate: #f09582;
-  --color-feature-translate: #93abc1;
-  --color-feature-ask: #e4bb7f;
-
-  --color-step-recording: #a19d95;
-  --color-step-speech: #f09582;
-  --color-step-ai: #e4bb7f;
-  --color-step-paste: #30d158;
-
-  --color-key: #33312d;
-  --color-key-line: #625f59;
-
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -273,6 +228,18 @@ body,
   .status-dot[data-state='error'] {
     background: var(--color-error);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 18%, transparent);
+  }
+
+  .home-koel {
+    --koel-bird-width: 56px;
+    flex: none;
+    margin-block: -8px;
+  }
+  .onboarding-koel {
+    --koel-bird-width: 72px;
+    display: flex;
+    justify-content: center;
+    margin: -10px 0 4px;
   }
 
   /* ─── Page type ─── */
@@ -545,11 +512,14 @@ body,
     transition: background-color 0.15s ease;
   }
   .btn-accent {
-    background: var(--color-accent);
-    color: var(--color-on-accent);
+    background: var(--koel-btn-red);
+    color: var(--koel-on-red);
   }
   .btn-accent:hover:not(:disabled) {
-    background: var(--color-accent-hover);
+    background: var(--koel-btn-red-deep);
+  }
+  .btn-accent:active:not(:disabled) {
+    background: var(--koel-btn-red-deeper);
   }
   .btn-secondary {
     background: var(--color-bg-secondary);
@@ -755,8 +725,8 @@ body,
     color: var(--color-success);
   }
   .search-setup-pill.is-warn {
-    background: color-mix(in srgb, var(--color-warning, #ff9f0a) 16%, transparent);
-    color: var(--color-warning, #b76e00);
+    background: color-mix(in srgb, var(--color-warning) 16%, transparent);
+    color: var(--color-warning);
   }
   .search-setup-bar {
     height: 6px;
@@ -1150,7 +1120,7 @@ body,
     font-size: 12.5px;
   }
   .language-banner-warn {
-    background: color-mix(in srgb, #ff9f0a 14%, transparent);
+    background: color-mix(in srgb, var(--color-warning) 14%, transparent);
   }
   .language-source-line {
     display: flex;
@@ -1169,11 +1139,8 @@ body,
     color: var(--color-text-secondary);
   }
   .tag-edited {
-    background: color-mix(in srgb, #ff9f0a 18%, transparent);
-    color: #c77700;
-  }
-  .dark .tag-edited {
-    color: #ffb340;
+    background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+    color: var(--color-warning);
   }
   .hint-chip {
     display: inline-flex;
@@ -2070,10 +2037,7 @@ body,
     place-items: center;
     padding: 18px 12px;
     border-radius: 12px;
-    background: linear-gradient(148deg, #e2dacb, #cbbda8);
-  }
-  .dark .pill-preview-stage {
-    background: linear-gradient(148deg, #3c3933, #22221f);
+    background: linear-gradient(148deg, var(--koel-surface), var(--koel-surface-2));
   }
   .pill-preview {
     position: relative;
@@ -2097,7 +2061,7 @@ body,
         color-mix(in srgb, var(--color-aurora-b) 38%, transparent),
         transparent 70%
       ),
-      rgba(28, 28, 30, 0.9);
+      var(--color-pill-bg);
     box-shadow: 0 10px 28px rgba(10, 10, 30, 0.35);
     color: #ffffff;
     transition: width 0.28s cubic-bezier(0.2, 0, 0, 1);
@@ -2115,10 +2079,10 @@ body,
         color-mix(in srgb, var(--color-aurora-b) 36%, transparent),
         transparent 70%
       ),
-      rgba(20, 22, 26, 0.92);
+      var(--color-pill-bg);
     box-shadow:
       0 10px 28px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(240, 149, 130, 0.16);
+      0 0 0 1px var(--color-pill-line);
   }
   .pill-preview-content {
     display: inline-flex;
@@ -2384,7 +2348,7 @@ body,
 }
 
 /* ─── Ask answer panel above the pill (plan `ask-panel-above-pill`, AskAnswerPanel.tsx) ───
-   The pill's dark glass with the aurora tint inside: the accent at the top left, violet at the
+   The pill's dark glass with Harbour Slate at the top left and softened Koel Red at the
    bottom right. It grows out of the pill: fade, 8 pt rise and a slight scale from the bottom
    centre. */
 .ask-glass {
@@ -2393,15 +2357,15 @@ body,
   display: flex;
   width: 420px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--color-pill-line);
   border-radius: 16px;
   /* Plan `ask-web-search`: plain dark glass; the colour comes from the aurora behind it. */
-  background: rgba(20, 20, 24, 0.68);
+  background: var(--color-pill-bg);
   -webkit-backdrop-filter: blur(28px) saturate(1.8);
   backdrop-filter: blur(28px) saturate(1.8);
   /* Fits inside the window's 16 pt padding (`WINDOW_PADDING` in ask_panel.rs). */
   box-shadow: 0 6px 10px rgba(10, 10, 30, 0.34);
-  color: #f2f2f5;
+  color: var(--color-pill-text);
   transform-origin: 50% 100%;
   animation: ask-glass-in 0.26s cubic-bezier(0.2, 0, 0, 1) both;
 }
@@ -2439,7 +2403,7 @@ body,
   font-weight: 600;
 }
 /* Plan `ask-web-search`: the pill's aurora (`.aurora-blob`) behind the glass: two large blurred
-   blobs of the accent and violet, drifting slowly. Dark mode dims them and pushes them to the
+   blobs of Slate and Red, drifting slowly. Dark mode dims them and pushes them to the
    corners, so the text in the middle keeps its contrast. */
 .ask-glass-aurora {
   position: absolute;
@@ -2478,9 +2442,6 @@ body,
   to {
     transform: translateX(-30%) scale(0.92);
   }
-}
-.dark .ask-glass {
-  background: rgba(12, 12, 16, 0.74);
 }
 .dark .ask-glass-aurora {
   opacity: 0.26;
@@ -2527,7 +2488,7 @@ body,
 }
 .ask-glass-note {
   margin: 0 14px;
-  color: #ffd60a;
+  color: var(--koel-capsule-warning);
   font-size: 11.5px;
   line-height: 16px;
 }

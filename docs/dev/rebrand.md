@@ -1,12 +1,11 @@
 # KoelType brand and rename checklist
 
-KoelType is the working display name. The product uses Koelony’s warm paper and charcoal with
-red for the bird’s eye and primary actions. Slate and amber distinguish Translate and Ask.
-The app uses native body type, with Avenir Next for the sidebar wordmark and page titles. The
-site uses the same display face and a five-line staff beside the headline. The bird is a new
-product silhouette, with two lines cut into its wing. The capsule keeps its dark plate in
-both themes, with a red recording dot and clay and amber waveform. Its geometry and controls
-are shared with the existing recording workflow.
+KoelType uses Koelony’s Warm Slate palette, official K mark, and red-eyed bird. The shared
+palette assigns Harbour Slate to links, selection and focus, and Koel Red to primary buttons.
+Chiron GoRound TC is used for Latin display text, with installed fonts for other scripts.
+The website’s hero and the app’s Home and welcome screens share a single takeoff, wingbeat
+and landing sequence. Reduced motion shows the perched pose immediately. The recording
+capsule uses the dark palette with Slate and Red indicators.
 
 ## When the name changes
 
@@ -20,9 +19,9 @@ are shared with the existing recording workflow.
       template. Update `src-tauri/src/llm/language_library/mod.rs` if the repository moves again.
       Use the actual release repository in artifacts and verify the preset index and update feed.
 - [ ] Regenerate tracked icons with `bash scripts/render-brand-icons.sh` (root `npm ci`,
-      `rsvg-convert`, macOS `sips`). Edit `src-tauri/icons/app-icon.svg`,
-      `source/koeltype-tray.svg` and `dmg/background.svg`. The script derives the Dev
-      variants and the app, website and installer exports. Regenerate media with
+      `rsvg-convert`, macOS `sips`). The script reads the geometry in
+      `src/brand/koel-art.json` and the installer layout in
+      `src-tauri/icons/dmg/background.svg`, then writes the app, website, tray and Dev variants. Regenerate media with
       `cd site && npm run capture`. See [capture instructions](../media/README.md).
 
 ## Legacy references
@@ -36,14 +35,31 @@ are shared with the existing recording workflow.
 
 ## Provenance and sync
 
-Palette values come from Koelony’s public identity as shown on its main site, Koel extension
-and demo. The CSS and bird paths were written for KoelType and ship under this repository’s MIT
-license. The private design package describes a vendor workflow for the websites and a separate
-public export workflow for Koel. KoelType uses checked-in styling and assets and loads installed
-fonts. Its build uses public npm and Cargo dependencies and the pinned public llama.cpp source for
-the optional sidecar. To sync a future palette change, compare the public identity and update the
-desktop and site CSS token blocks, the capsule palette in both, the icon sources and capture
-backdrops. Rebuild and check both themes.
+- The colour values and the official K and perched bird geometry come from the public-safe
+  Koel brand export (art and palette commits `d81a227`, `56f06fa`). The same mark and
+  bird appear on [Koelony’s public website](https://koelony.com/). The geometry and eye are
+  retained, with a paper tile for the Dock and a monochrome knockout for the tray.
+  This is Koelony brand artwork reused for KoelType under the rebrand brief.
+- The flying body, wings, and shoulder pivot match the rendered Koelony homepage. The
+  landing sequence is a shared CSS adaptation of the public motion. The
+  [Koelony homepage](https://koelony.com/) is the reference for the tone-staff flight and
+  perch. No separate artwork labelled “bird-fish” was identified in the brand exports.
+- The Latin Chiron GoRound TC 700 and 900 WOFF2 subsets are from the deployed Koelony
+  homepage. Their [SIL Open Font License](../../src/brand/fonts/OFL.txt) travels with them.
+  The [font project](https://github.com/chiron-fonts/chiron-go-round-tc) supplies the
+  full family. The app and site build locally from these files and public dependencies.
+
+For a palette refresh, compare the next Koel brand export against `src/brand/palette.css`.
+Update both declarations for dark mode and the fixed dark capsule aliases. For new art, update
+`src/brand/koel-art.json`, check the pose alignment in `src/brand/artwork.css`, then regenerate
+the icons and media. The site CI watches the shared brand folder.
+
+The shared palette has no dedicated **success**, **warning**, **Ask mode** or **capsule
+recording and waveform** roles. KoelType uses local green and amber for success and warning,
+amber with the Ask icon, and dark-theme Red Text and Slate for the capsule. The existing Red
+Text role supplies errors, with a local ink mix for readability on tinted backgrounds.
+If design adds these roles, ask for light and dark foregrounds and the surfaces they’re
+intended for, plus the fixed dark capsule variants.
 
 ## Native release review
 

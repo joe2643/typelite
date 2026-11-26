@@ -7,13 +7,7 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 icons=src-tauri/icons
 
-# Dev builds use a lower amber tab so the silhouette stays identical at Dock sizes.
-sed '/<\/svg>/i\
-  <rect x="365" y="799" width="294" height="35" rx="17" fill="#a65c18"/>\
-' "$icons/app-icon.svg" > "$icons/dev/app-icon.svg"
-sed '/<\/svg>/i\
-  <circle cx="18" cy="17.5" r="1.7" fill="#000"/>\
-' "$icons/source/koeltype-tray.svg" > "$icons/dev/tray.svg"
+node scripts/render-brand-svgs.mjs
 
 for flavor in release dev; do
   dir="$icons"
@@ -31,9 +25,7 @@ for flavor in release dev; do
 done
 
 cp "$icons/128x128@2x.png" site/public/icon-256.png
-cp "$icons/128x128@2x.png" src/assets/koeltype-icon.png
 cp "$icons/32x32.png" site/public/favicon-32.png
-cp "$icons/app-icon.svg" site/public/favicon.svg
 rsvg-convert -w 180 -h 180 "$icons/app-icon.svg" > site/public/apple-touch-icon.png
 rsvg-convert "$icons/dmg/background.svg" > "$tmp/dmg.png"
 sips -s format tiff "$tmp/dmg.png" --out "$icons/dmg/background.tiff" >/dev/null

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { KoelBird } from '../../../src/brand/KoelArtwork'
 import { HeroDemo } from '../demos/HeroDemo'
 import { IconBook, IconDownload, IconStar } from '../components/Icons'
 import { formatCount, type RepoStats } from '../lib/hooks'
@@ -9,9 +10,14 @@ export function Hero({ stats }: { stats: RepoStats | null }) {
     <section className="hero" id="top" aria-labelledby="hero-title">
       <div className="container">
         <div className="hero-intro">
-          <h1 id="hero-title" className="hero-title hero-rise">
-            Just say it<span className="hero-period">.</span>
-          </h1>
+          <div className="hero-headline">
+            <h1 id="hero-title" className="hero-title hero-rise">
+              Just say it<span className="hero-period">.</span>
+            </h1>
+            <div className="hero-koel">
+              <KoelBird />
+            </div>
+          </div>
           <p className="hero-sub hero-rise" style={rise(0.12)}>
             Press a shortcut in any app, speak, and clean text lands where you’re typing. Free, open
             source, runs on your computer.

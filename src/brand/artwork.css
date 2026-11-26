@@ -1,0 +1,81 @@
+.koel-mark,
+.koel-bird {
+  display: block;
+  flex: none;
+  fill: var(--koel-logo-ink);
+  pointer-events: none;
+}
+.koel-eye {
+  fill: var(--koel-eye);
+}
+.koel-bird {
+  width: var(--koel-bird-width, 72px);
+  height: auto;
+  overflow: hidden;
+}
+.koel-bird-flight {
+  opacity: 0;
+}
+.koel-bird-wing {
+  transform-box: view-box;
+  transform-origin: 268px 208px;
+}
+
+/* The two original poses share one arrival in the app and on the website. */
+@media (prefers-reduced-motion: no-preference) {
+  .koel-bird-flight {
+    animation: koel-arrive 0.9s cubic-bezier(0.2, 0.65, 0.35, 1) both;
+  }
+  .koel-bird-wing {
+    animation: koel-flap 0.21s cubic-bezier(0.4, 0, 0.6, 1) 4 alternate;
+  }
+  .koel-bird-wing-far {
+    animation-delay: -0.06s;
+  }
+  .koel-bird-perched {
+    transform-box: fill-box;
+    transform-origin: 62% 88%;
+    animation: koel-land 0.9s ease-out both;
+  }
+}
+@keyframes koel-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-170px, -115px) rotate(-7deg);
+  }
+  16% {
+    opacity: 1;
+  }
+  73% {
+    opacity: 1;
+    transform: translate(-5px, 0);
+  }
+  82%,
+  to {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes koel-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(-0.82);
+  }
+}
+@keyframes koel-land {
+  from,
+  72% {
+    opacity: 0;
+    transform: translateY(-10px) rotate(-4deg);
+  }
+  83% {
+    opacity: 1;
+    transform: scale(1.02, 0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
