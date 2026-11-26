@@ -81,6 +81,7 @@ export async function startServer() {
     server: {
       port: 0,
       strictPort: false,
+      hmr: false,
       fs: { allow: [repoRoot, realpathSync(rootModules)] },
       watch: { ignored: ['**/src-tauri/**', '**/node_modules/**'] },
     },

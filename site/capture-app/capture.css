@@ -17,11 +17,8 @@ body {
   width: 1000px;
   height: 820px;
   padding: 60px 50px;
-  background: linear-gradient(148deg, #e2dacb, #cbbda8);
+  background: linear-gradient(148deg, var(--koel-surface), var(--koel-surface-2));
   overflow: hidden;
-}
-.dark .capture-stage {
-  background: linear-gradient(148deg, #3c3933, #22221f);
 }
 
 .capture-frame {

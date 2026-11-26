@@ -33,13 +33,16 @@ body.capture::before {
   margin: -20px;
   padding: 64px 80px;
   overflow: hidden;
-  color: #e6e2da;
-  background: #1e1e1d;
+  --koel-logo-ink: #f4f1ea;
+  --koel-red-text: var(--koel-capsule-red);
+  color: var(--koel-capsule-text);
+  background: var(--koel-capsule-chip-text);
 }
 .og-brand {
   display: flex;
   align-items: center;
   gap: 18px;
+  font-family: var(--font-display);
   font-size: 34px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -47,7 +50,7 @@ body.capture::before {
 .og h1 {
   margin-top: 48px;
   font-size: 128px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: -0.05em;
   line-height: 1;
 }

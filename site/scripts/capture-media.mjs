@@ -77,7 +77,7 @@ async function main() {
     root: siteRoot,
     configFile: join(siteRoot, 'vite.config.ts'),
     logLevel: 'warn',
-    server: { port: 0 },
+    server: { port: 0, hmr: false },
   })
   await server.listen()
   const base = server.resolvedUrls.local[0].replace(/\/$/, '')
