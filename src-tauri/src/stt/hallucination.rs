@@ -24,8 +24,6 @@ const KNOWN_HALLUCINATIONS: &[&str] = &[
     "you",
     "bye",
     "byebye",
-    // Default llama-server /audio/transcriptions user prompt
-    "transcribeaudiototext",
     // Chinese (simplified and traditional)
     "谢谢",
     "謝謝",
@@ -80,9 +78,6 @@ mod tests {
             "字幕由Amara.org社区提供",
             "請不吝點贊訂閱轉發打賞支持明鏡與點點欄目",
             "ご視聴ありがとうございました",
-            "Transcribe audio to text",
-            "Transcribe audio to text.",
-            "  transcribe audio to text! ",
         ] {
             assert!(is_likely_hallucination(text, 300), "{text:?}");
         }
@@ -92,10 +87,6 @@ mod tests {
     fn long_speech_is_kept_even_when_it_is_a_known_phrase() {
         assert!(!is_likely_hallucination("Thank you.", MAX_VOICED_MS));
         assert!(!is_likely_hallucination("谢谢", 4000));
-        assert!(!is_likely_hallucination(
-            "Transcribe audio to text",
-            MAX_VOICED_MS
-        ));
     }
 
     #[test]
@@ -107,7 +98,6 @@ mod tests {
             "See you tomorrow.",
             "谢谢你",
             "好的",
-            "Please transcribe audio to text for me.",
         ] {
             assert!(!is_likely_hallucination(text, 300), "{text:?}");
         }

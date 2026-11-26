@@ -22,8 +22,8 @@ pub struct WhisperCompatConfig {
     pub verbose_json: bool,
     /// Enable runtime guards specific to OraType's built-in `llama-server` (Qwen3-ASR) speech
     /// provider (`temperature=0`, duration-scaled `max_tokens`, duration-scaled request timeout
-    /// `max(60, ceil(30 + 1.5 * dur_s))` s, prefix-aware prompt-echo filtering, fail-fast on
-    /// timeout without 3x60s retries, and privacy-safe output-cap logging).
+    /// `max(60, ceil(30 + 1.5 * dur_s))` s with no timeout retries in the tested range,
+    /// prompt-echo filtering, and privacy-safe output-cap logging).
     ///
     /// Must stay `false` for all external OpenAI / Groq / Whisper-compatible servers.
     pub builtin_llama_server: bool,
@@ -57,6 +57,7 @@ struct Answer {
     language: Option<String>,
     /// Plan `qwen3-asr-support`: the text carried Qwen3-ASR's language tag.
     qwen3_asr: bool,
+    hit_output_cap: bool,
 }
 
 /// Max audio buffer: ~24 MB PCM ≈ 12.5 min at 16kHz 16-bit mono.
@@ -64,6 +65,9 @@ struct Answer {
 const MAX_AUDIO_BYTES: usize = 24 * 1024 * 1024;
 const DEFAULT_REQUEST_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(60);
 const DEFAULT_RETRY_BACKOFF_MS: u64 = 1000;
+// Above the tested range the 0.6B model can fill its context and enter a decoding loop.
+// Keep the existing timeout policy for those uploads until speech chunking is available.
+const SMALL_MODEL_SCALED_TIMEOUT_MAX_SECS: f64 = 400.0;
 
 /// Duration-scaled output token cap for built-in `llama-server` (Qwen3-ASR 1.7B & 0.6B):
 /// `max(32, ceil(dur_s) * 16 + 32)`, intentionally without a context-window cap (`ctx_cap`).
@@ -172,12 +176,18 @@ impl WhisperCompatProvider {
         self
     }
 
+    fn uses_scaled_timeout(&self, audio_len_secs: f64) -> bool {
+        self.provider_config.builtin_llama_server
+            && (self.provider_config.model != super::models::QWEN3_ASR_SMALL_MODEL_ID
+                || audio_len_secs <= SMALL_MODEL_SCALED_TIMEOUT_MAX_SECS)
+    }
+
     fn request_timeout_for(&self, audio_len_secs: f64) -> std::time::Duration {
         #[cfg(test)]
         if let Some(override_timeout) = self.request_timeout_override {
             return override_timeout;
         }
-        if self.provider_config.builtin_llama_server {
+        if self.uses_scaled_timeout(audio_len_secs) {
             builtin_llama_request_timeout(audio_len_secs)
         } else {
             DEFAULT_REQUEST_TIMEOUT
@@ -331,12 +341,26 @@ impl SttProvider for WhisperCompatProvider {
                 self.provider_config.provider_name
             );
         }
+        // llama-server can read its default instruction back on short bursts of noise.
+        if self.provider_config.builtin_llama_server
+            && activity.voiced_ms < super::hallucination::MAX_VOICED_MS
+            && answer.text.as_deref().is_some_and(|text| {
+                super::hallucination::normalise(text) == "transcribeaudiototext"
+            })
+        {
+            log_decision(
+                &self.provider_config.provider_name,
+                &activity,
+                Some(NoSpeechGuard::PromptEcho),
+            );
+            return Ok(None);
+        }
         Ok(accept_transcript_given_with_prefix_echo(
             &self.provider_config.provider_name,
             &activity,
             answer.text,
             &config.vocabulary,
-            self.provider_config.builtin_llama_server,
+            answer.hit_output_cap,
         ))
     }
 
@@ -358,8 +382,9 @@ impl SttProvider for WhisperCompatProvider {
 }
 
 impl WhisperCompatProvider {
-    /// Sends the WAV file, retrying server errors (and timeouts for external servers) up to two
-    /// times. `verbose` asks for `verbose_json`, whose `language` field says what the server heard.
+    /// Sends the WAV file, retrying server errors up to two times. Requests using the default
+    /// timeout policy also retry timeouts. `verbose` asks for `verbose_json`, whose
+    /// `language` field says what the server heard.
     async fn upload_wav(
         &self,
         config: &SttConfig,
@@ -368,6 +393,8 @@ impl WhisperCompatProvider {
         audio_len_secs: f64,
         max_tokens: Option<u32>,
     ) -> Result<Answer, AppError> {
+        let timeout = self.request_timeout_for(audio_len_secs);
+        let retry_timeouts = !self.uses_scaled_timeout(audio_len_secs);
         let mut attempt = 0u32;
         loop {
             let file_part = reqwest::multipart::Part::bytes(wav_data.clone())
@@ -400,7 +427,7 @@ impl WhisperCompatProvider {
                 .client
                 .post(&self.provider_config.endpoint)
                 .multipart(form)
-                .timeout(self.request_timeout_for(audio_len_secs));
+                .timeout(timeout);
 
             if !config.api_key.trim().is_empty() {
                 request = request.header("Authorization", format!("Bearer {}", config.api_key));
@@ -427,18 +454,17 @@ impl WhisperCompatProvider {
                     if status.is_success() {
                         let v: serde_json::Value = serde_json::from_str(&body)
                             .map_err(|e| AppError::Config(e.to_string()))?;
-                        if let Some(max_tokens) = max_tokens {
-                            if let Some(hit) = detect_output_cap_hit(&v, max_tokens) {
-                                tracing::warn!(
-                                    provider = %self.provider_config.provider_name,
-                                    dur_s = format_args!("{audio_len_secs:.2}"),
-                                    max_tokens = hit.max_tokens,
-                                    output_tokens = ?hit.output_tokens,
-                                    finish_reason_length = hit.finish_reason_length,
-                                    hit_cap = true,
-                                    "built-in llama-server transcription hit max_tokens cap; keeping transcript"
-                                );
-                            }
+                        let cap_hit = max_tokens.and_then(|cap| detect_output_cap_hit(&v, cap));
+                        if let Some(hit) = cap_hit {
+                            tracing::warn!(
+                                provider = %self.provider_config.provider_name,
+                                dur_s = format_args!("{audio_len_secs:.2}"),
+                                max_tokens = hit.max_tokens,
+                                output_tokens = ?hit.output_tokens,
+                                finish_reason_length = hit.finish_reason_length,
+                                hit_cap = true,
+                                "built-in llama-server transcription hit max_tokens cap"
+                            );
                         }
                         // Plan `qwen3-asr-support`: Qwen3-ASR servers put the language in
                         // front of the text; a `language` field, when present, wins.
@@ -459,6 +485,7 @@ impl WhisperCompatProvider {
                             text: (!text.is_empty()).then_some(text),
                             language,
                             qwen3_asr: tagged.is_some(),
+                            hit_output_cap: cap_hit.is_some(),
                         });
                     } else if status.as_u16() >= 500 && attempt < 2 {
                         let truncate_at = body
@@ -509,11 +536,7 @@ impl WhisperCompatProvider {
                         });
                     }
                 }
-                Err(e)
-                    if e.is_timeout()
-                        && !self.provider_config.builtin_llama_server
-                        && attempt < 2 =>
-                {
+                Err(e) if e.is_timeout() && retry_timeouts && attempt < 2 => {
                     tracing::warn!(
                         "{} timeout (attempt {}/3)",
                         self.provider_config.provider_name,
@@ -698,9 +721,10 @@ mod tests {
     /// A transcription server that answers every request with `body` and keeps the last
     /// request's bytes.
     async fn recording_server(
-        body: &'static str,
+        body: impl Into<String>,
     ) -> (String, std::sync::Arc<std::sync::Mutex<Vec<u8>>>) {
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let body = body.into();
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let url = format!(
             "http://{}/v1/audio/transcriptions",
@@ -1039,9 +1063,9 @@ mod tests {
             "鰂魚涌".to_string(),
             "太古坊".to_string(),
         ];
-        let (echo_url, _) =
-            recording_server(r#"{"text":"language Cantonese<asr_text>OraType, Sennett, 鰂魚"}"#)
-                .await;
+        let (echo_url, _) = recording_server(
+            r#"{"text":"language Cantonese<asr_text>OraType, Sennett, 鰂魚","finish_reason":"length"}"#,
+        ).await;
 
         let mut builtin = WhisperCompatProvider::new(WhisperCompatConfig {
             provider_name: "builtin-qwen".to_string(),
@@ -1080,8 +1104,25 @@ mod tests {
             Some("OraType, Sennett, 鰂魚")
         );
 
+        let (completed_url, _) = recording_server(
+            r#"{"text":"language Cantonese<asr_text>OraType, Sennett, 鰂魚","finish_reason":"stop"}"#,
+        ).await;
+        builtin.provider_config.endpoint = completed_url;
+        builtin
+            .connect(&SttConfig {
+                vocabulary: dictionary.clone(),
+                ..SttConfig::default()
+            })
+            .await
+            .unwrap();
+        builtin.send_audio(&test_audio_2s()).await.unwrap();
+        assert_eq!(
+            builtin.disconnect().await.unwrap().as_deref(),
+            Some("OraType, Sennett, 鰂魚")
+        );
+
         let (speech_url, _) = recording_server(
-            r#"{"text":"language Cantonese<asr_text>我陣間用 OraType 去鰂魚涌開會。"}"#,
+            r#"{"text":"language Cantonese<asr_text>我陣間用 OraType 去鰂魚涌開會。","finish_reason":"length"}"#,
         )
         .await;
         let mut builtin_speech = WhisperCompatProvider::new(WhisperCompatConfig {
@@ -1341,7 +1382,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn default_llama_server_prompt_echo_is_dropped_on_short_audio_and_order_is_preserved() {
+    async fn default_llama_server_prompt_echo_is_only_dropped_for_builtin_on_short_audio() {
         let prompt_payload = serde_json::json!({
             "text": "language English<asr_text>Transcribe audio to text"
         })
@@ -1357,6 +1398,14 @@ mod tests {
         provider.connect(&SttConfig::default()).await.unwrap();
         provider.send_audio(&test_audio_2s()).await.unwrap();
         assert_eq!(provider.disconnect().await.unwrap(), None);
+
+        provider.provider_config.builtin_llama_server = false;
+        provider.connect(&SttConfig::default()).await.unwrap();
+        provider.send_audio(&test_audio_2s()).await.unwrap();
+        assert_eq!(
+            provider.disconnect().await.unwrap().as_deref(),
+            Some("Transcribe audio to text")
+        );
     }
 
     #[test]
@@ -1375,6 +1424,18 @@ mod tests {
             verbose_json: true,
             builtin_llama_server: false,
         });
+
+        let small = WhisperCompatProvider::new(WhisperCompatConfig {
+            provider_name: "builtin-qwen".to_string(),
+            endpoint: builtin.provider_config.endpoint.clone(),
+            model: super::super::models::QWEN3_ASR_SMALL_MODEL_ID.to_string(),
+            verbose_json: false,
+            builtin_llama_server: true,
+        });
+        assert!(small.uses_scaled_timeout(400.0));
+        assert_eq!(small.request_timeout_for(400.0).as_secs(), 630);
+        assert!(!small.uses_scaled_timeout(400.1));
+        assert_eq!(small.request_timeout_for(600.0).as_secs(), 60);
 
         for (dur_s, expected_secs) in [
             (0.0, 60),
