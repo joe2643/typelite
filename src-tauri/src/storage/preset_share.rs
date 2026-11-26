@@ -1,4 +1,4 @@
-//! Plan `preset-sharing`: export and import presets as a `*.oratype-presets.json` file.
+//! Plan `preset-sharing`: export and import presets as a `*.koeltype-presets.json` file.
 //!
 //! The file holds a format name, a format version and two lists, `speech` and `ai`. Each entry
 //! has a kind, a name, a base URL and a model; speech entries also have a language, AI entries
@@ -33,7 +33,7 @@ pub const LEGACY_FORMAT: &str = "typelite-presets";
 /// Newest format version this build reads and the one it writes.
 pub const VERSION: u64 = 1;
 /// End of the suggested file name.
-pub const FILE_SUFFIX: &str = ".oratype-presets.json";
+pub const FILE_SUFFIX: &str = ".koeltype-presets.json";
 /// Largest file that is read. Real files are a few kilobytes.
 pub const MAX_FILE_BYTES: u64 = 1024 * 1024;
 /// Most entries read from one list.
@@ -1267,7 +1267,7 @@ mod tests {
     fn suggested_file_names_end_with_the_suffix() {
         assert_eq!(
             suggested_file_name(ServiceKind::Speech),
-            "speech.oratype-presets.json"
+            "speech.koeltype-presets.json"
         );
         assert!(suggested_file_name(ServiceKind::Ai).ends_with(FILE_SUFFIX));
     }

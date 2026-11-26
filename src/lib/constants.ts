@@ -1,8 +1,9 @@
-import { repository, version } from '../../package.json'
+import { name, repository, version } from '../../package.json'
 import { productName } from '../../src-tauri/tauri.conf.json'
 
 // App metadata
 export const APP_NAME = productName
+export const APP_SLUG = name
 /**
  * The app's version, without a leading "v". `package.json` is the one place it is set: Tauri
  * reads it there too (`version` in tauri.conf.json points at it), and a Rust test checks that
