@@ -78,7 +78,7 @@ export function DictateVignette({ keys }: { keys?: KeySignal }) {
               <IconArrowRight size={18} style={{ transform: 'rotate(90deg)' }} />
             </div>
             <div className="clean-line" style={{ ...fade(u, 1.6), fontWeight: 600 }}>
-              <small>OraType types</small>
+              <small>KoelType types</small>
               {ex.clean}
             </div>
           </div>
@@ -272,7 +272,7 @@ export function AskVignette({ keys }: { keys?: KeySignal }) {
           <div className="ask-demo">
             <KeySync signal={keys} down={down} />
             <div className="ask-doc" aria-hidden="true">
-              OraType is a voice keyboard for macOS.{' '}
+              KoelType is a voice keyboard for macOS.{' '}
               <mark style={{ '--hl': `${hl}%` } as CSSProperties}>
                 It listens while you hold a shortcut, turns your speech into text, cleans it up and
                 pastes it wherever you are typing, with models that can run on your own computer.
@@ -297,7 +297,7 @@ export function AskVignette({ keys }: { keys?: KeySignal }) {
                     </span>
                   </div>
                   <div className="ask-answer">
-                    OraType turns your speech into clean text in any app, using models on your own
+                    KoelType turns your speech into clean text in any app, using models on your own
                     computer.
                   </div>
                   <div className="ask-foot">

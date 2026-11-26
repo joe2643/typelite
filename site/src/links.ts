@@ -1,6 +1,10 @@
-/** Every outbound link on the site, in one place. */
-export const REPO = 'sennett-lau/oratype'
-export const REPO_URL = `https://github.com/${REPO}`
+import { repository } from '../../package.json'
+import { productName } from '../../src-tauri/tauri.conf.json'
+
+/** Product metadata and outbound links used in the React site. */
+export const PRODUCT_NAME = productName
+export const REPO_URL = repository.url
+export const REPO = new URL(REPO_URL).pathname.slice(1)
 const BLOB = `${REPO_URL}/blob/main`
 const TREE = `${REPO_URL}/tree/main`
 

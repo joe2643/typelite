@@ -1,59 +1,49 @@
-/*
- * OraType site styles. The tokens are the app's own (src/styles/globals.css):
- * light is "Native Glass" (accent #0a84ff), dark is "Aurora" (teal #3fd8c2 with violet
- * #af52de corner glows on near-black glass). The pill is dark glass in both themes.
- */
+/* Warm paper and charcoal from Koelony’s public palette. The capsule stays dark in both themes. */
 
 :root {
   color-scheme: light;
-  --bg: #f4f5f8;
-  --bg-deep: #eceef3;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-solid: #ffffff;
+  --bg: #faf8f4;
+  --bg-deep: #f4f1ea;
+  --surface: rgba(250, 248, 244, 0.92);
+  --surface-solid: #faf8f4;
   --surface-2: rgba(0, 0, 0, 0.045);
   --field: rgba(0, 0, 0, 0.045);
-  --text: #1d1d1f;
-  --text-2: #5f5f66;
-  --text-3: #86868c;
-  --accent: #0a84ff;
-  --accent-hover: #0071e3;
-  --accent-soft: rgba(10, 132, 255, 0.12);
-  --accent-ink: #0060c7;
-  --on-accent: #ffffff;
+  --text: #2a2926;
+  --text-2: #3d3f44;
+  --text-3: #625f59;
+  --accent: #b01b16;
+  --accent-hover: #8f1612;
+  --accent-soft: rgba(176, 27, 22, 0.1);
+  --accent-ink: #3b5b78;
+  --on-accent: #faf8f4;
   --success: #30d158;
   --warning: #ff9f0a;
-  --error: #ff453a;
+  --error: #f0715d;
   --border: rgba(0, 0, 0, 0.09);
   --hairline: rgba(0, 0, 0, 0.06);
-  --f-dictate: #0a84ff;
-  --f-translate: #30b0c7;
-  --f-ask: #af52de;
-  --key: #ffffff;
-  --key-line: #d2d2d7;
-  --glow-a: rgba(10, 132, 255, 0.16);
-  --glow-b: rgba(175, 82, 222, 0.12);
-  --aurora-a: #0a84ff;
-  --aurora-b: #af52de;
-  --hero-a: rgba(10, 132, 255, 0.2);
-  --hero-b: rgba(175, 82, 222, 0.16);
-  --hero-c: rgba(255, 159, 140, 0.14);
-  --hero-glow: rgba(10, 132, 255, 0.1);
-  --pill-bg: rgba(30, 30, 32, 0.72);
+  --f-dictate: #b01b16;
+  --f-translate: #3b5b78;
+  --f-ask: #81551d;
+  --key: #faf8f4;
+  --key-line: #c8c0b2;
+
+  --aurora-a: #f09582;
+  --aurora-b: #e4bb7f;
+
+  --pill-bg: rgba(26, 25, 24, 0.94);
   --pill-line: rgba(255, 255, 255, 0.14);
-  --pill-chip-text: #ffffff;
-  --desk: radial-gradient(90% 90% at 15% 10%, #7fb2ff 0%, #b49cf0 45%, #f5b8a4 100%);
-  --window: rgba(255, 255, 255, 0.8);
-  --window-side: rgba(246, 246, 248, 0.7);
+  --pill-chip-text: #231713;
+  --desk: linear-gradient(148deg, #e2dacb, #cbbda8);
+  --window: rgba(250, 248, 244, 0.88);
+  --window-side: rgba(244, 241, 234, 0.86);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(20, 30, 60, 0.06);
   --shadow-float: 0 30px 60px rgba(20, 20, 50, 0.22), 0 0 0 0.5px rgba(0, 0, 0, 0.18);
-  --code-bg: #1c1c1f;
+  --code-bg: #262625;
   --font-sans:
     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, Roboto,
     'Helvetica Neue', Arial, 'PingFang HK', 'PingFang TC', 'Hiragino Sans', 'Noto Sans CJK TC',
     sans-serif;
-  --font-display:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, Roboto,
-    'Helvetica Neue', Arial, 'PingFang HK', sans-serif;
+  --font-display: 'Avenir Next', 'Century Gothic', 'PingFang HK', 'Segoe UI', sans-serif;
   --font-mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --radius-card: 20px;
@@ -65,80 +55,68 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #07090e;
-    --bg-deep: #05070b;
-    --surface: rgba(18, 24, 34, 0.62);
-    --surface-solid: #121822;
+    --bg: #1e1e1d;
+    --bg-deep: #191918;
+    --surface: rgba(38, 38, 37, 0.92);
+    --surface-solid: #262625;
     --surface-2: rgba(255, 255, 255, 0.06);
     --field: rgba(255, 255, 255, 0.06);
-    --text: #f1f6ff;
-    --text-2: #a6b3c8;
-    --text-3: #7d8ba3;
-    --accent: #3fd8c2;
-    --accent-hover: #62e2cf;
-    --accent-soft: rgba(63, 216, 194, 0.16);
-    --accent-ink: #3fd8c2;
-    --on-accent: #04241f;
+    --text: #e6e2da;
+    --text-2: #c2beb6;
+    --text-3: #a19d95;
+    --accent: #f09582;
+    --accent-hover: #ffb2a2;
+    --accent-soft: rgba(240, 149, 130, 0.16);
+    --accent-ink: #93abc1;
+    --on-accent: #231713;
     --border: rgba(255, 255, 255, 0.11);
     --hairline: rgba(255, 255, 255, 0.07);
-    --f-dictate: #3fd8c2;
-    --f-translate: #7aa7ff;
-    --f-ask: #d77bff;
-    --key: #2c3646;
-    --key-line: #445066;
-    --glow-a: rgba(63, 216, 194, 0.2);
-    --glow-b: rgba(175, 82, 222, 0.2);
-    --hero-a: rgba(63, 216, 194, 0.16);
-    --hero-b: rgba(175, 82, 222, 0.2);
-    --hero-c: rgba(10, 132, 255, 0.1);
-    --hero-glow: rgba(63, 216, 194, 0.09);
-    --aurora-a: #3fd8c2;
-    --pill-chip-text: #04241f;
-    --desk: radial-gradient(90% 90% at 15% 10%, #16304f 0%, #241a3f 50%, #33202a 100%);
-    --window: rgba(14, 20, 30, 0.72);
-    --window-side: rgba(18, 24, 34, 0.6);
+    --f-dictate: #f09582;
+    --f-translate: #93abc1;
+    --f-ask: #e4bb7f;
+    --key: #33312d;
+    --key-line: #625f59;
+
+    --desk: linear-gradient(148deg, #3c3933, #22221f);
+    --window: rgba(30, 30, 29, 0.94);
+    --window-side: rgba(38, 38, 37, 0.92);
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
     --shadow-float: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
-    --code-bg: #0d1219;
+    --code-bg: #191918;
   }
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #07090e;
-  --bg-deep: #05070b;
-  --surface: rgba(18, 24, 34, 0.62);
-  --surface-solid: #121822;
+  --bg: #1e1e1d;
+  --bg-deep: #191918;
+  --surface: rgba(38, 38, 37, 0.92);
+  --surface-solid: #262625;
   --surface-2: rgba(255, 255, 255, 0.06);
   --field: rgba(255, 255, 255, 0.06);
-  --text: #f1f6ff;
-  --text-2: #a6b3c8;
-  --text-3: #7d8ba3;
-  --accent: #3fd8c2;
-  --accent-hover: #62e2cf;
-  --accent-soft: rgba(63, 216, 194, 0.16);
-  --accent-ink: #3fd8c2;
-  --on-accent: #04241f;
+  --text: #e6e2da;
+  --text-2: #c2beb6;
+  --text-3: #a19d95;
+  --accent: #f09582;
+  --accent-hover: #ffb2a2;
+  --accent-soft: rgba(240, 149, 130, 0.16);
+  --accent-ink: #93abc1;
+  --on-accent: #231713;
   --border: rgba(255, 255, 255, 0.11);
   --hairline: rgba(255, 255, 255, 0.07);
-  --f-dictate: #3fd8c2;
-  --f-translate: #7aa7ff;
-  --f-ask: #d77bff;
-  --key: #2c3646;
-  --key-line: #445066;
-  --glow-a: rgba(63, 216, 194, 0.2);
-  --glow-b: rgba(175, 82, 222, 0.2);
-  --hero-a: rgba(63, 216, 194, 0.16);
-  --hero-b: rgba(175, 82, 222, 0.2);
-  --hero-c: rgba(10, 132, 255, 0.1);
-  --hero-glow: rgba(63, 216, 194, 0.09);
-  --aurora-a: #3fd8c2;
-  --pill-chip-text: #04241f;
-  --desk: radial-gradient(90% 90% at 15% 10%, #16304f 0%, #241a3f 50%, #33202a 100%);
-  --window: rgba(14, 20, 30, 0.72);
-  --window-side: rgba(18, 24, 34, 0.6);
+  --f-dictate: #f09582;
+  --f-translate: #93abc1;
+  --f-ask: #e4bb7f;
+  --key: #33312d;
+  --key-line: #625f59;
+
+  --aurora-a: #f09582;
+  --pill-chip-text: #231713;
+  --desk: linear-gradient(148deg, #3c3933, #22221f);
+  --window: rgba(30, 30, 29, 0.94);
+  --window-side: rgba(38, 38, 37, 0.92);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
   --shadow-float: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
-  --code-bg: #0d1219;
+  --code-bg: #191918;
 }
 
 /* ─── Base ─── */
@@ -163,18 +141,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-}
-/* The page's aurora: soft corner glows, fixed behind everything. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(55% 45% at 8% 0%, var(--glow-a), transparent 70%),
-    radial-gradient(45% 40% at 100% 12%, var(--glow-b), transparent 70%),
-    radial-gradient(50% 40% at 50% 110%, var(--glow-b), transparent 70%);
 }
 img,
 svg {
@@ -616,10 +582,7 @@ section {
   line-height: 1.55;
 }
 .gradient-text {
-  background: linear-gradient(95deg, var(--aurora-a), var(--aurora-b));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--accent);
 }
 
 /* Glass card */
@@ -698,186 +661,51 @@ section {
 
 /* ─── Hero ─── */
 .hero {
-  isolation: isolate;
-  padding-top: 56px;
-  padding-bottom: 72px;
-  text-align: center;
+  padding-block: clamp(36px, 6vw, 72px) 72px;
 }
 
-/* The hero's aurora: three large soft blobs drifting slowly (transform only), faded out towards
-   the bottom so they melt into the page. It reaches up under the transparent top bar. */
-.hero-backdrop {
-  position: absolute;
-  inset: -64px 0 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(#000 0%, #000 55%, transparent 92%);
-  mask-image: linear-gradient(#000 0%, #000 55%, transparent 92%);
-}
-.hero-blob {
-  position: absolute;
-  width: 62vmax;
-  height: 62vmax;
-  max-width: 980px;
-  max-height: 980px;
-  border-radius: 50%;
-  will-change: transform;
-  animation: hero-drift-a 26s ease-in-out infinite alternate;
-}
-.hero-blob-a {
-  left: -18%;
-  top: -30%;
-  background: radial-gradient(closest-side, var(--hero-a), transparent);
-}
-.hero-blob-b {
-  right: -20%;
-  top: -18%;
-  background: radial-gradient(closest-side, var(--hero-b), transparent);
-  animation-name: hero-drift-b;
-  animation-duration: 31s;
-}
-.hero-blob-c {
-  left: 28%;
-  top: 8%;
-  width: 46vmax;
-  height: 46vmax;
-  background: radial-gradient(closest-side, var(--hero-c), transparent);
-  animation-name: hero-drift-c;
-  animation-duration: 23s;
-}
-@keyframes hero-drift-a {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(14%, 10%, 0) scale(1.12);
-  }
-  100% {
-    transform: translate3d(26%, -4%, 0) scale(0.94);
-  }
-}
-@keyframes hero-drift-b {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1.05);
-  }
-  50% {
-    transform: translate3d(-18%, 14%, 0) scale(0.92);
-  }
-  100% {
-    transform: translate3d(-8%, 24%, 0) scale(1.1);
-  }
-}
-@keyframes hero-drift-c {
-  0% {
-    transform: translate3d(-12%, 6%, 0) scale(0.9);
-  }
-  100% {
-    transform: translate3d(16%, -10%, 0) scale(1.15);
-  }
-}
-/* A faint light that follows the pointer (desktop only, set by HeroBackdrop.tsx). */
-.hero-glow {
-  position: absolute;
-  left: -280px;
-  top: -280px;
-  width: 560px;
-  height: 560px;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--hero-glow), transparent);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.hero-glow.on {
-  opacity: 1;
-}
-.hero.is-offscreen .hero-blob,
-.hero.is-offscreen .gradient-live {
-  animation-play-state: paused;
+.hero-intro {
+  position: relative;
+  padding-block: 18px 26px;
+  border-block: 1px solid var(--key-line);
 }
 
-/* Entrance: each headline word blurs into focus, the rest rises in after it. */
-.hero-title .hw {
-  display: inline-block;
-  animation: hero-word-in 1s var(--ease) both;
-  animation-delay: calc(0.1s + var(--i, 0) * 0.13s);
-}
-@keyframes hero-word-in {
-  from {
-    opacity: 0;
-    filter: blur(16px);
-    transform: translateY(0.16em) scale(0.97);
+/* Five quiet staff lines carry through the open side of the page. */
+@media (min-width: 960px) {
+  .hero-intro::before {
+    content: '';
+    position: absolute;
+    inset: 30px 0 auto auto;
+    width: 28%;
+    height: 81px;
+    background: repeating-linear-gradient(to bottom, var(--key-line) 0 1px, transparent 1px 20px);
+    pointer-events: none;
   }
 }
+
 .hero-rise {
-  animation: hero-rise-in 0.9s var(--ease) both;
+  animation: hero-rise-in 0.65s var(--ease) both;
   animation-delay: var(--d, 0s);
 }
 @keyframes hero-rise-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
-}
-/* "say it." shares one gradient across both words (each word is its own box, so the second is
-   offset by the first word's width), and the gradient drifts slowly through its colours. */
-@property --gx {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
-.hero-title {
-  --gw: 2.4em;
-}
-.gradient-live {
-  background-image: linear-gradient(
-    95deg,
-    var(--aurora-a) 0%,
-    var(--aurora-b) 50%,
-    var(--aurora-a) 100%
-  );
-  background-size: calc(var(--gw) * 2) 100%;
-  background-position: calc(var(--gx) - var(--off, 0px)) 0;
-  animation: gradient-flow 14s linear infinite;
-}
-.gradient-live-2 {
-  --off: 1.66em;
-}
-@keyframes gradient-flow {
-  to {
-    --gx: calc(var(--gw) * -2);
-  }
-}
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px 5px 6px;
-  border-radius: 999px;
-  background: var(--surface);
-  box-shadow: 0 0 0 1px var(--border);
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 500;
-}
-.hero-badge b {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent-ink);
-  font-size: 12px;
-  font-weight: 700;
 }
 .hero h1 {
-  margin-top: 22px;
-  font-size: clamp(56px, 15vw, 112px);
+  margin: 0;
+  font-size: clamp(3.1rem, 11vw, 7rem);
   font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.98;
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+.hero-period {
+  color: var(--accent);
 }
 .hero-sub {
-  max-width: 640px;
-  margin: 22px auto 0;
+  max-width: 34rem;
+  margin: 18px 0 0;
   color: var(--text-2);
   font-size: clamp(17px, 2.1vw, 21px);
   line-height: 1.5;
@@ -885,17 +713,16 @@ section {
 .hero-ctas {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 12px;
-  margin-top: 34px;
+  margin-top: 26px;
 }
 .hero-note {
-  margin-top: 14px;
+  margin: 14px 0 0;
   color: var(--text-3);
   font-size: 13px;
 }
 .hero-demo {
-  margin-top: 64px;
+  margin-top: 32px;
 }
 
 /* A "screen": desktop gradient, the pill lives at its bottom centre. */
@@ -1096,8 +923,8 @@ section {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 .key-hint .kbd {
-  --key: #2c3646;
-  --key-line: #445066;
+  --key: #33312d;
+  --key-line: #625f59;
   --text: #fff;
 }
 @media (max-width: 720px) {
@@ -1117,7 +944,7 @@ section {
   }
 }
 
-/* The captions under the hero: what you say, what OraType types. */
+/* The captions under the hero: what you say, what KoelType types. */
 .captions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1256,7 +1083,7 @@ section {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ff453a;
+  background: #f0715d;
 }
 .pill-ask-icon {
   flex: none;
@@ -2145,8 +1972,8 @@ section {
   backdrop-filter: blur(12px);
 }
 .translate-keys .kbd {
-  --key: #2c3646;
-  --key-line: #445066;
+  --key: #33312d;
+  --key-line: #625f59;
   --text: #fff;
   text-shadow: none;
 }
@@ -3177,7 +3004,7 @@ thead .col-us {
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .code .p {
-    color: #3fd8c2;
+    color: #f09582;
   }
 }
 .code-head {

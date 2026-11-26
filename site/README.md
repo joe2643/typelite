@@ -1,6 +1,6 @@
-# OraType site
+# KoelType site
 
-The one-page website for OraType: Vite, React and TypeScript, deployed to Cloudflare Workers at
+The one-page website for KoelType: Vite, React and TypeScript, deployed to Cloudflare Workers at
 `https://oratype.sennettlau.me/`. It is a separate project with its own
 `package.json` and lockfile; nothing here is part of the app.
 
@@ -20,10 +20,9 @@ The language cards read `../presets/languages/index.json`, so they follow the pr
 "How it works" (`src/sections/Story.tsx`) is driven by scrolling: the section is tall, its
 content sticks to the screen, and scroll progress picks the step and scrubs it. The rest of the
 motion is plain CSS or small `requestAnimationFrame` loops that animate only transform, opacity
-and filter: the hero's drifting aurora and headline entrance (CSS, so the pre-rendered page
-animates too), the pointer glow and magnetic primary buttons (desktop pointers only), the top
+and filter: the hero's entrance (CSS, so the pre-rendered page animates too), magnetic primary buttons (desktop pointers only), the top
 bar's reading progress, and scroll reveals. No animation library. With
-`prefers-reduced-motion: reduce` everything is still and readable: no drifting, no reveals, the
+`prefers-reduced-motion: reduce` everything is still and readable: no reveals, the
 story is a plain list and each demo shows one frame.
 
 ## Build
@@ -63,7 +62,7 @@ structured data), `public/robots.txt` and `public/sitemap.xml`.
 
 - `../docs/media/hero.gif`, `translate.gif`, `ask.gif`: the site's demos, rendered frame by
   frame in headless Chromium from `capture/index.html` and encoded with ffmpeg.
-- `../docs/media/home.png`, `settings-languages.png`, `onboarding.png`, `copy-pill.png` and
+- `../docs/media/home.png`, `settings-languages.png`, `onboarding.png`, `recording-pill.png`, `copy-pill.png` and
   their `-dark` versions: the **real app components** from `../src`, rendered with a mocked
   Tauri backend (`capture-app/`, `scripts/capture-app-screens.mjs`). This part uses the app's
   own Vite and Tailwind, so run `npm ci` at the repository root first.

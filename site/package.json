@@ -1,9 +1,9 @@
 {
-  "name": "oratype-site",
+  "name": "koeltype-site",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "OraType's one-page website, deployed to Cloudflare Workers",
+  "description": "KoelType's one-page website, deployed to Cloudflare Workers",
   "license": "MIT",
   "scripts": {
     "dev": "vite",

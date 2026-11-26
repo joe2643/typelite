@@ -8,7 +8,7 @@ import {
   useTheme,
   type RepoStats,
 } from '../lib/hooks'
-import { links } from '../links'
+import { links, PRODUCT_NAME } from '../links'
 
 const NAV = [
   ['Why voice', '#faster'],
@@ -29,9 +29,9 @@ export function TopBar({ stats }: { stats: RepoStats | null }) {
   return (
     <header className={`topbar ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container topbar-inner">
-        <a className="brand" href="#top" aria-label="OraType, back to top">
+        <a className="brand" href="#top" aria-label={`${PRODUCT_NAME}, back to top`}>
           <img src={`${import.meta.env.BASE_URL}icon-256.png`} alt="" width={30} height={30} />
-          OraType
+          {PRODUCT_NAME}
         </a>
         <nav className="topnav" aria-label="Sections">
           {NAV.map(([label, href]) => (
@@ -51,7 +51,9 @@ export function TopBar({ stats }: { stats: RepoStats | null }) {
             className="btn btn-glass btn-sm btn-star"
             href={links.repo}
             aria-label={
-              stats ? `Star OraType on GitHub, ${stats.stars} stars` : 'Star OraType on GitHub'
+              stats
+                ? `Star ${PRODUCT_NAME} on GitHub, ${stats.stars} stars`
+                : `Star ${PRODUCT_NAME} on GitHub`
             }
           >
             <IconStar size={15} />
