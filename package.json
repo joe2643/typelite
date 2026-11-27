@@ -1,9 +1,9 @@
 {
-  "name": "koeltype",
+  "name": "munia",
   "private": true,
   "version": "1.2.2",
   "type": "module",
-  "description": "KoelType — press a key, speak, get polished text",
+  "description": "Munia — press a key, speak, get polished text",
   "keywords": [
     "speech-to-text",
     "stt",

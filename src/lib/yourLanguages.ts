@@ -45,7 +45,7 @@ export function yourLanguageList(codes: readonly string[], t: Translate): string
 /**
  * The written language a macOS language tag stands for: `zh-Hant-HK`, `zh-HK`, `zh-MO` and `yue`
  * are Cantonese (Hong Kong), other Traditional Chinese (`zh-Hant`, `zh-TW`) is Taiwan Mandarin,
- * any other Chinese is Simplified, the rest is their primary code. `null` for a language KoelType
+ * any other Chinese is Simplified, the rest is their primary code. `null` for a language Munia
  * does not list.
  */
 export function writtenCodeFor(tag: string): string | null {
@@ -90,7 +90,7 @@ export function effectiveYourLanguages(
  * Plan `language-model-suggestions`: the spoken language a language code or macOS tag stands
  * for, as the suggested setups use them. `zh-Hant-HK`, `zh-HK`, `zh-MO` and `yue` are Cantonese
  * (`yue`), any other Chinese is Mandarin (`zh`), the rest is their primary code. `null` for a
- * language KoelType does not list.
+ * language Munia does not list.
  */
 export function spokenCodeFor(tag: string): string | null {
   const parts = tag.trim().toLowerCase().replace(/_/g, '-').split('-')

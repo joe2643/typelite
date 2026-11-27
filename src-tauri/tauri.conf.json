@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "KoelType",
+  "productName": "Munia",
   "version": "../package.json",
   "mainBinaryName": "oratype",
   "identifier": "dev.oratype.mac",
@@ -15,7 +15,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "KoelType",
+        "title": "Munia",
         "width": 900,
         "height": 700,
         "minWidth": 720,
@@ -37,7 +37,7 @@
       },
       {
         "label": "capsule",
-        "title": "KoelType Capsule",
+        "title": "Munia Capsule",
         "width": 80,
         "height": 80,
         "resizable": false,
@@ -55,7 +55,7 @@
       },
       {
         "label": "ask",
-        "title": "KoelType Ask",
+        "title": "Munia Ask",
         "width": 452,
         "height": 192,
         "resizable": false,

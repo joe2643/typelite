@@ -108,7 +108,7 @@ describe('Settings → General → Your languages', () => {
     expect(screen.queryByTestId('language-row-ja')).not.toBeInTheDocument()
     expect(within(group).getByText('up to 12')).toBeInTheDocument()
     expect(
-      within(group).getByText(/KoelType picks the language you spoke from this list/),
+      within(group).getByText(/Munia picks the language you spoke from this list/),
     ).toBeInTheDocument()
   })
 

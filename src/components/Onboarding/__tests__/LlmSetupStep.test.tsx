@@ -87,7 +87,7 @@ describe('LlmSetupStep', () => {
 
       expect(
         within(card()).getByText(
-          'Runs a small open model inside KoelType on this computer. No other software needed.',
+          'Runs a small open model inside Munia on this computer. No other software needed.',
         ),
       ).toBeInTheDocument()
       const models = within(card()).getByRole('radiogroup', { name: 'Model' })
@@ -162,7 +162,7 @@ describe('LlmSetupStep', () => {
 
       expect(
         within(card()).getByText(
-          'This copy of KoelType was built without the built-in AI server. Use your own server or API key instead.',
+          'This copy of Munia was built without the built-in AI server. Use your own server or API key instead.',
         ),
       ).toBeInTheDocument()
       expect(cardButtons()).toEqual([])

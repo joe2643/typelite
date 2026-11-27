@@ -82,7 +82,7 @@ describe('SttSetupStep', () => {
       expect(within(card()).getAllByText('Recommended').length).toBeGreaterThan(0)
       expect(
         within(card()).getByText(
-          'Runs a speech model inside KoelType on this computer. No other software needed.',
+          'Runs a speech model inside Munia on this computer. No other software needed.',
         ),
       ).toBeInTheDocument()
       const models = within(card()).getByRole('radiogroup', { name: 'Model' })

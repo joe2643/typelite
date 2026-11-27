@@ -72,7 +72,7 @@ export function YourLanguagesPicker({ labelId }: { labelId?: string }) {
 
 /**
  * The result of the languages step: the suggested setup for the chosen languages, or a note that
- * KoelType has none for them (the standard models are used).
+ * Munia has none for them (the standard models are used).
  */
 export function SetupSuggestionBox({
   suggestion,

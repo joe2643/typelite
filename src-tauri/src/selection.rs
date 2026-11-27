@@ -118,7 +118,7 @@ fn copy_selected_text_to_clipboard() -> bool {
             let stderr = String::from_utf8_lossy(&output.stderr);
             if is_permission_error(&stderr) {
                 tracing::warn!(
-                    "Selected text: macOS refused the copy keystroke. Allow KoelType in System \
+                    "Selected text: macOS refused the copy keystroke. Allow Munia in System \
                      Settings → Privacy & Security → Accessibility and → Automation → System Events"
                 );
             } else {
