@@ -7,7 +7,7 @@ import { Story } from './sections/Story'
 import { Languages } from './sections/Languages'
 import { Setup } from './sections/Setup'
 import { Compare, Footer, OpenSource, Privacy } from './sections/More'
-import { BackgroundFlock } from './components/BirdMotion'
+import { BackgroundFlock, MuniaCursor } from './components/BirdMotion'
 
 export function App() {
   const stats = useRepoStats()
@@ -32,6 +32,7 @@ export function App() {
         <Privacy />
       </main>
       <Footer />
+      <MuniaCursor />
     </>
   )
 }
