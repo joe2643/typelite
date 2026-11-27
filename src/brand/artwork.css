@@ -67,6 +67,11 @@
     opacity: 1;
     transform: translate(-5px, 0);
   }
+  81% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: step-end;
+  }
   82%,
   to {
     opacity: 0;
@@ -82,12 +87,11 @@
   }
 }
 @keyframes koel-land {
-  from,
-  72% {
+  from {
     opacity: 0;
-    transform: translateY(-10px) rotate(-4deg);
+    animation-timing-function: step-end;
   }
-  83% {
+  82% {
     opacity: 1;
     transform: scale(1.02, 0.97);
   }
