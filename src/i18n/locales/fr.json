@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "OraType",
+    "name": "{{appName}}",
     "tagline": "Saisie vocale par IA"
   },
   "nav": {
@@ -89,7 +89,7 @@
     "output_wayland_clipboard_copy_only": "Copié dans le presse-papiers. Collez manuellement sous Wayland.",
     "mic_fallback_default": "Le micro sélectionné « {{details}} » n’est pas connecté ; le micro par défaut du système a été utilisé.",
     "stt_unreachable": "Impossible de joindre le serveur vocal ({{details}}). Vérifiez l’adresse dans Réglages → Parole et que le serveur fonctionne.",
-    "output_held_no_accessibility": "L’autorisation Accessibilité manque, OraType ne peut donc pas écrire. Le résultat est dans la pastille Copier. Autorisez OraType dans Réglages Système → Confidentialité et sécurité → Accessibilité."
+    "output_held_no_accessibility": "L’autorisation Accessibilité manque, {{appName}} ne peut donc pas écrire. Le résultat est dans la pastille Copier. Autorisez {{appName}} dans Réglages Système → Confidentialité et sécurité → Accessibilité."
   },
   "home": {
     "headline": "Dites-le, tout simplement.",
@@ -120,7 +120,7 @@
       "editSelectionDesc": "Dites comment modifier le texte sélectionné",
       "switchScene": "Changer de préréglage de prompt",
       "switchSceneDesc": "Passer au préréglage de prompt suivant",
-      "openApp": "Ouvrir OraType",
+      "openApp": "Ouvrir {{appName}}",
       "openAppDesc": "Afficher la fenêtre principale"
     },
     "subtitle": "Appuyez sur un raccourci n’importe où, parlez, et un texte propre arrive là où vous écrivez.",
@@ -178,7 +178,7 @@
   },
   "onboarding": {
     "welcome": {
-      "intro": "Bienvenue dans OraType. Appuyez sur un raccourci, parlez, et un texte soigné arrive là où vous écrivez. D’abord, autorisez les trois éléments dont OraType a besoin.",
+      "intro": "Bienvenue dans {{appName}}. Appuyez sur un raccourci, parlez, et un texte soigné arrive là où vous écrivez. D’abord, autorisez les trois éléments dont {{appName}} a besoin.",
       "skipForNow": "Passer pour l’instant"
     },
     "permissions": {
@@ -197,7 +197,7 @@
       }
     },
     "microphone": {
-      "intro": "Choisissez le micro que OraType doit utiliser. Parlez et regardez l’indicateur bouger."
+      "intro": "Choisissez le micro que {{appName}} doit utiliser. Parlez et regardez l’indicateur bouger."
     },
     "shortcut": {
       "notLive": "Les raccourcis ne sont pas actifs : {{error}}"
@@ -250,7 +250,7 @@
       "listeningHold": "Écoute… relâchez {{key}} quand vous avez fini.",
       "listeningStop": "Écoute… appuyez sur {{stop}} pour arrêter.",
       "listeningTranslate": "Écoute… appuyez sur {{stop}} pour arrêter, {{switch}} pour changer de langue.",
-      "writing": "OraType écrit…",
+      "writing": "{{appName}} écrit…",
       "thinking": "Réflexion…",
       "miss": "Ce n’est pas tout à fait ce qui était attendu.",
       "noSpeech": "Je n’ai pas compris.",
@@ -312,7 +312,7 @@
       "webSearch": "Recherche web",
       "webSearchSub": "Facultatif : permet à Demander de chercher actualités, scores et horaires.",
       "languages": "Vos langues",
-      "languagesSub": "OraType vérifie s’il existe une configuration adaptée aux langues que vous parlez."
+      "languagesSub": "{{appName}} vérifie s’il existe une configuration adaptée aux langues que vous parlez."
     },
     "layout": {
       "back": "Retour",
@@ -537,9 +537,9 @@
     "dictationMode": "Mode de dictée",
     "system": "Système",
     "showInDock": "Afficher dans le Dock",
-    "showInDockHint": "Désactivé, OraType n’a pas d’icône dans le Dock. Ouvrez-le depuis l’icône de la barre des menus.",
+    "showInDockHint": "Désactivé, {{appName}} n’a pas d’icône dans le Dock. Ouvrez-le depuis l’icône de la barre des menus.",
     "siMode": "Mode superintelligence",
-    "siModeHint": "Promeut toute intelligence de type artificiel de OraType au rang de super. Seul le texte de l’interface change ; c’est pour rire.",
+    "siModeHint": "Promeut toute intelligence de type artificiel de {{appName}} au rang de super. Seul le texte de l’interface change ; c’est pour rire.",
     "audio": "Audio",
     "muteOutputWhileRecording": "Couper les autres sons pendant l’enregistrement",
     "sections": "Sections des réglages",
@@ -881,7 +881,7 @@
       "resetToPreset": "Revenir au préréglage",
       "resetToDefault": "Rétablir par défaut",
       "defaultsFailed": "Les instructions intégrées n’ont pas pu être chargées. Laissez ce champ vide pour les utiliser.",
-      "contractNote": "OraType ajoute toujours ses propres règles autour de celles-ci : elles ne peuvent donc changer ni son fonctionnement ni la langue de sortie.",
+      "contractNote": "{{appName}} ajoute toujours ses propres règles autour de celles-ci : elles ne peuvent donc changer ni son fonctionnement ni la langue de sortie.",
       "recognitionHelp": "Détermine quand le polissage utilise ces instructions. La traduction les utilise toujours, puisque vous choisissez la langue cible.",
       "hears": "La reconnaissance vocale entend",
       "fromThePreset": "d’après le préréglage",
@@ -901,7 +901,7 @@
       "loading": "Chargement des préréglages…",
       "builtinItem": "Par défaut intégré",
       "builtinTag": "Intégré",
-      "builtinSummary": "Fourni avec OraType ; toujours disponible hors ligne.",
+      "builtinSummary": "Fourni avec {{appName}} ; toujours disponible hors ligne.",
       "downloaded": "Téléchargé",
       "notesFor": "notes pour {{variant}}",
       "byAuthors": "par {{authors}}",
@@ -922,7 +922,7 @@
   "presetShare": {
     "import": "Importer…",
     "export": "Exporter…",
-    "fileType": "Préréglages OraType",
+    "fileType": "Préréglages {{appName}}",
     "exportTitle": "Exporter des préréglages",
     "exportHelp": "Choisissez les préréglages enregistrés à mettre dans le fichier. Les préréglages intégrés restent sur cet ordinateur.",
     "exportListLabel": "Préréglages à exporter",
@@ -938,16 +938,16 @@
     "importNone": "Ce fichier ne contient aucun préréglage pour cette page.",
     "importConfirm": "Ajouter ({{count}})",
     "keyIncluded": "Clé API",
-    "skippedUnknown": "{{count}} ignoré(s), d’un type que cette version de OraType ne connaît pas.",
+    "skippedUnknown": "{{count}} ignoré(s), d’un type que cette version de {{appName}} ne connaît pas.",
     "otherService": "Le fichier contient aussi {{count}} préréglage(s) pour {{page}}. Importez-le là-bas pour les ajouter.",
     "pageSpeech": "Réglages → Parole",
     "pageAi": "Réglages → IA",
     "imported": "{{count}} ajouté(s). Testez-les avant de les utiliser.",
     "keysFailed": "{{count}} clés API n’ont pas pu être enregistrées dans le trousseau ; saisissez-les à nouveau.",
     "errors": {
-      "not_json": "Ce fichier n’est pas un fichier de préréglages OraType (ce n’est pas du JSON valide).",
-      "wrong_format": "Ce fichier n’est pas un fichier de préréglages OraType.",
-      "newer_version": "Ce fichier a été créé par une version plus récente de OraType (format {{version}}). Mettez à jour OraType pour l’importer.",
+      "not_json": "Ce fichier n’est pas un fichier de préréglages {{appName}} (ce n’est pas du JSON valide).",
+      "wrong_format": "Ce fichier n’est pas un fichier de préréglages {{appName}}.",
+      "newer_version": "Ce fichier a été créé par une version plus récente de {{appName}} (format {{version}}). Mettez à jour {{appName}} pour l’importer.",
       "invalid_version": "Ce fichier de préréglages n’a pas de version de format valide.",
       "too_large": "Ce fichier est trop volumineux pour être un fichier de préréglages.",
       "too_many_entries": "Ce fichier contient trop de préréglages.",
@@ -972,7 +972,7 @@
     "failed": "Impossible de commencer l’enregistrement du raccourci : {{error}}"
   },
   "whatsNew": {
-    "hkCantoneseModel": "La reconnaissance vocale intégrée pour le cantonais est maintenant Qwen3-ASR-1.7B-HK-Cantonese, le fine-tuning de Qwen3-ASR fait par l'équipe d'OraType pour le cantonais de Hong Kong : il écrit les caractères de Hong Kong et garde les mots anglais que vous y mêlez. C'est le modèle suggéré pour toute liste de langues avec le cantonais. Si vous aviez configuré Qwen3-ASR, les Réglages affichent Mettre à jour (1,8 Go) ; d'ici là, vos fichiers continuent de fonctionner.",
+    "hkCantoneseModel": "La reconnaissance vocale intégrée pour le cantonais est maintenant Qwen3-ASR-1.7B-HK-Cantonese, le fine-tuning de Qwen3-ASR fait par l'équipe d'{{appName}} pour le cantonais de Hong Kong : il écrit les caractères de Hong Kong et garde les mots anglais que vous y mêlez. C'est le modèle suggéré pour toute liste de langues avec le cantonais. Si vous aviez configuré Qwen3-ASR, les Réglages affichent Mettre à jour (1,8 Go) ; d'ici là, vos fichiers continuent de fonctionner.",
     "dictionaryToSpeech": "Votre dictionnaire parvient maintenant aussi à la reconnaissance vocale (intégrée et serveurs compatibles OpenAI) : noms et termes sont écrits à votre façon avant même la mise en forme.",
     "textBeforeCursor": "Utiliser le texte avant le curseur (Réglages → IA → Avancé, désactivé par défaut) : la dictée envoie à l'IA jusqu'à environ 300 caractères avant le curseur, pour que la dictée continue la phrase déjà là, avec les bonnes majuscules et la bonne ponctuation. Jamais depuis un champ de mot de passe.",
     "polishWritesDown": "Les questions et demandes dictées sont écrites, pas traitées, et une phrase laissée en suspens n'est plus complétée par des points que vous n'avez jamais dits.",
@@ -981,14 +981,15 @@
     "fasterCantoneseModels": "La configuration intégrée pour le cantonais est plus légère et plus rapide : reconnaissance vocale 21 à 28 % plus rapide sur les longues dictées (1,6 Go au lieu de 2,5 Go), amélioration qui écrit environ un tiers plus vite. Si vous l’aviez déjà, les Réglages affichent Mettre à jour ; vos fichiers fonctionnent jusque-là.",
     "readyFirstDictation": "L’IA intégrée est prête pour votre première dictée. Au démarrage, elle lit en arrière-plan les instructions de vos langues : la première amélioration prend environ une seconde au lieu de 5 à 11 secondes. Si vous dictez tout de suite, elle s’arrête et ne vous ralentit jamais.",
     "fastLanguageSwitching": "Changement de langue rapide (Réglages → IA → IA intégrée, activé par défaut) : chacune de vos langues reste prête, et passer de l’une à l’autre prend environ une seconde au lieu de 15 au maximum. Environ 1 à 2 Go de mémoire en plus par langue supplémentaire ; désactivez-le sur un Mac à court de mémoire.",
-    "yourLanguages": "Vos langues sont désormais dans Réglages → Général. Chaque langue arrive avec son préréglage, et OraType utilise celui de la langue parlée avec tous les services d’IA : intégré, votre serveur ou une clé d’API. La liste Traduire ne sert plus qu’à traduire.",
+    "yourLanguages": "Vos langues sont désormais dans Réglages → Général. Chaque langue arrive avec son préréglage, et {{appName}} utilise celui de la langue parlée avec tous les services d’IA : intégré, votre serveur ou une clé d’API. La liste Traduire ne sert plus qu’à traduire.",
+    "renamedToMunia": "OraType s’appelle désormais Munia. La mise à jour conserve vos réglages, vos modèles téléchargés et votre dictionnaire.",
     "renamed": "Typelite s’appelle désormais OraType. Vos réglages, modèles et dictionnaire sont conservés. Accordez encore une fois l’Accessibilité et le Micro (Réglages Système → Confidentialité et sécurité), et si macOS demande d’autoriser OraType à utiliser « Typelite » dans votre trousseau, choisissez Toujours autoriser : ce sont vos clés API enregistrées.",
     "handsFree": "Mode mains libres : dites « Hey Sam », marquez une pause, puis parlez, sans raccourci. Vos mots sont tapés dans l’app ; dites « ask … » pour poser une question. Terminez par « Thanks, Sam » ou une pause de 3 secondes. Activez-le dans Réglages → Général → Mains libres ; un petit modèle (60 Mo) écoute sur votre Mac, donc rien n’est envoyé avant la phrase d’activation.",
     "pillAfterIdle": "La pilule réapparaît après un moment d’inactivité. Après environ huit minutes sans dictée, elle pouvait ne plus s’afficher alors que la dictée fonctionnait.",
     "polishCutOff": "Les longues dictées, surtout en cantonais, ne sont plus coupées par la mise en forme. L’IA intégrée a deux fois plus de place, et une réponse qui dépasse encore est remplacée par votre transcription.",
-    "ownKeystrokes": "Avec un raccourci sur une seule touche Commande, « Demander n’importe quoi » ne s’arrête plus dès le départ dans les apps où OraType copie votre sélection pour la lire.",
-    "languageModels": "Vos langues : indiquez à OraType les langues que vous parlez (dans la configuration initiale ou Réglages → Voix). Pour le cantonais, il suggère deux modèles intégrés à télécharger : Qwen3-ASR, qui écrit le cantonais tel que vous le dites, et Qwen 3.5 4B pour le polissage.",
-    "clipboardSafe": "OraType ne touche plus à votre presse-papiers : un résultat qu’il ne peut pas taper attend dans la pastille Copier, un collage rend tout ce que vous aviez copié (images et fichiers compris), et les gestionnaires de presse-papiers n’enregistrent plus les dictées.",
+    "ownKeystrokes": "Avec un raccourci sur une seule touche Commande, « Demander n’importe quoi » ne s’arrête plus dès le départ dans les apps où {{appName}} copie votre sélection pour la lire.",
+    "languageModels": "Vos langues : indiquez à {{appName}} les langues que vous parlez (dans la configuration initiale ou Réglages → Voix). Pour le cantonais, il suggère deux modèles intégrés à télécharger : Qwen3-ASR, qui écrit le cantonais tel que vous le dites, et Qwen 3.5 4B pour le polissage.",
+    "clipboardSafe": "{{appName}} ne touche plus à votre presse-papiers : un résultat qu’il ne peut pas taper attend dans la pastille Copier, un collage rend tout ce que vous aviez copié (images et fichiers compris), et les gestionnaires de presse-papiers n’enregistrent plus les dictées.",
     "typeAfterSwitch": "Cliquer dans une app et dicter aussitôt tape désormais le texte au lieu de le copier.",
     "askReadsPages": "Avec la recherche web, Demander lit les premières pages de résultats : les questions sur l’actualité, les scores et les prochains matchs obtiennent une réponse. Une date non confirmée est signalée.",
     "translateHighlight": "Sélectionnez du texte, appuyez sur Demander et dites « traduis ceci en anglais » : la traduction s’ouvre dans le panneau Demander avec Copier et Remplacer.",
@@ -1011,9 +1012,9 @@
     "sourceIcons": "Les cartes de sources affichent Ouvrir et Copier le lien sous forme d’icônes toujours visibles : un clic égaré n’ouvre ou ne copie plus de lien.",
     "whatsNewPaging": "Nouveautés affiche une version à la fois, avec des flèches pour parcourir les plus anciennes.",
     "lighterApp": "Plus léger et plus rapide : moins de travail pendant l’enregistrement, une vérification de la parole plus économe et un dictionnaire plus rapide avec de longues listes de mots.",
-    "webSearch": "Demander n’importe quoi peut chercher sur le web pour les questions d’actualité (nouvelles, scores, horaires, prix) avec SearXNG : OraType l’installe sur votre Mac en un clic, ou utilise votre propre serveur.",
+    "webSearch": "Demander n’importe quoi peut chercher sur le web pour les questions d’actualité (nouvelles, scores, horaires, prix) avec SearXNG : {{appName}} l’installe sur votre Mac en un clic, ou utilise votre propre serveur.",
     "askSources": "Les réponses issues du web citent leurs sources : ouvrez la colonne des sources à côté de la réponse pour voir chaque page, l’ouvrir ou copier son lien.",
-    "autoUpdate": "Mises à jour depuis GitHub Releases : OraType télécharge une nouvelle version en arrière-plan et vous invite à redémarrer. Seul le fichier de version est demandé ; désactivez-les dans Réglages → Système.",
+    "autoUpdate": "Mises à jour depuis GitHub Releases : {{appName}} télécharge une nouvelle version en arrière-plan et vous invite à redémarrer. Seul le fichier de version est demandé ; désactivez-les dans Réglages → Système.",
     "keepAccessibility": "À partir de la 1.1.0, l’autorisation Accessibilité reste accordée après chaque mise à jour. Si vous venez de la 1.0, réactivez-la une dernière fois après l’installation.",
     "copyPill": "Quand le texte ne peut pas être saisi dans l’app au premier plan, la pastille le propose avec un bouton Copier.",
     "translateLanguageLive": "Une langue de traduction ajoutée dans les Réglages apparaît tout de suite dans la pastille Traduire, sans redémarrage.",
@@ -1024,7 +1025,7 @@
     "polishRequests": "Le polissage IA écrit une demande que vous dictez (« écris un e-mail en japonais… ») au lieu de l’exécuter ou de changer de langue.",
     "polishCodeWords": "Le polissage IA garde intacts les noms de fichiers, les commandes et les petits mots de code : « point gitignore » devient .gitignore.",
     "polishSpelledNames": "Le polissage IA écrit une seule fois un nom que vous épelez lettre par lettre, avec cette orthographe, et retire les lettres.",
-    "installWindow": "Le programme d’installation affiche la fenêtre habituelle : de grandes icônes et une flèche pour faire glisser OraType dans Applications.",
+    "installWindow": "Le programme d’installation affiche la fenêtre habituelle : de grandes icônes et une flèche pour faire glisser {{appName}} dans Applications.",
     "tutorialClose": "Le bouton de fermeture du tutoriel de configuration se trouve à côté des boutons de la fenêtre et se voit mieux.",
     "builtin": "Première version. Reconnaissance vocale et polissage IA intégrés : configurés en un clic, et votre voix et votre texte restent sur votre Mac.",
     "ownServer": "Ou utilisez votre propre serveur ou clé API : n’importe quel service vocal ou de chat compatible OpenAI, Qwen Cloud ou ElevenLabs.",
@@ -1038,7 +1039,7 @@
     "microphonePicker": "Sélecteur de micro avec niveau d’entrée en direct.",
     "setupTutorial": "Un tutoriel de configuration pas à pas.",
     "nativeGlass": "Aspect Glass natif qui suit les modes clair et sombre.",
-    "noHistory": "Aucun historique : OraType ne garde aucune trace de ce que vous dites."
+    "noHistory": "Aucun historique : {{appName}} ne garde aucune trace de ce que vous dites."
   },
   "status": {
     "label": "État de la connexion",
@@ -1078,7 +1079,7 @@
     },
     "builtinTitle": "Intégré",
     "recommended": "Recommandé",
-    "builtinBody": "Exécute un modèle vocal dans OraType sur cet ordinateur. Aucun autre logiciel nécessaire.",
+    "builtinBody": "Exécute un modèle vocal dans {{appName}} sur cet ordinateur. Aucun autre logiciel nécessaire.",
     "changeModel": "Changer de modèle",
     "download": "Télécharger",
     "use": "Utiliser",
@@ -1160,7 +1161,7 @@
     "engines": {
       "builtin": {
         "title": "Intégré",
-        "detail": "Exécute un modèle vocal dans OraType sur cet ordinateur"
+        "detail": "Exécute un modèle vocal dans {{appName}} sur cet ordinateur"
       },
       "server": {
         "title": "Votre serveur ou clé API",
@@ -1190,7 +1191,7 @@
     "skipHint": "La dictée fonctionne toujours ; vous obtenez la transcription brute"
   },
   "aiSetup": {
-    "builtinBody": "Exécute un petit modèle ouvert dans OraType sur cet ordinateur. Aucun autre logiciel nécessaire.",
+    "builtinBody": "Exécute un petit modèle ouvert dans {{appName}} sur cet ordinateur. Aucun autre logiciel nécessaire.",
     "progressLabel": "Téléchargement du modèle d’IA",
     "testing": "Démarrage du modèle et test en cours…",
     "models": {
@@ -1205,11 +1206,11 @@
     },
     "errors": {
       "load": "{{reason}}",
-      "serverMissing": "Cette copie de OraType a été compilée sans le serveur d’IA intégré. Utilisez plutôt votre propre serveur ou clé API."
+      "serverMissing": "Cette copie de {{appName}} a été compilée sans le serveur d’IA intégré. Utilisez plutôt votre propre serveur ou clé API."
     },
     "hardware": {
       "none": "Cet ordinateur ne peut pas bien exécuter un modèle d’IA intégré. Utilisez plutôt votre propre serveur ou clé API.",
-      "serverMissing": "Cette copie de OraType a été compilée sans le serveur d’IA intégré. Utilisez plutôt votre propre serveur ou clé API.",
+      "serverMissing": "Cette copie de {{appName}} a été compilée sans le serveur d’IA intégré. Utilisez plutôt votre propre serveur ou clé API.",
       "leftOut": {
         "needs_apple_silicon": "L’IA intégrée nécessite un Mac Apple Silicon.",
         "needs_memory": "Le plus grand modèle nécessite 16 Go de mémoire.",
@@ -1237,12 +1238,12 @@
     "optional": "Facultatif",
     "uses": "La recherche utilise",
     "builtin": "Intégré",
-    "builtinDetail": "OraType installe SearXNG sur ce Mac",
+    "builtinDetail": "{{appName}} installe SearXNG sur ce Mac",
     "recommended": "Recommandé",
     "own": "Votre propre SearXNG",
     "ownDetail": "Une adresse sur votre réseau, et une clé facultative",
     "setupTitle": "Installer SearXNG sur ce Mac",
-    "setupBody": "OraType télécharge SearXNG, un moteur de recherche gratuit qui interroge plusieurs moteurs à la fois, avec sa propre copie de Python. Environ 230 Mo, depuis GitHub. Il ne fonctionne que sur ce Mac et seulement quand OraType est ouvert.",
+    "setupBody": "{{appName}} télécharge SearXNG, un moteur de recherche gratuit qui interroge plusieurs moteurs à la fois, avec sa propre copie de Python. Environ 230 Mo, depuis GitHub. Il ne fonctionne que sur ce Mac et seulement quand {{appName}} est ouvert.",
     "setupLicence": "SearXNG est un logiciel open source distinct (AGPL), téléchargé quand vous appuyez sur Configurer.",
     "setup": "Configurer",
     "settingUp": "Installation de SearXNG…",
@@ -1283,19 +1284,19 @@
   "updates": {
     "group": "Mises à jour",
     "auto": "Mettre à jour automatiquement",
-    "autoHint": "Vérifie sur GitHub s’il existe une nouvelle version au démarrage de OraType et toutes les 6 heures, la télécharge en arrière-plan et vous invite à redémarrer. Seul le fichier de version est demandé ; rien sur vous ni sur ce que vous dites n’est envoyé.",
-    "version": "OraType {{version}}",
+    "autoHint": "Vérifie sur GitHub s’il existe une nouvelle version au démarrage de {{appName}} et toutes les 6 heures, la télécharge en arrière-plan et vous invite à redémarrer. Seul le fichier de version est demandé ; rien sur vous ni sur ce que vous dites n’est envoyé.",
+    "version": "{{appName}} {{version}}",
     "check": "Rechercher des mises à jour",
     "checking": "Recherche de mises à jour…",
     "upToDate": "Vous avez la version la plus récente.",
-    "availableTitle": "OraType {{version}} est disponible.",
+    "availableTitle": "{{appName}} {{version}} est disponible.",
     "availableBody": "Mettez à jour pour obtenir les dernières corrections et fonctionnalités.",
     "update": "Mettre à jour",
-    "downloadingTitle": "Téléchargement de OraType {{version}}…",
+    "downloadingTitle": "Téléchargement de {{appName}} {{version}}…",
     "downloading": "Cela prend un moment.",
     "downloadingPercent": "{{percent}} %",
-    "readyTitle": "OraType {{version}} est prête.",
-    "readyBody": "Redémarrez pour commencer à l’utiliser. Si un raccourci ne fonctionne plus après la mise à jour, désactivez puis réactivez OraType dans Confidentialité et sécurité → Accessibilité.",
+    "readyTitle": "{{appName}} {{version}} est prête.",
+    "readyBody": "Redémarrez pour commencer à l’utiliser. Si un raccourci ne fonctionne plus après la mise à jour, désactivez puis réactivez {{appName}} dans Confidentialité et sécurité → Accessibilité.",
     "restart": "Redémarrer pour mettre à jour",
     "failed": "La mise à jour n’a pas fonctionné : {{message}}",
     "disabled": "La version de développement ne se met pas à jour elle-même."
@@ -1329,7 +1330,7 @@
     "homeBodySpeech": "{{speech}} pour la reconnaissance vocale. Il s’exécute sur ce Mac ; {{size}} à télécharger.",
     "homeBodyAi": "{{ai}} pour le polissage IA. Il s’exécute sur ce Mac ; {{size}} à télécharger.",
     "dontShowAgain": "Ne plus afficher",
-    "generalHelp": "Quand vous dictez ou posez une question, OraType choisit dans cette liste la langue que vous avez parlée et suit son préréglage, avec les modèles intégrés, votre propre serveur ou une clé API. Le préréglage d’une langue s’applique aussi quand vous traduisez vers elle.",
+    "generalHelp": "Quand vous dictez ou posez une question, {{appName}} choisit dans cette liste la langue que vous avez parlée et suit son préréglage, avec les modèles intégrés, votre propre serveur ou une clé API. Le préréglage d’une langue s’applique aussi quand vous traduisez vers elle.",
     "useMac": "Ajouter {{languages}}",
     "changeLanguages": "Modifier vos langues"
   }

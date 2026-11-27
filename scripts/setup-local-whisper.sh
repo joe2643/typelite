@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sets up a local speech-recognition server for OraType on macOS.
+# Sets up a local speech-recognition server for Munia on macOS.
 #
 # What it does:
 #   1. Installs whisper.cpp from Homebrew (the official formula).
@@ -125,7 +125,7 @@ rm -f "$TMP_WAV"
 
 say "Done. Test request took ${TIME}s."
 echo
-echo "In OraType, choose the speech preset \"whisper.cpp on this Mac\" (or use these values):"
+echo "In Munia, choose the speech preset \"whisper.cpp on this Mac\" (or use these values):"
 echo "  Base URL: http://127.0.0.1:$PORT/v1"
 echo "  Model:    large-v3-turbo"
 echo "  Language: Auto"

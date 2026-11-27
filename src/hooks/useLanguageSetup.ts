@@ -17,7 +17,7 @@ export function currentEngine(service: EngineService, config: AppConfig): Curren
 
 /**
  * Plan `language-model-suggestions`: Your languages (plan `languages-in-general`), and the
- * suggested setup for them on this Mac (null when OraType has none for those languages). The
+ * suggested setup for them on this Mac (null when Munia has none for those languages). The
  * setups are by spoken language, so Cantonese (Hong Kong) counts as Cantonese. Reads both
  * hardware checks.
  */

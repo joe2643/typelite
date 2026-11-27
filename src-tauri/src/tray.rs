@@ -30,7 +30,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "停止錄音",
             hands_free: "免提模式",
             settings: "設定",
-            about: "關於 OraType",
+            about: "關於 {app}",
             quit: "結束",
         },
         "es" => TrayLabels {
@@ -40,7 +40,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "Detener grabación",
             hands_free: "Modo manos libres",
             settings: "Ajustes",
-            about: "Acerca de OraType",
+            about: "Acerca de {app}",
             quit: "Salir",
         },
         "fr" => TrayLabels {
@@ -50,7 +50,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "Arrêter l’enregistrement",
             hands_free: "Mode mains libres",
             settings: "Réglages",
-            about: "À propos de OraType",
+            about: "À propos de {app}",
             quit: "Quitter",
         },
         "de" => TrayLabels {
@@ -60,7 +60,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "Aufnahme beenden",
             hands_free: "Freihändiger Modus",
             settings: "Einstellungen",
-            about: "Über OraType",
+            about: "Über {app}",
             quit: "Beenden",
         },
         "ja" => TrayLabels {
@@ -70,7 +70,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "録音を停止",
             hands_free: "ハンズフリーモード",
             settings: "設定",
-            about: "OraType について",
+            about: "{app} について",
             quit: "終了",
         },
         "zh" => TrayLabels {
@@ -80,7 +80,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "停止录音",
             hands_free: "免提模式",
             settings: "设置",
-            about: "关于 OraType",
+            about: "关于 {app}",
             quit: "退出",
         },
         _ => TrayLabels {
@@ -90,7 +90,7 @@ fn get_tray_labels(lang: &str) -> TrayLabels {
             stop_recording: "Stop Recording",
             hands_free: "Hands-free Mode",
             settings: "Settings",
-            about: "About OraType",
+            about: "About {app}",
             quit: "Quit",
         },
     }
@@ -168,7 +168,13 @@ pub fn build_tray_menu(
     let sep2 = PredefinedMenuItem::separator(app)?;
     let settings = MenuItem::with_id(app, "settings", labels.settings, true, None::<&str>)?;
     let sep3 = PredefinedMenuItem::separator(app)?;
-    let about = MenuItem::with_id(app, "about", labels.about, true, None::<&str>)?;
+    let about = MenuItem::with_id(
+        app,
+        "about",
+        labels.about.replace("{app}", crate::APP_NAME),
+        true,
+        None::<&str>,
+    )?;
     let quit = MenuItem::with_id(app, "quit", labels.quit, true, None::<&str>)?;
 
     let menu = Menu::with_items(

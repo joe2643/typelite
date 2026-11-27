@@ -1,3 +1,4 @@
+import { HomeFinch, HomeScenery } from './HomeScenery'
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Globe, Mic, MessageSquare, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -287,8 +288,14 @@ export function HomePage() {
 
   return (
     <PageFrame
-      title={<h1 className="page-title text-[26px] text-balance">{t('home.headline')}</h1>}
+      title={
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="page-title text-[26px] text-balance">{t('home.headline')}</h1>
+          <HomeFinch />
+        </div>
+      }
       subtitle={t('home.subtitle')}
+      bodyDecoration={<HomeScenery />}
     >
       <UpdateBar />
       <FinishSetup />

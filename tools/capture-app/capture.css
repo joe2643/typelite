@@ -1,0 +1,103 @@
+/*
+ * The capture page's own frame: a desktop-like backdrop and a macOS window around the real app.
+ * The app's window is transparent glass over the macOS window material (NSVisualEffectView);
+ * the material is imitated here with a blurred, tinted layer under the app.
+ */
+html,
+body {
+  width: auto !important;
+  height: auto !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+
+.capture-stage {
+  position: relative;
+  box-sizing: border-box;
+  width: 1000px;
+  height: 820px;
+  padding: 60px 50px;
+  background: linear-gradient(148deg, var(--koel-surface), var(--koel-surface-2));
+  overflow: hidden;
+}
+
+.capture-frame {
+  position: relative;
+  width: 900px;
+  height: 700px;
+  border-radius: 12px;
+  overflow: hidden;
+  isolation: isolate;
+  /* The window material under the app's own glass. */
+  background: rgba(244, 241, 234, 0.72);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.8);
+  box-shadow:
+    0 30px 60px rgba(20, 20, 50, 0.3),
+    0 0 0 0.5px rgba(0, 0, 0, 0.25);
+}
+.dark .capture-frame {
+  background: rgba(38, 38, 37, 0.72);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 0.5px rgba(255, 255, 255, 0.18);
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+/* macOS draws the window buttons over the sidebar (titleBarStyle "Overlay"). */
+.capture-lights {
+  position: absolute;
+  z-index: 100;
+  top: 9px;
+  left: 13px;
+  display: flex;
+  gap: 8px;
+}
+.capture-lights i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+}
+.capture-lights i:nth-child(1) {
+  background: #ff5f57;
+}
+.capture-lights i:nth-child(2) {
+  background: #febc2e;
+}
+.capture-lights i:nth-child(3) {
+  background: #28c840;
+}
+
+/* The Copy pill: the capsule window (pill plus its 12 pt padding) at the bottom centre. The
+   promo `pill` screen uses the same frame, so every pill state sits in the same place. */
+[data-screen='copy-pill'] .capture-stage,
+[data-screen='pill'] .capture-stage {
+  width: 500px;
+  height: 150px;
+  padding: 0;
+}
+[data-screen='copy-pill'] .capture-frame,
+[data-screen='pill'] .capture-frame {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  width: 392px;
+  height: 64px;
+  transform: translateX(-50%);
+  border-radius: 0;
+  overflow: visible;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+[data-screen='copy-pill'] .capture-lights,
+[data-screen='pill'] .capture-lights {
+  display: none;
+}

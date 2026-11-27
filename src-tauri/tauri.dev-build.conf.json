@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OraType Dev",
+  "productName": "Munia Dev",
   "mainBinaryName": "oratype",
   "identifier": "dev.oratype.mac.dev",
   "bundle": {

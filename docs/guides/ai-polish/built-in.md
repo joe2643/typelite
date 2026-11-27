@@ -1,12 +1,12 @@
 # Built-in AI polish
 
 Built-in runs a small language model on your computer with llama.cpp's `llama-server`, which ships
-inside OraType. No Ollama, no Terminal, no account: your text never leaves your computer.
+inside Munia. No Ollama, no Terminal, no account: your text never leaves your computer.
 
 ## Set it up
 
 Pick **Built-in** in the AI setup step, or in **Settings → AI**, choose a model and press
-**Set up** (or **Download** in Settings). OraType downloads the model, checks its SHA-256,
+**Set up** (or **Download** in Settings). Munia downloads the model, checks its SHA-256,
 starts the server and sends one test request.
 
 ## The models
@@ -36,11 +36,11 @@ starts the server and sends one test request.
 
 - The server listens only on your computer (127.0.0.1, a random port and a random key that
   changes on every start), uses the GPU, and has thinking turned off (`--reasoning off`).
-- It starts when Built-in is in use and stops when OraType quits or you pick another option.
+- It starts when Built-in is in use and stops when Munia quits or you pick another option.
   While it runs it keeps the model in memory (about 3 GB for Best quality).
-- The very first start after installing or updating OraType takes a minute or two while macOS
+- The very first start after installing or updating Munia takes a minute or two while macOS
   prepares the GPU code; later starts take a few seconds.
-- Right after it starts, OraType has it read the polish instructions once for each of your
+- Right after it starts, Munia has it read the polish instructions once for each of your
   languages, so your first dictation does not wait for that (5–11 s with the 4B models).
 - **Fast language switching** (Settings → AI → Built-in AI, on by default) keeps one
   copy of the instructions ready per language, up to three. Switching language then takes under
@@ -48,7 +48,7 @@ starts the server and sends one test request.
   Turn it off on a Mac that is short of memory. See [Benchmarks](../benchmarks/README.md) for
   measured numbers.
 
-## Building OraType yourself
+## Building Munia yourself
 
 `npm run build:app` builds `llama-server` first (`scripts/build-llama-server.sh`, needs `cmake`).
 Without it the app still builds and runs, and Built-in AI says the server is missing. See

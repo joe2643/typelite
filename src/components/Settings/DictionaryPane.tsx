@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { APP_SLUG } from '../../lib/constants'
 import {
   Check,
   Download,
@@ -65,7 +66,7 @@ function downloadText(content: string, format: 'json' | 'csv') {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `oratype-dictionary-${new Date().toISOString().slice(0, 10)}.${format}`
+  link.download = `${APP_SLUG}-dictionary-${new Date().toISOString().slice(0, 10)}.${format}`
   link.click()
   URL.revokeObjectURL(url)
 }

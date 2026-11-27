@@ -156,7 +156,7 @@ describe('SttPane', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'Learn more' }))
       expect(openUrl).toHaveBeenCalledWith(
-        'https://github.com/sennett-lau/oratype/blob/main/docs/guides/speech/README.md',
+        'https://github.com/koelony/koeltype/blob/main/docs/guides/speech/README.md',
       )
     })
 

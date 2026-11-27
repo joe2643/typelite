@@ -38,7 +38,6 @@ pub use tray::{refresh_tray, TrayHandle};
 
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager};
-use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_store::StoreExt;
 use tracing_subscriber::EnvFilter;
 
@@ -79,9 +78,71 @@ struct AutoStartSyncOutcome {
     error: Option<String>,
 }
 
+#[cfg(any(target_os = "macos", test))]
+fn unescape_plist_xml(value: &str) -> String {
+    value
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&apos;", "'")
+        .replace("&amp;", "&")
+}
+
+#[cfg(any(target_os = "macos", test))]
+fn launch_agent_program_path(plist_contents: &str) -> Option<String> {
+    let key_idx = plist_contents.find("<key>ProgramArguments</key>")?;
+    let after_key = &plist_contents[key_idx + "<key>ProgramArguments</key>".len()..];
+    let array_start = after_key.find("<array>")? + "<array>".len();
+    let after_array_open = &after_key[array_start..];
+    let array_end = after_array_open.find("</array>")?;
+    let array_body = &after_array_open[..array_end];
+    let string_start = array_body.find("<string>")? + "<string>".len();
+    let after_string_open = &array_body[string_start..];
+    let string_end = after_string_open.find("</string>")?;
+    let raw = after_string_open[..string_end].trim();
+    if raw.is_empty() {
+        return None;
+    }
+    Some(unescape_plist_xml(raw))
+}
+
+#[cfg(any(target_os = "macos", test))]
+fn launch_agent_needs_refresh(plist_contents: &str, current_exe: &std::path::Path) -> bool {
+    let Some(registered) = launch_agent_program_path(plist_contents) else {
+        return true;
+    };
+    std::path::Path::new(&registered) != current_exe
+}
+
+fn current_launch_agent_needs_refresh() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        let Some(home) = std::env::var_os("HOME").map(std::path::PathBuf::from) else {
+            return false;
+        };
+        let plist_path = home
+            .join("Library/LaunchAgents")
+            .join(format!("{APP_NAME}.plist"));
+        let Ok(contents) = std::fs::read_to_string(&plist_path) else {
+            return false;
+        };
+        let Ok(exe) = std::env::current_exe() else {
+            return false;
+        };
+        let current_exe = exe.canonicalize().unwrap_or(exe);
+        launch_agent_needs_refresh(&contents, &current_exe)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        false
+    }
+}
+
 fn reconcile_auto_start_preference(
     desired_enabled: bool,
     current_enabled: Result<bool, String>,
+    needs_refresh: bool,
+    legacy_enabled: bool,
     apply: impl FnOnce(bool) -> Result<(), String>,
 ) -> AutoStartSyncOutcome {
     let current_enabled = match current_enabled {
@@ -94,7 +155,8 @@ fn reconcile_auto_start_preference(
         }
     };
 
-    if current_enabled == desired_enabled {
+    let should_refresh = desired_enabled && current_enabled && needs_refresh;
+    if current_enabled == desired_enabled && !should_refresh {
         return AutoStartSyncOutcome {
             config_auto_start: desired_enabled,
             error: None,
@@ -109,7 +171,7 @@ fn reconcile_auto_start_preference(
         Err(error) => {
             let action = if desired_enabled { "enable" } else { "disable" };
             AutoStartSyncOutcome {
-                config_auto_start: current_enabled,
+                config_auto_start: current_enabled || (desired_enabled && legacy_enabled),
                 error: Some(format!("Failed to {action} launch at startup: {error}")),
             }
         }
@@ -180,9 +242,29 @@ fn sync_auto_start_preference(
     use tauri_plugin_autostart::ManagerExt;
 
     let autolaunch = app.autolaunch();
+    let current_enabled = autolaunch.is_enabled().map_err(|e| e.to_string());
+    let needs_refresh = config.auto_start
+        && matches!(current_enabled, Ok(true))
+        && current_launch_agent_needs_refresh();
+    if needs_refresh {
+        tracing::info!(
+            "Launch at login plist points to a stale executable; refreshing for {APP_NAME}"
+        );
+    }
+    #[cfg(target_os = "macos")]
+    let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
+    #[cfg(target_os = "macos")]
+    let legacy_enabled = home
+        .as_deref()
+        .is_some_and(rename_migration::has_legacy_login_item);
+    #[cfg(not(target_os = "macos"))]
+    let legacy_enabled = false;
+
     let outcome = reconcile_auto_start_preference(
         config.auto_start,
-        autolaunch.is_enabled().map_err(|e| e.to_string()),
+        current_enabled,
+        needs_refresh,
+        legacy_enabled,
         |enabled| {
             if enabled {
                 autolaunch.enable()
@@ -195,6 +277,11 @@ fn sync_auto_start_preference(
 
     if let Some(error) = &outcome.error {
         tracing::warn!("{error}");
+    } else {
+        #[cfg(target_os = "macos")]
+        if let Some(home) = home.as_deref() {
+            rename_migration::remove_legacy_login_items(home);
+        }
     }
 
     if config.auto_start != outcome.config_auto_start {
@@ -252,7 +339,7 @@ fn build_ask_window(handle: &tauri::AppHandle) -> tauri::Result<tauri::WebviewWi
         "ask",
         tauri::WebviewUrl::App("index.html#ask".into()),
     )
-    .title("OraType Ask")
+    .title(format!("{APP_NAME} Ask"))
     .inner_size(452.0, 192.0)
     .resizable(false)
     .decorations(false)
@@ -582,7 +669,7 @@ mod tests {
 
     #[test]
     fn auto_start_sync_uses_actual_state_when_enable_fails() {
-        let outcome = reconcile_auto_start_preference(true, Ok(false), |_| {
+        let outcome = reconcile_auto_start_preference(true, Ok(false), false, false, |_| {
             Err("Login item failed".to_string())
         });
 
@@ -594,10 +681,130 @@ mod tests {
     }
 
     #[test]
+    fn auto_start_sync_preserves_an_enabled_legacy_preference_on_failure() {
+        let outcome = reconcile_auto_start_preference(true, Ok(false), false, true, |_| {
+            Err("Login item failed".to_string())
+        });
+        assert!(outcome.config_auto_start);
+        assert!(outcome.error.is_some());
+    }
+
+    #[test]
     fn auto_start_sync_keeps_preference_when_apply_succeeds() {
-        let outcome = reconcile_auto_start_preference(true, Ok(false), |_| Ok(()));
+        let outcome = reconcile_auto_start_preference(true, Ok(false), false, false, |_| Ok(()));
 
         assert!(outcome.config_auto_start);
+        assert_eq!(outcome.error, None);
+    }
+
+    #[test]
+    fn auto_start_sync_is_noop_when_enabled_and_path_matches() {
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>Munia</string>
+    <key>ProgramArguments</key>
+    <array><string>/Applications/Munia.app/Contents/MacOS/oratype</string></array>
+    <key>RunAtLoad</key>
+    <true/>
+  </dict>
+</plist>"#;
+        let current_exe = std::path::Path::new("/Applications/Munia.app/Contents/MacOS/oratype");
+        let needs_refresh = launch_agent_needs_refresh(plist, current_exe);
+        assert!(!needs_refresh);
+
+        let mut called = false;
+        let outcome = reconcile_auto_start_preference(true, Ok(true), needs_refresh, false, |_| {
+            called = true;
+            Ok(())
+        });
+
+        assert!(!called);
+        assert!(outcome.config_auto_start);
+        assert_eq!(outcome.error, None);
+    }
+
+    #[test]
+    fn auto_start_sync_refreshes_when_enabled_and_path_is_stale() {
+        let current_exe = std::path::Path::new("/Applications/Munia.app/Contents/MacOS/oratype");
+        for stale_exe in [
+            "/Applications/OraType.app/Contents/MacOS/oratype",
+            "/Users/example/Downloads/Munia.app/Contents/MacOS/oratype",
+        ] {
+            let plist = format!(
+                r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>Munia</string>
+    <key>ProgramArguments</key>
+    <array><string>{stale_exe}</string></array>
+    <key>RunAtLoad</key>
+    <true/>
+  </dict>
+</plist>"#
+            );
+            let needs_refresh = launch_agent_needs_refresh(&plist, current_exe);
+            assert!(needs_refresh);
+
+            let mut applied = None;
+            let outcome =
+                reconcile_auto_start_preference(true, Ok(true), needs_refresh, false, |enabled| {
+                    applied = Some(enabled);
+                    Ok(())
+                });
+
+            assert_eq!(applied, Some(true));
+            assert!(outcome.config_auto_start);
+            assert_eq!(outcome.error, None);
+        }
+    }
+
+    #[test]
+    fn launch_agent_needs_refresh_handles_multiline_escaped_and_malformed_plists() {
+        let multiline_escaped = r#"<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>Munia</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Applications/R&amp;D/Munia.app/Contents/MacOS/oratype</string>
+      <string>--background</string>
+    </array>
+  </dict>
+</plist>"#;
+        assert!(!launch_agent_needs_refresh(
+            multiline_escaped,
+            std::path::Path::new("/Applications/R&D/Munia.app/Contents/MacOS/oratype"),
+        ));
+
+        let missing_program_args =
+            r#"<plist version="1.0"><dict><key>Label</key><string>Munia</string></dict></plist>"#;
+        assert!(launch_agent_needs_refresh(
+            missing_program_args,
+            std::path::Path::new("/Applications/Munia.app/Contents/MacOS/oratype"),
+        ));
+
+        let empty_program_args = r#"<plist version="1.0"><dict><key>ProgramArguments</key><array><string>   </string></array></dict></plist>"#;
+        assert!(launch_agent_needs_refresh(
+            empty_program_args,
+            std::path::Path::new("/Applications/Munia.app/Contents/MacOS/oratype"),
+        ));
+    }
+
+    #[test]
+    fn auto_start_sync_does_not_refresh_when_disabled() {
+        let mut called = false;
+        let outcome = reconcile_auto_start_preference(false, Ok(false), true, false, |_| {
+            called = true;
+            Ok(())
+        });
+
+        assert!(!called);
+        assert!(!outcome.config_auto_start);
         assert_eq!(outcome.error, None);
     }
 
@@ -1020,18 +1227,18 @@ fn dispatch_cli_action(app: &tauri::AppHandle, action: CliAction) {
     }
 }
 
-/// The app's name in the menu bar tooltip: "OraType Dev" for the development build, so the two
+/// The app's name in the menu bar tooltip: "Munia Dev" for the development build, so the two
 /// apps can be told apart when both are installed.
 #[cfg(not(feature = "dev-build"))]
-pub(crate) const APP_NAME: &str = "OraType";
+pub(crate) const APP_NAME: &str = "Munia";
 #[cfg(feature = "dev-build")]
-pub(crate) const APP_NAME: &str = "OraType Dev";
+pub(crate) const APP_NAME: &str = "Munia Dev";
 
 /// The log folder's name under `~/Library/Logs`. The development build (`dev-build` feature)
 /// writes to its own folder, so its log never mixes with the release app's.
-#[cfg(not(feature = "dev-build"))]
+#[cfg(all(target_os = "macos", not(feature = "dev-build")))]
 const LOG_FOLDER: &str = "OraType";
-#[cfg(feature = "dev-build")]
+#[cfg(all(target_os = "macos", feature = "dev-build"))]
 const LOG_FOLDER: &str = "OraType Dev";
 
 /// Where the log file lives: `~/Library/Logs/OraType/oratype.log` on macOS (open it with
@@ -1107,11 +1314,8 @@ pub fn run() {
 
     init_logging();
 
-    // Plan `rename-oratype`: move Typelite's folders across before anything reads them; a bundle
-    // still called Typelite.app is renamed and started again from there.
-    if rename_migration::run() == rename_migration::Next::Exit {
-        return;
-    }
+    // Move Typelite's folders before anything reads them. Keep the installed bundle path.
+    rename_migration::run();
 
     #[cfg(target_os = "linux")]
     log_linux_launch_diagnostics(xinitthreads_status);
@@ -1132,10 +1336,12 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_clipboard_manager::init())
-        .plugin(tauri_plugin_autostart::init(
-            MacosLauncher::LaunchAgent,
-            None,
-        ))
+        // Register the login item under Munia; startup sync retires the legacy login items.
+        .plugin(
+            tauri_plugin_autostart::Builder::new()
+                .app_name(APP_NAME)
+                .build(),
+        )
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())
         // Plan `preset-sharing`: the save and open dialogs of preset Export and Import (used from Rust only).
@@ -1307,7 +1513,7 @@ pub fn run() {
                 .map_err(|e| anyhow::anyhow!("Failed to build tray menu: {}", e))?;
 
             // macOS: a black-on-transparent "template image" (from
-            // icons/source/oratype-tray.svg). macOS then tints it itself, so it reads
+            // icons/source/munia-tray.svg). macOS then tints it itself, so it reads
             // correctly on light and dark menu bars. Other platforms keep the app icon.
             // The development build adds a dot (icons/dev/tray.svg), since a template image
             // has no colour to tell the two apps apart.

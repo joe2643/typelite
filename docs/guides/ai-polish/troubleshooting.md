@@ -8,14 +8,14 @@
 | HTTP 401 | The API key is correct and has billing or credit. |
 | HTTP 404 | The address ends with `/v1` (or the service's base path), and the model name is exactly what the server lists. For Ollama, pull the model first. |
 | Replace `<computer-ip>` … | The address still holds a placeholder; enter the other computer's address. |
-| Built-in: server missing | You built OraType without `llama-server`; see [Built-in](built-in.md#building-oratype-yourself). |
+| Built-in: server missing | You built Munia without `llama-server`; see [Built-in](built-in.md#building-munia-yourself). |
 | Built-in: first start is slow | The first start after installing or updating takes a minute or two while macOS prepares the GPU code. |
 
 ## "The AI's answer was cut off"
 
-The server stopped the answer at its length limit, so OraType pasted the full transcript instead
+The server stopped the answer at its length limit, so Munia pasted the full transcript instead
 of half a result. Usually the server's **context** is too small: the prompt and the answer share
-it, and OraType's polish prompt with a language preset is about 3,300 tokens, so a 4096-token
+it, and Munia's polish prompt with a language preset is about 3,300 tokens, so a 4096-token
 context leaves little room for a long dictation. Give the server at least 8192 tokens:
 
 - llama.cpp: `llama-server … -c 8192` (or leave `-c` out to use the model's full context).

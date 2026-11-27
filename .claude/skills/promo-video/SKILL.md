@@ -1,6 +1,6 @@
 ---
 name: promo-video
-description: Make the short promo video for a OraType release (10–15 s, 1920×1080) from the real app UI, in the standard folder output/promo-<version>/. Use when preparing a release, or when someone asks for a promo, launch or "what's new" video for a version.
+description: Make the short promo video for a Munia release (10–15 s, 1920×1080) from the real app UI, in the standard folder output/promo-<version>/. Use when preparing a release, or when someone asks for a promo, launch or "what's new" video for a version.
 ---
 
 # Make a release promo video
@@ -13,7 +13,7 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
 | `film.html` | The film: shots, captions and timing, drawn by `render(t)` |
 | `stills/<shot>.png` | Stills of the real app (dark, 2× or 4×), from the capture harness |
 | `music.wav` | The soundtrack, synthesised for the film's length |
-| `oratype-<version>-promo.mp4` | **The video** (the one file to share) |
+| `munia-<version>-promo.mp4` | **The video** (the one file to share) |
 | `sheet.png` | One frame per second on one image, to check the film at a glance |
 | `preview/` | Single frames from `--preview` (optional, safe to delete) |
 
@@ -24,7 +24,7 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
   the new feature on real stills, and the end card (name, free and open source, the site
   `oratype.sennettlau.me`).
 - **Real UI only.** Stills come from the app's own components in the capture harness
-  (`site/capture-app`), never a drawing of a screen that does not exist. Numbers in captions
+  (`tools/capture-app`), never a drawing of a screen that does not exist. Numbers in captions
   come from the release's measurements; claim nothing that was not measured or shipped.
 - **Two languages per caption:** the headline in the language of the release's main audience,
   the other below it in grey. Default English first with Traditional Chinese (Hong Kong) under
@@ -43,13 +43,13 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
    `src/i18n/locales/en.json` and `zh-Hant.json`) and pick the headline feature, plus at most one
    more. Write the storyboard as the shots' comments in `film.html`: shot, seconds, caption in
    both languages.
-2. **Stills.** Use the shots in `PROMO_SHOTS` (`site/scripts/capture-promo-stills.mjs`). For a
-   feature with no shot yet, add a screen to the harness (`site/capture-app/mocks.ts`: the
+2. **Stills.** Use the shots in `PROMO_SHOTS` (`tools/scripts/capture-promo-stills.mjs`). For a
+   feature with no shot yet, add a screen to the harness (`tools/capture-app/mocks.ts`: the
    `Screen` type, `SCREENS`, the config and command mocks it needs; `app.tsx` for store state)
    and a shot to `PROMO_SHOTS`. Then, from the repository root (after `npm ci`):
 
    ```sh
-   node site/scripts/capture-promo-stills.mjs <version> <shot> [<shot> ...]
+   node tools/scripts/capture-promo-stills.mjs <version> <shot> [<shot> ...]
    ```
 
    Look at every still: the harness prints warnings for unmocked commands, and a missing mock
@@ -59,26 +59,26 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
    pure (no timers or CSS animations): the recorder steps `t` itself. Check single frames:
 
    ```sh
-   node site/scripts/record-film.mjs <version> --preview 1,4,8,12
+   node tools/scripts/record-film.mjs <version> --preview 1,4,8,12
    ```
 
    and look at `preview/t*.png` (text not clipped, stills sharp, nothing behind a caption).
 4. **Music**, as long as `window.DURATION`:
 
    ```sh
-   python3 site/scripts/promo-music.py <version> <seconds>
+   python3 tools/scripts/promo-music.py <version> <seconds>
    ```
 
 5. **Record:**
 
    ```sh
-   node site/scripts/record-film.mjs <version>
+   node tools/scripts/record-film.mjs <version>
    ```
 
-   It renders every frame, encodes `oratype-<version>-promo.mp4` with the music, writes
+   It renders every frame, encodes `munia-<version>-promo.mp4` with the music, writes
    `sheet.png` and deletes the frames. Look at `sheet.png`, and check the length with
    `ffprobe -v error -show_entries format=duration -of csv=p=0 <mp4>`.
-6. **Hand over:** reveal the video in Finder (`open -R output/promo-<version>/oratype-<version>-promo.mp4`)
+6. **Hand over:** reveal the video in Finder (`open -R output/promo-<version>/munia-<version>-promo.mp4`)
    and give the path. Nothing in `output/` is committed; changes to the harness or the scripts
    go in a pull request.
 

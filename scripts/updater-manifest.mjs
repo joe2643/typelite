@@ -23,8 +23,9 @@ const source = readFileSync(join(root, 'src/lib/whatsNew.ts'), 'utf8')
 const entry = source.match(
   new RegExp(`version:\\s*'${version.replace(/\./g, '\\.')}'\\s*,\\s*changeKeys:\\s*\\[([^\\]]*)\\]`),
 )
+const { productName } = JSON.parse(readFileSync(join(root, 'src-tauri/tauri.conf.json'), 'utf8'))
 const strings = JSON.parse(readFileSync(join(root, 'src/i18n/locales/en.json'), 'utf8')).whatsNew
-const changes = entry ? [...entry[1].matchAll(/'([^']+)'/g)].map((m) => strings[m[1]] ?? m[1]) : []
+const changes = entry ? [...entry[1].matchAll(/'([^']+)'/g)].map((m) => (strings[m[1]] ?? m[1]).replaceAll('{{appName}}', productName)) : []
 
 const manifest = {
   version,

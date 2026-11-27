@@ -1,4 +1,4 @@
-# oratype
+# munia
 
 Open-source, free, self-hosted alternative to [Typeless](https://www.typeless.com/): press a
 shortcut, speak, and get polished text pasted into whatever field has focus. macOS first.
@@ -13,7 +13,7 @@ architecture references accurately, and retain any required notices for reused c
 
 Other projects may be used as references for product design, UX and stack research.
 A request to compare or reference another project does not authorise importing its code or
-assets. Develop features against OraType's own requirements; obtain explicit approval before
+assets. Develop features against Munia's own requirements; obtain explicit approval before
 adding code from a reference project and preserve its required licence notices.
 
 ## Plans
@@ -39,7 +39,7 @@ repeat an entry unless its "Reopen when" conditions are met.
   unless they choose such a service.
 - Updates (plan `auto-update`): the update check fetches only `latest.json` from GitHub Releases
   (on by default, off in Settings → System → Updates) and sends nothing about the user.
-- "No history" is about content: OraType never stores what the user said (audio, transcripts,
+- "No history" is about content: Munia never stores what the user said (audio, transcripts,
   answers, pasted text). It does keep run timings for Insights on Home: durations, sizes, preset
   ids/models, mode, outcome and language, the last 200 runs in `run-timings.json` in the app data
   folder. Settings → System → Clear insights data deletes them (plan `speed-by-preset`).
@@ -63,7 +63,7 @@ repeat an entry unless its "Reopen when" conditions are met.
 ## Architecture
 
 ```
-OraType ──audio──> speech recognition (built-in whisper.cpp or Qwen3-ASR, or an OpenAI-compatible server)
+Munia   ──audio──> speech recognition (built-in whisper.cpp or Qwen3-ASR, or an OpenAI-compatible server)
          ──text───> AI polish (built-in llama-server, or an OpenAI-compatible chat server)
          <─polished text── paste into the focused app
 ```
@@ -95,17 +95,20 @@ MIT. Keep the required copyright and permission notices in `LICENSE` and
 - The app logs to `~/Library/Logs/OraType/oratype.log` (timings, sizes, errors; never dictated
   text). Each speech request logs endpoint, status and duration; `[Pipeline Timing]` lines give
   the per-step breakdown. Ask the user for this file when debugging a report.
-- Drive a dictation without the keyboard: `/Applications/OraType.app/Contents/MacOS/oratype
+- Drive a dictation without the keyboard: `/Applications/Munia.app/Contents/MacOS/oratype
   toggle` starts, a second call stops. The result is pasted into the frontmost app, so open an
   empty TextEdit document first. Until onboarding is finished the command does nothing
   (plan `onboarding-shortcut-gate`); the log shows it at debug level.
 
 ## Lessons learned (do not relearn these)
 
-- Typelite was renamed OraType in 1.2.0, bundle identifier included (plan `rename-oratype`).
-  `rename_migration.rs` moves `dev.typelite.mac`'s folders, database and login item on the
-  first launch; keys move on first use from the keychain service "Typelite"; files exported by
-  Typelite still import. Keep these legacy names where they are, and never create a new
+- Typelite was renamed OraType in 1.2.0, bundle identifier included (plan `rename-oratype`), and
+  later renamed Munia while preserving the `dev.oratype.mac` bundle identifier, `oratype.db`,
+  the `OraType` keychain service, and `~/Library/Logs/OraType/oratype.log`. `rename_migration.rs`
+  moves `dev.typelite.mac`'s folders and database on the first launch, renames legacy
+  `Typelite.app` and `OraType.app` bundles to `Munia.app`, and clears stale `Typelite.plist` and
+  `OraType.plist` login items; keys move on first use from the keychain service "Typelite"; files
+  exported by Typelite still import. Keep these legacy names where they are, and never create a new
   GitHub repository called `typelite` (it would break the redirects to `oratype`).
 
 - CoreAudio can keep an input stream's callback alive after the stream is dropped. Never rely on

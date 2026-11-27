@@ -31,10 +31,9 @@ describe('SI mode (plan `si-mode`)', () => {
     'leaves its own hint readable in %s',
     async (language) => {
       await i18n.changeLanguage(language)
+      const original = i18n.t('settings.siModeHint')
       setSiMode(true)
-      expect(i18n.t('settings.siModeHint')).toBe(
-        i18n.getResource(language, 'translation', 'settings.siModeHint'),
-      )
+      expect(i18n.t('settings.siModeHint')).toBe(original)
       await i18n.changeLanguage('en')
     },
   )

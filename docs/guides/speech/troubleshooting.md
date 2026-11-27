@@ -12,7 +12,7 @@
 
 ## "Didn't catch that"
 
-OraType found no speech: the recording held less than 200 ms of voice, or the recogniser
+Munia found no speech: the recording held less than 200 ms of voice, or the recogniser
 returned only a phrase it invents for silence. Speak a little longer or closer to the microphone,
 and check the microphone chosen in Settings. The log line `speech check: …` gives the numbers.
 

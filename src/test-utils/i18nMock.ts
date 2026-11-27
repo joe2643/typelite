@@ -1,3 +1,4 @@
+import { APP_NAME } from '../lib/constants'
 import en from '../i18n/locales/en.json'
 
 function lookup(key: string): string | undefined {
@@ -16,7 +17,7 @@ function lookup(key: string): string | undefined {
 export function translate(key: string | string[], values?: Record<string, unknown>): string {
   const keys = Array.isArray(key) ? key : [key]
   let text = keys.map(lookup).find((found) => found !== undefined) ?? keys[0]
-  for (const [name, value] of Object.entries(values ?? {})) {
+  for (const [name, value] of Object.entries({ appName: APP_NAME, ...values })) {
     text = text.split(`{{${name}}}`).join(String(value))
   }
   return text

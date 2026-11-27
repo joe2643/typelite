@@ -22,8 +22,9 @@ const source = readFileSync(join(root, 'src/lib/whatsNew.ts'), 'utf8')
 const entry = source.match(
   new RegExp(`version:\\s*'${version.replace(/\./g, '\\.')}'\\s*,\\s*changeKeys:\\s*\\[([^\\]]*)\\]`),
 )
+const { productName } = JSON.parse(readFileSync(join(root, 'src-tauri/tauri.conf.json'), 'utf8'))
 const strings = JSON.parse(readFileSync(join(root, 'src/i18n/locales/en.json'), 'utf8')).whatsNew
-const changes = entry ? [...entry[1].matchAll(/'([^']+)'/g)].map((m) => strings[m[1]] ?? m[1]) : []
+const changes = entry ? [...entry[1].matchAll(/'([^']+)'/g)].map((m) => (strings[m[1]] ?? m[1]).replaceAll('{{appName}}', productName)) : []
 
 const lines = [
   `## What's New in ${version}`,
@@ -35,13 +36,13 @@ const lines = [
   '## Install',
   '',
   '1. Download the `.dmg` (or the `.zip`) below. It is for Macs with Apple Silicon.',
-  '2. Open the DMG and drag OraType to Applications.',
+  `2. Open the DMG and drag ${productName} to Applications.`,
   '3. This build is not signed or notarised by Apple yet, so macOS blocks it the first time.',
-  '   Right-click OraType.app and choose **Open** (on macOS 15 and later: System Settings →',
+  `   Right-click ${productName}.app and choose **Open** (on macOS 15 and later: System Settings →`,
   '   Privacy & Security → **Open Anyway**), or run this once in Terminal:',
   '',
   '   ```sh',
-  '   xattr -dr com.apple.quarantine /Applications/OraType.app',
+  `   xattr -dr com.apple.quarantine /Applications/${productName}.app`,
   '   ```',
   '',
   '4. Allow Microphone and Accessibility when asked, then follow the guided setup.',

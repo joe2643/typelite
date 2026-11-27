@@ -43,6 +43,8 @@ describe('locale message coverage', () => {
     const variables = (value: unknown) =>
       [...String(value).matchAll(/\{\{\s*-?\s*([^},]+)(?:,[^}]+)?\}\}/g)]
         .map((match) => match[1].trim())
+        // The product name has a default value and can be omitted or repeated in translation.
+        .filter((name) => name !== 'appName')
         .sort()
     const english = new Map(leaves(en))
     for (const [key, value] of leaves(messages)) {

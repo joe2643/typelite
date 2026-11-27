@@ -21,7 +21,7 @@ interface CapsuleAuroraProps {
 
 /**
  * The aurora light inside the dark glass pill (plan `aurora-pill`). Colours come from
- * `--color-aurora-a` (teal in dark mode, blue in light mode) and `--color-aurora-b` (violet).
+ * `--color-aurora-a` (clay) and `--color-aurora-b` (amber).
  *
  * - `listening`: two blurred blobs drift slowly (CSS animation). One requestAnimationFrame
  *   loop lifts their opacity with the voice level, so the glow breathes with speech.

@@ -119,7 +119,7 @@ export function SpeedCompare() {
       />
       {faster !== null && (
         <div
-          className="justify-self-end rounded-[10px] bg-accent-light px-2.5 py-1.5 text-center text-[13px] font-bold leading-tight text-accent"
+          className="justify-self-end rounded-[10px] bg-bg-tertiary px-2.5 py-1.5 text-center text-[13px] font-bold leading-tight text-text-primary"
           data-testid="speed-faster"
         >
           {t('home.speedCompare.times', { value: faster })}

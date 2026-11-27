@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { KoelBird } from '../../brand/KoelArtwork'
 import { StepIndicator } from './StepIndicator'
 
 interface Props {
@@ -77,6 +78,11 @@ export function OnboardingLayout({
         >
           <div className="my-auto w-full pt-3 pb-4" data-testid="onboarding-block">
             <div className="pb-[22px] text-center">
+              {step === 0 && (
+                <div className="onboarding-koel">
+                  <KoelBird />
+                </div>
+              )}
               <h1 className="page-title">{title}</h1>
               {subtitle && <p className="page-subtitle">{subtitle}</p>}
             </div>

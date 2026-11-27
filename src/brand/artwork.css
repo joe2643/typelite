@@ -1,0 +1,116 @@
+.koel-mark,
+.koel-bird {
+  display: block;
+  flex: none;
+  fill: var(--koel-logo-ink);
+  pointer-events: none;
+}
+.koel-eye {
+  fill: var(--koel-eye);
+}
+.munia-beak {
+  fill: var(--koel-btn-red);
+}
+.koel-bird {
+  width: var(--koel-bird-width, 72px);
+  height: auto;
+  overflow: hidden;
+}
+.koel-bird-flight,
+.koel-bird--background {
+  opacity: 0;
+}
+.koel-bird-wing {
+  transform-box: view-box;
+  transform-origin: 268px 208px;
+}
+
+/* The two original poses share one arrival in the app and on the website. */
+@media (prefers-reduced-motion: no-preference) {
+  .koel-bird-flight {
+    animation: koel-arrive 0.9s cubic-bezier(0.2, 0.65, 0.35, 1) both;
+  }
+  .koel-bird-wing {
+    animation: koel-flap 0.21s cubic-bezier(0.4, 0, 0.6, 1) 4 alternate;
+  }
+  .koel-bird-wing-far {
+    animation-delay: -0.06s;
+  }
+  /* The distant bird passes once and leaves the foreground perch to anchor the viewport. */
+  .koel-bird--background {
+    fill: var(--koel-soft);
+    animation: koel-pass 3.4s linear var(--koel-bird-delay, 0.2s) both;
+  }
+  .koel-bird--background .koel-bird-flight {
+    opacity: 1;
+    animation: none;
+  }
+  .koel-bird--background .koel-bird-wing {
+    animation-duration: 0.34s;
+    animation-iteration-count: 9;
+  }
+  .koel-bird-perched {
+    transform-box: fill-box;
+    transform-origin: 62% 88%;
+    animation: koel-land 0.9s ease-out both;
+  }
+}
+@keyframes koel-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-170px, -115px) rotate(-7deg);
+  }
+  16% {
+    opacity: 1;
+  }
+  73% {
+    opacity: 1;
+    transform: translate(-5px, 0);
+  }
+  81% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: step-end;
+  }
+  82%,
+  to {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes koel-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(-0.82);
+  }
+}
+@keyframes koel-land {
+  from {
+    opacity: 0;
+    animation-timing-function: step-end;
+  }
+  82% {
+    opacity: 1;
+    transform: scale(1.02, 0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes koel-pass {
+  from {
+    opacity: 0;
+    transform: translate(-65%, 24%) rotate(-8deg);
+  }
+  26%,
+  68% {
+    opacity: var(--koel-bird-opacity, 0.22);
+  }
+  to {
+    opacity: 0;
+    transform: translate(70%, -28%) rotate(4deg);
+  }
+}
