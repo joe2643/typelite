@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import '../brand/palette.css';
 @import '../brand/artwork.css';
+@import '../brand/finch.css';
+@import '../components/HomePage/scenery.css';
 
 /* Plan `ask-hover`: the Ask window gets no mouse moves (never key, app in the background), so its
    page marks the element under the cursor with `.is-hover`; Tailwind's `hover:` matches it too. */
@@ -230,23 +232,6 @@ body,
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 18%, transparent);
   }
 
-  .home-koel {
-    --koel-bird-width: 56px;
-    flex: none;
-    margin-block: -8px;
-  }
-  .home-koel-background {
-    --koel-bird-width: 112px;
-    --koel-bird-opacity: 0.16;
-    position: absolute;
-    z-index: -1;
-    inset: 0 clamp(54px, 10vw, 124px) 14px auto;
-    display: grid;
-    width: min(42%, 230px);
-    place-items: center;
-    overflow: hidden;
-    pointer-events: none;
-  }
   .onboarding-koel {
     --koel-bird-width: 72px;
     display: flex;
@@ -287,7 +272,7 @@ body,
 
   /* ─── Grouped rows (macOS System Settings style) ─── */
   .row-group {
-    background: var(--color-bg-elevated);
+    background: var(--page-card-background, var(--color-bg-elevated));
     border-radius: 10px;
     box-shadow: 0 0 0 0.5px var(--color-border);
   }

@@ -1,11 +1,11 @@
 // Screenshots of the real app UI for the README (docs/media/*.png).
 //
 // The app's own React components (../src) render in headless Chromium with a mocked Tauri
-// backend (site/capture-app). The page is served by a Vite dev server built from the ROOT
+// backend (tools/capture-app). The page is served by a Vite dev server built from the ROOT
 // project's Vite, React plugin and Tailwind plugin, so run `npm ci` at the repository root first.
 //
-//   node site/scripts/capture-app-screens.mjs            # writes docs/media/
-//   node site/scripts/capture-app-screens.mjs --out dir  # or somewhere else
+//   node tools/scripts/capture-app-screens.mjs            # writes docs/media/
+//   node tools/scripts/capture-app-screens.mjs --out dir  # or somewhere else
 //
 // Or call captureAppScreens({ browser, outDir }) from capture-media.mjs.
 
@@ -19,7 +19,7 @@ import { launch } from './lib/chromium.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(here, '../..')
-const harnessRoot = join(repoRoot, 'site/capture-app')
+const harnessRoot = join(repoRoot, 'tools/capture-app')
 
 /** Each stage's CSS width times its scale is 1600 px. */
 export const APP_SCREENS = [
@@ -157,7 +157,7 @@ export async function captureAppScreens({ browser, outDir, themes = ['light', 'd
   return written
 }
 
-// Run directly: node site/scripts/capture-app-screens.mjs [--out dir]
+// Run directly: node tools/scripts/capture-app-screens.mjs [--out dir]
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const outFlag = process.argv.indexOf('--out')
   const outDir = outFlag > 0 ? resolve(process.argv[outFlag + 1]) : join(repoRoot, 'docs/media')

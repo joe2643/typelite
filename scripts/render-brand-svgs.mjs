@@ -30,19 +30,3 @@ for (const dev of [false, true]) {
 `,
   )
 }
-
-output(
-  'site/public/favicon.svg',
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <title>Munia</title>
-  <style>
-    .ink { fill: #0c0c0c; }
-    .beak { fill: #d0201a; }
-    @media (prefers-color-scheme: dark) { .ink { fill: #f4f1ea; } }
-  </style>
-  <path class="ink" d="${art.mark.body}"/>
-  <circle class="ink" cx="${cx}" cy="${cy}" r="${r}"/>
-  <path class="beak" d="${art.mark.beak}"/>
-</svg>
-`,
-)

@@ -1,11 +1,11 @@
 // Stills of the real app UI for a release's promo video (see .claude/skills/promo-video).
 //
-// The same harness as the README screenshots (site/capture-app): the app's own React components
+// The same harness as the README screenshots (tools/capture-app): the app's own React components
 // with a mocked Tauri backend, in headless Chromium. Promo stills are dark and twice the size the
 // film shows them, so a slow push-in stays sharp.
 //
-//   node site/scripts/capture-promo-stills.mjs <version> [shot ...]
-//   node site/scripts/capture-promo-stills.mjs 1.2.0 hands-free pill-recording
+//   node tools/scripts/capture-promo-stills.mjs <version> [shot ...]
+//   node tools/scripts/capture-promo-stills.mjs 1.2.0 hands-free pill-recording
 //
 // Writes output/promo-<version>/stills/<shot>.png. Without shots, every shot in PROMO_SHOTS is
 // captured. A local tool: run `npm ci` at the repository root first, and have Chromium installed
@@ -20,7 +20,7 @@ import { optimise, startServer } from './capture-app-screens.mjs'
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
 /**
- * Every still a promo can use. `screen` is a harness screen (site/capture-app/mocks.ts),
+ * Every still a promo can use. `screen` is a harness screen (tools/capture-app/mocks.ts),
  * `state` the pill state for the `pill` screen, and `scrollTo` an element the settings page is
  * scrolled to (its top lands 64 px below the window's top). Add a shot here when a release needs
  * a new one, and its screen to the harness.
@@ -107,11 +107,11 @@ export async function capturePromoStills({ browser, version, shots }) {
   return written
 }
 
-// Run directly: node site/scripts/capture-promo-stills.mjs <version> [shot ...]
+// Run directly: node tools/scripts/capture-promo-stills.mjs <version> [shot ...]
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [version, ...requested] = process.argv.slice(2)
   if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-    console.error('Usage: node site/scripts/capture-promo-stills.mjs <version> [shot ...]')
+    console.error('Usage: node tools/scripts/capture-promo-stills.mjs <version> [shot ...]')
     console.error(`Shots: ${Object.keys(PROMO_SHOTS).join(', ')}`)
     process.exit(1)
   }
