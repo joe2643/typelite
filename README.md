@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src-tauri/icons/128x128.png" width="96" height="96" alt="Munia icon">
+  <img src="apps/desktop/src-tauri/icons/128x128.png" width="96" height="96" alt="Munia icon">
 </p>
 
 <h1 align="center">Munia</h1>
@@ -46,8 +46,8 @@ You need Rust ([rustup](https://rustup.rs/)), Node.js 22.12 or later, the Xcode 
 and CMake.
 
 ```bash
-git clone https://github.com/koelony/koeltype.git
-cd koeltype
+git clone https://github.com/koelony/munia.git
+cd munia/apps/desktop
 npm ci
 npm run build:app      # builds llama-server, then the app
 open src-tauri/target/release/bundle/macos/Munia.app
@@ -190,7 +190,8 @@ See [media generation](docs/media/README.md) for recording and Copy capsule stil
 ## Contributing
 
 Code, services, language presets and docs are all welcome. Start with the
-[Contributing guide](CONTRIBUTING.md).
+[Contributing guide](CONTRIBUTING.md) for setup and the
+[repository layout](CONTRIBUTING.md#repository-layout).
 
 ## Licence
 

@@ -4586,7 +4586,7 @@ mod tests {
         let store = llm::language_library::store::tests::temp_store("pipeline");
         let bytes = std::fs::read(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../presets/languages/cantonese-hong-kong/preset.md"),
+                .join("../../../presets/languages/cantonese-hong-kong/preset.md"),
         )
         .unwrap();
         let sha256 = store.store_preset("cantonese-hong-kong", &bytes).unwrap();
@@ -4979,7 +4979,7 @@ mod tests {
         let store = llm::language_library::store::tests::temp_store("pipeline-fixed");
         let bytes = std::fs::read(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../presets/languages/english/preset.md"),
+                .join("../../../presets/languages/english/preset.md"),
         )
         .unwrap();
         let sha256 = store.store_preset("english", &bytes).unwrap();

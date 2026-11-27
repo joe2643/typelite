@@ -150,7 +150,7 @@ static PRESET_STORE: std::sync::OnceLock<oratype_lib::llm::language_library::sto
 fn use_library_presets(config: &mut AppConfig) {
     use oratype_lib::llm::language_library::{find_presets_for, parse_index, store::LibraryStore};
     use oratype_lib::storage::{LibraryPresetRef, TranslationLanguageSettings};
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../presets/languages");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../presets/languages");
     let index = std::fs::read(root.join("index.json"))
         .map_err(|error| error.to_string())
         .and_then(|bytes| parse_index(&bytes))

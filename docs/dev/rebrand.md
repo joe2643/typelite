@@ -9,22 +9,22 @@ pose immediately. The recording capsule uses the dark palette with Slate and Red
 
 ## When the name changes
 
-- [ ] Update `productName` and window titles in `src-tauri/tauri.conf.json` and the Dev name
+- [ ] Update `productName` and window titles in `apps/desktop/src-tauri/tauri.conf.json` and the Dev name
       in `tauri.dev-build.conf.json`. The React app, site header, release notes and installer
       workflow read this setting. Check Rust `APP_NAME`, menu and permission text in
-      `src-tauri/Info.plist`, HTML titles and the `{{appName}}` locale variable. Keep the
+      `apps/desktop/src-tauri/Info.plist`, HTML titles and the `{{appName}}` locale variable. Keep the
       old migration note in the 1.2.0 release history.
 - [ ] Update the npm manifest and lockfile, repository and issue links, active guides, README,
       DMG backdrop text and the promo template. Coordinate site content and SEO changes with
       the website maintainer. Update
-      `src-tauri/src/llm/language_library/mod.rs` if the repository moves again.
+      `apps/desktop/src-tauri/src/llm/language_library/mod.rs` if the repository moves again.
       Use the actual release repository in artifacts and verify the preset index and update feed.
-- [ ] Regenerate tracked icons with `bash scripts/render-brand-icons.sh` (root `npm ci`,
+- [ ] Regenerate tracked icons with `bash apps/desktop/scripts/render-brand-icons.sh` (`npm --prefix apps/desktop ci`,
       `rsvg-convert`, macOS `sips`). The script reads the geometry in
-      `src/brand/munia-art.json` and the installer layout in
-      `src-tauri/icons/dmg/background.svg`, then writes the app, tray and Dev variants. Regenerate
+      `apps/desktop/src/brand/munia-art.json` and the installer layout in
+      `apps/desktop/src-tauri/icons/dmg/background.svg`, then writes the app, tray and Dev variants. Regenerate
       app screenshots with
-      `node tools/scripts/capture-app-screens.mjs`. See [capture instructions](../media/README.md).
+      `node apps/desktop/tools/scripts/capture-app-screens.mjs`. See [capture instructions](../media/README.md).
 
 ## Legacy references
 
@@ -47,7 +47,7 @@ pose immediately. The recording capsule uses the dark palette with Slate and Red
   [Koelony homepage](https://koelony.com/) is the reference for the tone-staff flight and
   perch. No separate artwork labelled “bird-fish” was identified in the brand exports.
 - The Latin Chiron GoRound TC 700 and 900 WOFF2 subsets are from the deployed Koelony
-  homepage. Their [SIL Open Font License](../../src/brand/fonts/OFL.txt) travels with them.
+  homepage. Their [SIL Open Font License](../../apps/desktop/src/brand/fonts/OFL.txt) travels with them.
   The [font project](https://github.com/chiron-fonts/chiron-go-round-tc) supplies the
   full family. The app builds locally from these files and public dependencies.
 

@@ -18,6 +18,6 @@ first, and one existing preset as an example.
    CC0-1.0, so only text the user wrote. When updating, raise `version`.
 3. **Recognition hints** must be specific to the language (words other languages do not use).
 4. Optionally a `NOTES.md` next to it: test sentences, the model, what came out.
-5. **Check:** `node scripts/language-presets.mjs` (regenerates `index.json`), `npm run docs:cards`
+5. **Check:** `node scripts/language-presets.mjs` (regenerates `index.json`), `npm --prefix apps/desktop run docs:cards`
    (regenerates the catalogue), then `node scripts/language-presets.mjs --check` and
-   `npm run docs:check`. Show the diff; do not commit unless asked.
+   `npm --prefix apps/desktop run docs:check`. Show the diff; do not commit unless asked.

@@ -12,7 +12,7 @@ in the config:
 | AI | `openai_compatible` (default) | `llm/openai.rs`, `llm/protocol.rs` | `POST <address>/chat/completions`. |
 | AI | `builtin` | `llm/builtin.rs` | Starts `llama-server` and then talks to it like an OpenAI-compatible server. |
 
-The kinds are `SpeechProviderKind` and `AiProviderKind` in `src-tauri/src/storage/mod.rs`.
+The kinds are `SpeechProviderKind` and `AiProviderKind` in `apps/desktop/src-tauri/src/storage/mod.rs`.
 
 Most services need **no new connection**: if a service speaks the OpenAI API, add a
 [service row](../../CONTRIBUTING.md#adding-a-service) instead. Add a connection only when a
@@ -32,7 +32,7 @@ speech", not an error; without the probe this would have looked like a failure.
 
 ## 2. The provider module
 
-Add one Rust file for the protocol, next to the existing ones (`src-tauri/src/stt/qwen_cloud.rs`):
+Add one Rust file for the protocol, next to the existing ones (`apps/desktop/src-tauri/src/stt/qwen_cloud.rs`):
 
 - A config struct built from a preset (`QwenCloudConfig`), with the full endpoint URL.
 - A provider that implements the speech trait `SttProvider` in `stt/mod.rs` (`connect`,
@@ -51,7 +51,7 @@ pattern: it adds no protocol of its own, but resolves the preset to a running lo
 
 ## 3. The config kind and migration
 
-In `src-tauri/src/storage/mod.rs`:
+In `apps/desktop/src-tauri/src/storage/mod.rs`:
 
 - Add a variant to the kind enum. The enums use `#[serde(rename_all = "snake_case")]`, so
   `QwenCloud` is stored as `"qwen_cloud"`. Keep `OpenaiCompatible` as `#[default]`, so configs
@@ -90,7 +90,7 @@ Save:
 
 ## 6. End-to-end test
 
-Add an optional test against the real service to `src-tauri/tests/e2e_services.rs`, skipped
+Add an optional test against the real service to `apps/desktop/src-tauri/tests/e2e_services.rs`, skipped
 unless its environment variables (address, key) are set, and describe them in the file.
 `scripts/e2e.sh` runs these tests.
 

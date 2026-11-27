@@ -325,7 +325,7 @@ def run(args):
     paths = [
         Path(__file__),
         ROOT / "benchmarks/runtime/mlx_speech.py",
-        ROOT / "src-tauri/examples/benchmark_speech.rs",
+        ROOT / "apps/desktop/src-tauri/examples/benchmark_speech.rs",
         ROOT / "benchmarks/runtime/requirements.txt",
     ]
     paths += (
@@ -344,7 +344,7 @@ def run(args):
                 command = (
                     [
                         str(
-                            ROOT / "src-tauri/target/release/examples/benchmark_speech"
+                            ROOT / "apps/desktop/src-tauri/target/release/examples/benchmark_speech"
                         ),
                         model_path,
                     ]
@@ -363,7 +363,7 @@ def run(args):
                     [
                         str(
                             ROOT
-                            / "src-tauri/binaries/llama-server-aarch64-apple-darwin"
+                            / "apps/desktop/src-tauri/binaries/llama-server-aarch64-apple-darwin"
                         ),
                         "--model",
                         model_path,

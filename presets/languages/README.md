@@ -107,7 +107,7 @@ One `key: value` per line. Values are text (quotes optional), a whole number, `t
 | `name` | yes | Name shown in the app, at most 60 characters. English first, native name after it is welcome. |
 | `version` | yes | `1` for a new preset. Add one every time you change the text, `languages` or the recognition fields. |
 | `format` | yes | Always `1` for now. |
-| `tier` | yes | `community`. Only maintainers use `official`; official presets are built into the app (`src-tauri/src/llm/language_library/bundled.rs`). |
+| `tier` | yes | `community`. Only maintainers use `official`; official presets are built into the app (`apps/desktop/src-tauri/src/llm/language_library/bundled.rs`). |
 | `languages` | yes | Language codes this preset is for (see below). |
 | `applies_to` | yes | `[polish, translate]`, or just one of them. |
 | `summary` | yes | One sentence shown in the list, at most 140 characters. |
@@ -206,7 +206,7 @@ node scripts/language-presets.mjs          # validate and rewrite index.json
 node scripts/language-presets.mjs --check  # validate only; fails if index.json is out of date
 ```
 
-Then run `npm run docs:cards` (or `node scripts/docs-cards.mjs`) to update the catalogue at the
+Then run `npm --prefix apps/desktop run docs:cards` (or `node scripts/docs-cards.mjs`) to update the catalogue at the
 top of this README. Commit `index.json` and this README together with your preset. The tests fail
 when either is out of date.
 

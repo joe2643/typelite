@@ -328,7 +328,7 @@ mod tests {
     fn repository_preset(id: &str) -> Vec<u8> {
         std::fs::read(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join(format!("../presets/languages/{id}/preset.md")),
+                .join(format!("../../../presets/languages/{id}/preset.md")),
         )
         .unwrap()
     }

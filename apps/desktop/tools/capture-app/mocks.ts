@@ -3,7 +3,7 @@
 // mocks are installed (see main.ts).
 import type { AppConfig, AiPreset, SpeechPreset } from '../../src/stores/appStore'
 import type { RunTiming } from '../../src/lib/speed'
-import libraryIndex from '../../presets/languages/index.json'
+import libraryIndex from '../../../../presets/languages/index.json'
 
 export type Screen =
   | 'home'

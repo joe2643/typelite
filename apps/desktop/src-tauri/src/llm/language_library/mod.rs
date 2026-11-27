@@ -28,7 +28,8 @@ use sha2::{Digest, Sha256};
 pub const LIBRARY_BASE_URL: &str =
     "https://raw.githubusercontent.com/koelony/koeltype/main/presets/languages";
 /// The language subtags the validator accepts, and the macrolanguage map, built into the app.
-const LANGUAGE_CODES_JSON: &str = include_str!("../../../../presets/languages/language-codes.json");
+const LANGUAGE_CODES_JSON: &str =
+    include_str!("../../../../../../presets/languages/language-codes.json");
 
 const PRESET_FORMAT: i64 = 1;
 const INDEX_FORMAT: i64 = 1;
@@ -70,7 +71,7 @@ const ALLOWED_FILES: &[&str] = &["preset.md", "NOTES.md"];
 
 #[cfg(test)]
 fn library_dir() -> std::path::PathBuf {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../presets/languages")
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../presets/languages")
 }
 
 // ─── Parsing ───

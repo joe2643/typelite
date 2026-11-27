@@ -54,8 +54,8 @@ docs/benchmarks/
 
 Report directories are append-only evidence. Keep both raw snapshots and any confirming runs;
 never replace old measurements when the baseline advances. Add a dated correction if a report
-needs an interpretation fixed. Executable fixtures remain in `benchmarks/` and
-`src-tauri/benches/`; the runner is `scripts/benchmark-local.mjs`.
+needs an interpretation fixed. Executable fixtures live in `apps/desktop/benchmarks/` and
+`apps/desktop/src-tauri/benches/`; the runner is `scripts/benchmark-local.mjs`.
 
 ## Decisions, including no change
 
@@ -99,10 +99,10 @@ mkdir -p docs/benchmarks/reports/2026-10-04-example
 cp docs/benchmarks/REPORT_TEMPLATE.md docs/benchmarks/reports/2026-10-04-example/README.md
 
 # On the PR base, before changing production code:
-npm run bench:local -- --out docs/benchmarks/reports/2026-10-04-example/before.json
+npm --prefix apps/desktop run bench:local -- --out docs/benchmarks/reports/2026-10-04-example/before.json
 
 # On the candidate, using the same harness:
-npm run bench:local -- --out docs/benchmarks/reports/2026-10-04-example/after.json --compare docs/benchmarks/reports/2026-10-04-example/before.json
+npm --prefix apps/desktop run bench:local -- --out docs/benchmarks/reports/2026-10-04-example/after.json --compare docs/benchmarks/reports/2026-10-04-example/before.json
 
 # After completing the report and correctness checks, propose the new baseline:
 node scripts/benchmark-baseline.mjs docs/benchmarks/reports/2026-10-04-example

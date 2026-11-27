@@ -1,5 +1,5 @@
 // Plan `language-evals`: deterministic scorers for polish and speech answers. Plain Node, no
-// packages, no network. Tested by scripts/evals/score.test.mjs (vitest).
+// packages, no network. Tested by apps/desktop/scripts/eval-score.test.mjs (vitest).
 
 /** Simplified / Traditional pairs that tell the two scripts apart (common characters only). */
 const SCRIPT_PAIRS =

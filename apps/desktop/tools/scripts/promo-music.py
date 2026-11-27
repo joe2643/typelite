@@ -1,6 +1,6 @@
 """Background music for a release's promo film (see .claude/skills/promo-video).
 
-    python3 tools/scripts/promo-music.py <version> <seconds>
+    python3 apps/desktop/tools/scripts/promo-music.py <version> <seconds>
 
 Writes output/promo-<version>/music.wav: a soft piano arpeggio over a held chord, C-G-Am-F at
 80 bpm, with a gentle fade in and out and no sound effects. It is synthesised here from sine
@@ -15,7 +15,7 @@ from pathlib import Path
 if len(sys.argv) != 3:
     sys.exit(__doc__)
 version, seconds = sys.argv[1], float(sys.argv[2])
-out = Path(__file__).resolve().parents[2] / "output" / f"promo-{version}" / "music.wav"
+out = Path(__file__).resolve().parents[4] / "output" / f"promo-{version}" / "music.wav"
 out.parent.mkdir(parents=True, exist_ok=True)
 
 SR = 48000

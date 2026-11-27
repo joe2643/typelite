@@ -35,6 +35,10 @@ import { fetchClips } from './fetch.mjs'
 import { compare, markdown, summarise, toBaseline } from './report.mjs'
 import { scorePolish, scoreSpeech } from './score.mjs'
 
+const desktopCrate = join(REPO, 'apps/desktop/src-tauri')
+// npm runs package scripts in apps/desktop, even when invoked from the repository root.
+const invocationDir = process.env.INIT_CWD ?? process.cwd()
+
 function parseArgs(argv) {
   const [command, ...rest] = argv
   const options = {}
@@ -132,7 +136,7 @@ function runDriver(mode, rows, env, outDir) {
       output,
     ],
     {
-      cwd: join(REPO, 'src-tauri'),
+      cwd: desktopCrate,
       env: { ...process.env, ...env },
       stdio: ['ignore', 'inherit', 'inherit'],
     },
@@ -156,7 +160,7 @@ function finish(kind, model, cases, settings, options, outDir) {
     created: new Date().toISOString(),
     git_rev: `${git(['rev-parse', '--short', 'HEAD'])}${git(['status', '--porcelain']) ? '+dirty' : ''}`,
     prompt_sha256: createHash('sha256')
-      .update(readFileSync(join(REPO, 'src-tauri/src/llm/prompt.rs')))
+      .update(readFileSync(join(desktopCrate, 'src/llm/prompt.rs')))
       .digest('hex'),
     settings,
     cases,
@@ -196,7 +200,7 @@ function finish(kind, model, cases, settings, options, outDir) {
 
 function outputDir(kind, options) {
   const dir = options.out
-    ? resolve(options.out)
+    ? resolve(invocationDir, options.out)
     : join(REPO, 'output', 'evals', `${new Date().toISOString().replace(/[:.]/g, '-')}-${kind}`)
   mkdirSync(dir, { recursive: true })
   return dir
@@ -210,9 +214,9 @@ function polish(options) {
   if (!cases.length) throw new Error('no cases match')
   const env = {}
   const llama = options['llama-model'] ?? process.env.ORATYPE_EVAL_LLAMA_MODEL
-  if (llama) env.ORATYPE_EVAL_LLAMA_MODEL = resolve(llama)
+  if (llama) env.ORATYPE_EVAL_LLAMA_MODEL = resolve(invocationDir, llama)
   // A release build of the driver finds llama-server only next to itself or through this variable.
-  const binaries = join(REPO, 'src-tauri', 'binaries')
+  const binaries = join(desktopCrate, 'binaries')
   const server =
     existsSync(binaries) && readdirSync(binaries).find((f) => f.startsWith('llama-server-'))
   if (llama && server && !process.env.ORATYPE_LLAMA_SERVER)
@@ -289,7 +293,7 @@ async function speech(options) {
     await fetchCommand({ lang: options.lang })
   const env = {}
   const whisper = options['whisper-model'] ?? process.env.ORATYPE_EVAL_WHISPER_MODEL
-  if (whisper) env.ORATYPE_EVAL_WHISPER_MODEL = resolve(whisper)
+  if (whisper) env.ORATYPE_EVAL_WHISPER_MODEL = resolve(invocationDir, whisper)
   if (options['speech-url']) env.ORATYPE_EVAL_SPEECH_URL = options['speech-url']
   if (options['speech-model']) env.ORATYPE_EVAL_SPEECH_MODEL = options['speech-model']
   const model = whisper

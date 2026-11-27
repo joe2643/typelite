@@ -552,7 +552,7 @@ mod tests {
 
     fn repository_index() -> library::Index {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../presets/languages/index.json");
+            .join("../../../presets/languages/index.json");
         library::parse_index(&std::fs::read(path).unwrap()).unwrap()
     }
 
@@ -786,7 +786,7 @@ mod tests {
         }));
         let bytes = std::fs::read(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../presets/languages/cantonese-hong-kong/preset.md"),
+                .join("../../../presets/languages/cantonese-hong-kong/preset.md"),
         )
         .unwrap();
         let preset = library::parse_preset("cantonese-hong-kong", &bytes).unwrap();

@@ -9,22 +9,22 @@ use std::sync::OnceLock;
 
 use super::{fetch, find_presets_for, parse_index, IndexEntry, Preset};
 
-const INDEX_JSON: &str = include_str!("../../../../presets/languages/index.json");
+const INDEX_JSON: &str = include_str!("../../../../../../presets/languages/index.json");
 
 /// Every official preset, by id. A test checks this list against the official entries of
 /// `index.json`, so a new official preset must be added here.
 const FILES: &[(&str, &str)] = &[
     (
         "cantonese-hong-kong",
-        include_str!("../../../../presets/languages/cantonese-hong-kong/preset.md"),
+        include_str!("../../../../../../presets/languages/cantonese-hong-kong/preset.md"),
     ),
     (
         "english",
-        include_str!("../../../../presets/languages/english/preset.md"),
+        include_str!("../../../../../../presets/languages/english/preset.md"),
     ),
     (
         "mandarin-taiwan",
-        include_str!("../../../../presets/languages/mandarin-taiwan/preset.md"),
+        include_str!("../../../../../../presets/languages/mandarin-taiwan/preset.md"),
     ),
 ];
 
@@ -120,7 +120,7 @@ mod tests {
             assert_eq!(bundled.preset.version, bundled.entry.version);
             // The built-in index is the repository's.
             let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../presets/languages")
+                .join("../../../presets/languages")
                 .join(&bundled.entry.path);
             assert_eq!(std::fs::read(file).unwrap(), bundled.bytes);
         }

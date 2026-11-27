@@ -18,4 +18,4 @@ method and data are on its page in `docs/guides/benchmarks/`. Read both first.
 3. **Add one row** to the test's **Results** table, next to rows of the same hardware, and a note
    under the table only if something was unusual. Name hardware, never the machine's name or its
    address.
-4. **Check:** `npm run docs:check`. Show the diff; do not commit unless asked.
+4. **Check:** `npm --prefix apps/desktop run docs:check`. Show the diff; do not commit unless asked.

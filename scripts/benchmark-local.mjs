@@ -17,6 +17,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const appRoot = join(root, 'apps/desktop')
 const args = process.argv.slice(2)
 function option(name, fallback) {
   const index = args.indexOf(`--${name}`)
@@ -164,13 +165,13 @@ if (baseline) {
 }
 const harnessFiles = [
   'scripts/benchmark-local.mjs',
-  'benchmarks/vitest.config.ts',
-  'benchmarks/recording.test.tsx',
-  'benchmarks/waveform.tsx',
-  'benchmarks/dictionary.tsx',
-  'src-tauri/benches/local_performance.rs',
-  'src-tauri/benches/local_performance/voice_activity.rs',
-  'src-tauri/benches/local_performance/dictionary.rs',
+  'apps/desktop/benchmarks/vitest.config.ts',
+  'apps/desktop/benchmarks/recording.test.tsx',
+  'apps/desktop/benchmarks/waveform.tsx',
+  'apps/desktop/benchmarks/dictionary.tsx',
+  'apps/desktop/src-tauri/benches/local_performance.rs',
+  'apps/desktop/src-tauri/benches/local_performance/voice_activity.rs',
+  'apps/desktop/src-tauri/benches/local_performance/dictionary.rs',
 ]
 const sourceFiles = run('git', [
   'ls-files',
@@ -179,8 +180,8 @@ const sourceFiles = run('git', [
   '--exclude-standard',
   '-z',
   '--',
-  'src',
-  'src-tauri/src',
+  'apps/desktop/src',
+  'apps/desktop/src-tauri/src',
 ])
   .split('\0')
   .filter(Boolean)
@@ -192,11 +193,11 @@ const metadata = {
   git_status: run('git', ['status', '--short']),
   source_sha256: hashFiles(sourceFiles),
   harness_sha256: hashFiles(harnessFiles),
-  dependencies_sha256: hashFiles(['package-lock.json', 'src-tauri/Cargo.lock']),
+  dependencies_sha256: hashFiles(['apps/desktop/package-lock.json', 'apps/desktop/src-tauri/Cargo.lock']),
   build_config_sha256: hashFiles([
-    'package.json',
-    'src-tauri/Cargo.toml',
-    'src-tauri/build.rs',
+    'apps/desktop/package.json',
+    'apps/desktop/src-tauri/Cargo.toml',
+    'apps/desktop/src-tauri/build.rs',
     'rust-toolchain.toml',
     ...run('git', [
       'ls-files',
@@ -206,7 +207,7 @@ const metadata = {
       '-z',
       '--',
       '.cargo',
-      'src-tauri/.cargo',
+      'apps/desktop/src-tauri/.cargo',
     ])
       .split('\0')
       .filter(Boolean)
@@ -246,7 +247,9 @@ if (baseline) {
   }
 }
 
-if (!existsSync(join(root, 'dist/index.html'))) run('npm', ['run', 'build'], { stdio: 'inherit' })
+if (!existsSync(join(appRoot, 'dist/index.html'))) {
+  run('npm', ['run', 'build'], { cwd: appRoot, stdio: 'inherit' })
+}
 console.log('Building the Rust benchmark with the app release profile (outside timing)…')
 const build = run('cargo', [
   'build',
@@ -255,7 +258,7 @@ const build = run('cargo', [
   'local_performance',
   '--message-format=json',
   '--manifest-path',
-  'src-tauri/Cargo.toml',
+  'apps/desktop/src-tauri/Cargo.toml',
 ])
 const artifact = build
   .split('\n')
@@ -282,9 +285,10 @@ try {
     console.log(`Process run ${processRun + 1}/${runs}: frontend, then Rust (sequential).`)
     const frontendOutput = join(scratch, `frontend-${processRun}.json`)
     run(
-      join(root, 'node_modules/.bin/vitest'),
+      join(appRoot, 'node_modules/.bin/vitest'),
       ['run', '--config', 'benchmarks/vitest.config.ts'],
       {
+        cwd: appRoot,
         env: { ...process.env, ORATYPE_BENCH_OUTPUT: frontendOutput },
       },
     )

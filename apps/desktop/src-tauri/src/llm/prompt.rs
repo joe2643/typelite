@@ -1129,7 +1129,7 @@ mod tests {
         let prompt = build_system_prompt(AppType::General, &[], "", "preserve", false, "", false);
         let path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../docs/guides/benchmarks/data/polish-system-prompt.txt"
+            "/../../../docs/guides/benchmarks/data/polish-system-prompt.txt"
         );
         if std::env::var_os("ORATYPE_WRITE_BENCHMARK_PROMPT").is_some() {
             std::fs::write(path, &prompt).unwrap();

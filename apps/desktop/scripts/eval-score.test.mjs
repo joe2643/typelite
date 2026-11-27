@@ -4,9 +4,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { validate, wavProblem } from './dataset.mjs'
-import { toWav16 } from './fetch.mjs'
-import { compare, summarise } from './report.mjs'
+import { validate, wavProblem } from '../../../scripts/evals/dataset.mjs'
+import { toWav16 } from '../../../scripts/evals/fetch.mjs'
+import { compare, summarise } from '../../../scripts/evals/report.mjs'
 import {
   chineseScript,
   contains,
@@ -17,7 +17,7 @@ import {
   scoreSpeech,
   sentenceBreaks,
   tokens,
-} from './score.mjs'
+} from '../../../scripts/evals/score.mjs'
 
 const EN = { unit: 'word', fillers: ['um', 'uh', 'er'] }
 const YUE = { unit: 'char', dialect: 'yue', fillers: ['呃', '嗯'] }

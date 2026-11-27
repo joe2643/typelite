@@ -1,11 +1,11 @@
 # Improving polish and speech with the evaluations
 
 The loop for an agent asked to add or refine dataset cases, or to tune the polish prompt
-(`src-tauri/src/llm/prompt.rs`). Commands and formats are in [README.md](README.md).
+(`apps/desktop/src-tauri/src/llm/prompt.rs`). Commands and formats are in [README.md](README.md).
 
 ## The loop
 
-1. **Run dev.** `npm run eval -- polish --llama-model <gguf>` (or `--ai-url`). Read
+1. **Run dev.** `npm --prefix apps/desktop run eval -- polish --llama-model <gguf>` (or `--ai-url`). Read
    `output/evals/<run>/summary.md`: pass rate per language and tag, failed checks, and every
    failing case with the model's answer.
 2. **Sort the failures.** For each failing case decide: the model is wrong (a prompt or code
@@ -13,7 +13,7 @@ The loop for an agent asked to add or refine dataset cases, or to tune the polis
    doubtful), or it is noise (passes 2 of 3). Fix wrong cases first.
 3. **Add cases** where coverage is thin: a tag with few cases in a language, a pattern seen in a
    real report, a counter-example where a meaningful word must survive. Run
-   `npm run eval -- check` after each edit.
+   `npm --prefix apps/desktop run eval -- check` after each edit.
 4. **Change the prompt** only for a pattern that fails across several cases or languages. Write a
    general rule ("a spoken decimal becomes digits"), not a word list or a copy of a case.
 5. **Rerun dev**, then **holdout** (`--split holdout`) and compare with the baseline. The summary's

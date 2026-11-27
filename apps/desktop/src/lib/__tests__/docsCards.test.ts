@@ -10,7 +10,7 @@ import {
   renderLanguageGuides,
   replaceBetweenMarkers,
   validateLanguageGuide,
-} from '../../../scripts/docs-cards.mjs'
+} from '../../../../../scripts/docs-cards.mjs'
 
 const GUIDE_BODY =
   '## Recommended setup\n\nA table.\n\n## Why\n\nText.\n\n## Set it up\n\n1. Steps.\n'

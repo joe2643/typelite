@@ -3,7 +3,8 @@
 Open-source, free, self-hosted alternative to [Typeless](https://www.typeless.com/): press a
 shortcut, speak, and get polished text pasted into whatever field has focus. macOS first.
 
-Stack: Tauri 2 (React/TypeScript frontend, Rust backend), MIT. Scope and decisions are in
+The Tauri 2 app (React/TypeScript frontend, Rust backend) lives in `apps/desktop/`. See the
+[repository layout](CONTRIBUTING.md#repository-layout). Scope and decisions are in
 `docs/plans/2026-09-24-v1-scope/` and later plans. The user is new to macOS development, so keep the
 code plain and explain macOS-specific APIs when you use them.
 
@@ -43,7 +44,7 @@ repeat an entry unless its "Reopen when" conditions are met.
   answers, pasted text). It does keep run timings for Insights on Home: durations, sizes, preset
   ids/models, mode, outcome and language, the last 200 runs in `run-timings.json` in the app data
   folder. Settings → System → Clear insights data deletes them (plan `speed-by-preset`).
-- Main target is macOS (Apple Silicon, M1 Pro, 32 GB, macOS 26). Windows is a non-goal for now.
+- Main target is macOS (Apple Silicon, M1 Pro, 32 GB, macOS 26). The Windows port will share the desktop app.
 - Keep resource use low. The LLM only rephrases and summarises; it does not need a large model.
 
 ## Target UX (Typeless as a reference)
@@ -78,17 +79,13 @@ MIT. Keep the required copyright and permission notices in `LICENSE` and
 
 ## Testing and logs
 
-- Offline gate: `cd src-tauri && cargo test --lib`, `cargo fmt --check`, `npx vitest run`,
-  `npx tsc --noEmit`, `npx eslint src/`, `npx prettier --check src`, `npm run docs:check`
-  (language guides and generated doc tables, plans `docs-structure`, `model-guides`, and the
-  `evals/` dataset check, plan `language-evals`),
-  `node scripts/language-presets.mjs --check`.
-- End-to-end against real servers: `bash scripts/e2e.sh` (whisper.cpp + an OpenAI-compatible
-  chat server; set `ORATYPE_E2E_AI_URL` etc., see `src-tauri/tests/e2e_services.rs`). Speech
-  audio is synthesised with macOS `say`. Built-in AI: `bash scripts/build-llama-server.sh`, then
+- Run the [offline gate](CONTRIBUTING.md#the-offline-gate) from the repository root.
+- End-to-end against real servers: `bash apps/desktop/scripts/e2e.sh` (whisper.cpp + an OpenAI-compatible
+  chat server; set `ORATYPE_E2E_AI_URL` etc., see `apps/desktop/src-tauri/tests/e2e_services.rs`). Speech
+  audio is synthesised with macOS `say`. Built-in AI: `npm --prefix apps/desktop run build:llama-server`, then
   set `ORATYPE_E2E_LLAMA_MODEL` to a Qwen3 GGUF file.
-- Polish and speech quality per language (plan `language-evals`): `npm run eval -- polish
-  --llama-model <gguf>` and `npm run eval -- speech --whisper-model <bin>` run the dataset in
+- Polish and speech quality per language (plan `language-evals`): `npm --prefix apps/desktop run eval -- polish
+  --llama-model <gguf>` and `npm --prefix apps/desktop run eval -- speech --whisper-model <bin>` run the dataset in
   `evals/` through the app's code and compare with `evals/baselines/`. Before adding cases or
   changing the polish prompt, follow `evals/AGENTS.md` (never tune on holdout, never copy case
   text into the prompt).
@@ -173,8 +170,8 @@ MIT. Keep the required copyright and permission notices in `LICENSE` and
 - Built-in AI (`llm/builtin.rs`): llama-server built with embedded Metal shaders compiles them
   on its first launch, which blocks for one to two minutes (even `llama-server --version`);
   macOS caches the result per binary. Tauri's build script fails when a listed `externalBin` is
-  missing, so llama-server is listed only in `src-tauri/tauri.bundle.conf.json`
-  (`npm run build:app`).
+  missing, so llama-server is listed only in `apps/desktop/src-tauri/tauri.bundle.conf.json`
+  (`npm --prefix apps/desktop run build:app`).
 - Built-in Qwen3-ASR (plan `language-model-suggestions`) runs in a second `llama-server` with
   `--mmproj`. Its `/v1/audio/transcriptions` refuses `response_format=verbose_json` (HTTP 400) and
   ignores `language`; the language comes from Qwen3-ASR's `language X<asr_text>` tag. Audio costs

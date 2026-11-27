@@ -1,11 +1,11 @@
 // Screenshots of the real app UI for the README (docs/media/*.png).
 //
 // The app's own React components (../src) render in headless Chromium with a mocked Tauri
-// backend (tools/capture-app). The page is served by a Vite dev server built from the ROOT
-// project's Vite, React plugin and Tailwind plugin, so run `npm ci` at the repository root first.
+// backend (tools/capture-app). Run `npm ci` in apps/desktop to install the Vite, React
+// and Tailwind packages used to serve the harness.
 //
-//   node tools/scripts/capture-app-screens.mjs            # writes docs/media/
-//   node tools/scripts/capture-app-screens.mjs --out dir  # or somewhere else
+//   node apps/desktop/tools/scripts/capture-app-screens.mjs            # writes docs/media/
+//   node apps/desktop/tools/scripts/capture-app-screens.mjs --out dir  # or somewhere else
 //
 // Or call captureAppScreens({ browser, outDir }) from capture-media.mjs.
 
@@ -18,8 +18,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { launch } from './lib/chromium.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const repoRoot = resolve(here, '../..')
-const harnessRoot = join(repoRoot, 'tools/capture-app')
+const appRoot = resolve(here, '../..')
+const repoRoot = resolve(appRoot, '../..')
+const harnessRoot = join(appRoot, 'tools/capture-app')
 
 /** Each stage's CSS width times its scale is 1600 px. */
 export const APP_SCREENS = [
@@ -36,14 +37,14 @@ export const APP_SCREENS = [
   { name: 'copy-pill', screen: 'copy-pill', width: 500, height: 150, scale: 3.2 },
 ]
 
-/** Imports a package's ESM entry from the repository root's node_modules. */
-async function importFromRoot(name) {
-  const require = createRequire(join(repoRoot, 'package.json'))
+/** Imports a package's ESM entry from the desktop app's node_modules. */
+async function importFromApp(name) {
+  const require = createRequire(join(appRoot, 'package.json'))
   const dir = require.resolve
     .paths(name)
     .map((base) => join(base, name))
     .find((d) => existsSync(join(d, 'package.json')))
-  if (!dir) throw new Error(`${name} is not installed at the repository root; run npm ci there`)
+  if (!dir) throw new Error(`${name} is not installed in apps/desktop; run npm ci there`)
   const pkgPath = join(dir, 'package.json')
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'))
   let entry = pkg.exports?.['.'] ?? pkg.module ?? pkg.main
@@ -54,13 +55,13 @@ async function importFromRoot(name) {
 
 /** Serves the capture harness; also used by capture-promo-stills.mjs. */
 export async function startServer() {
-  if (!existsSync(join(repoRoot, 'node_modules/vite'))) {
-    throw new Error('Run `npm ci` at the repository root first (the capture uses the app build).')
+  if (!existsSync(join(appRoot, 'node_modules/vite'))) {
+    throw new Error('Run `npm ci` in apps/desktop first.')
   }
-  const { createServer } = await importFromRoot('vite')
-  const react = (await importFromRoot('@vitejs/plugin-react')).default
-  const tailwindcss = (await importFromRoot('@tailwindcss/vite')).default
-  const rootModules = join(repoRoot, 'node_modules')
+  const { createServer } = await importFromApp('vite')
+  const react = (await importFromApp('@vitejs/plugin-react')).default
+  const tailwindcss = (await importFromApp('@tailwindcss/vite')).default
+  const rootModules = join(appRoot, 'node_modules')
   const server = await createServer({
     configFile: false,
     root: harnessRoot,
@@ -68,7 +69,7 @@ export async function startServer() {
     clearScreen: false,
     plugins: [react(), tailwindcss()],
     resolve: {
-      // One copy of React and the Tauri API: the app's, from the repository root.
+      // One copy of React and the Tauri API: from apps/desktop.
       alias: [
         { find: /^react$/, replacement: join(rootModules, 'react') },
         { find: /^react\/(.*)$/, replacement: join(rootModules, 'react/$1') },
@@ -157,7 +158,7 @@ export async function captureAppScreens({ browser, outDir, themes = ['light', 'd
   return written
 }
 
-// Run directly: node tools/scripts/capture-app-screens.mjs [--out dir]
+// Run directly: node apps/desktop/tools/scripts/capture-app-screens.mjs [--out dir]
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const outFlag = process.argv.indexOf('--out')
   const outDir = outFlag > 0 ? resolve(process.argv[outFlag + 1]) : join(repoRoot, 'docs/media')

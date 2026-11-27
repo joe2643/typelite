@@ -4,11 +4,11 @@
 // with a mocked Tauri backend, in headless Chromium. Promo stills are dark and twice the size the
 // film shows them, so a slow push-in stays sharp.
 //
-//   node tools/scripts/capture-promo-stills.mjs <version> [shot ...]
-//   node tools/scripts/capture-promo-stills.mjs 1.2.0 hands-free pill-recording
+//   node apps/desktop/tools/scripts/capture-promo-stills.mjs <version> [shot ...]
+//   node apps/desktop/tools/scripts/capture-promo-stills.mjs 1.2.0 hands-free pill-recording
 //
 // Writes output/promo-<version>/stills/<shot>.png. Without shots, every shot in PROMO_SHOTS is
-// captured. A local tool: run `npm ci` at the repository root first, and have Chromium installed
+// captured. A local tool: run `npm ci` in apps/desktop first, and have Chromium installed
 // (or set CHROMIUM).
 
 import { mkdir } from 'node:fs/promises'
@@ -17,7 +17,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { launch } from './lib/chromium.mjs'
 import { optimise, startServer } from './capture-app-screens.mjs'
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 /**
  * Every still a promo can use. `screen` is a harness screen (tools/capture-app/mocks.ts),
@@ -107,11 +107,11 @@ export async function capturePromoStills({ browser, version, shots }) {
   return written
 }
 
-// Run directly: node tools/scripts/capture-promo-stills.mjs <version> [shot ...]
+// Run directly: node apps/desktop/tools/scripts/capture-promo-stills.mjs <version> [shot ...]
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [version, ...requested] = process.argv.slice(2)
   if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-    console.error('Usage: node tools/scripts/capture-promo-stills.mjs <version> [shot ...]')
+    console.error('Usage: node apps/desktop/tools/scripts/capture-promo-stills.mjs <version> [shot ...]')
     console.error(`Shots: ${Object.keys(PROMO_SHOTS).join(', ')}`)
     process.exit(1)
   }
