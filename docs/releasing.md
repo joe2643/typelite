@@ -37,7 +37,9 @@ a **draft** release. Nothing is public until you publish the draft by hand.
 | `Munia_X.Y.Z_aarch64.zip` | The same app bundle, zipped with `ditto` |
 | `SHA256SUMS.txt` | SHA-256 of the DMG and the ZIP |
 
-It runs on a `macos-15` runner (Apple Silicon; GitHub retired `macos-14` on 2026-11-02). It builds `llama-server`
+The workflow runs from `apps/desktop/` on a `macos-15` runner (Apple Silicon). Run the app
+commands in this guide from `apps/desktop/` unless indicated otherwise. The workflow builds
+`llama-server`
 (`npm run build:llama-server`), then the app with the same bundle config as `npm run build:app`,
 then the DMG with `scripts/build-dmg.sh`: a window with large icons, the app on the left and an
 arrow to Applications on the right (`scripts/dmg-settings.py`, background
@@ -96,8 +98,10 @@ The release notes come from What's New for that version
 
 Each release gets a 10–15 s video of what is new, made from the app's real UI with the
 `promo-video` skill (`.claude/skills/promo-video/SKILL.md`): stills from the capture harness
-(`tools/scripts/capture-promo-stills.mjs`), a film recorded frame by frame
-(`tools/scripts/record-film.mjs`) and synthesised music (`tools/scripts/promo-music.py`). It lives
+(`apps/desktop/tools/scripts/capture-promo-stills.mjs`), a film recorded frame by frame
+(`apps/desktop/tools/scripts/record-film.mjs`) and synthesised music
+(`apps/desktop/tools/scripts/promo-music.py`). Run these commands from the repository root.
+The film project lives
 in `output/promo-X.Y.Z/` with the video as `munia-X.Y.Z-promo.mp4`; nothing in `output/` is
 committed. Make it once the version's What's New is written.
 
@@ -120,7 +124,8 @@ the update package with Tauri's updater key and uploads it with `latest.json`; t
 ## Dry run
 
 Actions → **Release** → **Run workflow** builds the same files from the chosen branch (for
-example `release/X.Y`) without a tag. They are attached to the workflow run as an artifact (kept for 7 days); no release is created.
+example `release/X.Y`) without a tag. The workflow uploads `apps/desktop/dist-release/` as a
+seven-day artifact and skips the release step.
 Use it to check the pipeline before the first real tag.
 
 ## Checksums

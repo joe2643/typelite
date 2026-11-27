@@ -50,6 +50,6 @@ starts the server and sends one test request.
 
 ## Building Munia yourself
 
-`npm run build:app` builds `llama-server` first (`scripts/build-llama-server.sh`, needs `cmake`).
+`npm --prefix apps/desktop run build:app` builds `llama-server` first (`apps/desktop/scripts/build-llama-server.sh`, needs `cmake`).
 Without it the app still builds and runs, and Built-in AI says the server is missing. See
 [CONTRIBUTING.md](../../../CONTRIBUTING.md#setup).

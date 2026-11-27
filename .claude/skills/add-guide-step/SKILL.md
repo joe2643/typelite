@@ -18,5 +18,5 @@ first, and use `docs/guides/ai-polish/` as the example to copy from.
 3. **Create** `docs/guides/models/<step>.md`: kinds of model, by hardware, by language.
 4. **Register** the step in `STEPS` in `scripts/docs-cards.mjs` and in its test, and add rows to
    the guide tables in `docs/guides/README.md`, `docs/guides/models/README.md` and `README.md`.
-5. **Check:** `npm run docs:check` and `npx vitest run src/lib/__tests__/docsCards.test.ts`.
+5. **Check:** `npm --prefix apps/desktop run docs:check` and `npm --prefix apps/desktop test -- src/lib/__tests__/docsCards.test.ts`.
    Show the diff; do not commit unless asked.

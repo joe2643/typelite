@@ -12,7 +12,7 @@ Python environment is an experiment dependency, not a shipping dependency.
 ```sh
 uv venv --python 3.12 output/mlx-evaluation/venv
 uv pip install --python output/mlx-evaluation/venv/bin/python -r benchmarks/runtime/requirements.txt
-cargo build --manifest-path src-tauri/Cargo.toml --release --example benchmark_speech
+cargo build --manifest-path apps/desktop/src-tauri/Cargo.toml --release --example benchmark_speech
 ```
 
 Speech fixtures are committed WAV files with hashes, expected transcripts and

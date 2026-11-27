@@ -4,7 +4,7 @@ For reviewers; not downloaded by the app.
 
 ## Sources
 
-- The built-in Hong Kong translation default in Munia (`src-tauri/src/llm/prompt.rs`):
+- The built-in Hong Kong translation default in Munia (`apps/desktop/src-tauri/src/llm/prompt.rs`):
   Cantonese words versus written-Chinese words, code-mixing, Hong Kong vocabulary, digits, and
   the English → Cantonese examples.
 - A Cantonese polish preference written and tested for dictation in Hong Kong Cantonese mixed

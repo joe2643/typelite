@@ -32,11 +32,11 @@ copies of implementation details. The required commands live in
 | Suite | Responsibility |
 |---|---|
 | `src/**/__tests__/` | Frontend behavior, state, algorithms, typed IPC and localization contracts |
-| Rust inline test modules in `src-tauri/src/` | Parsing, streaming, routing, storage, platform decisions and local service simulations |
-| `src-tauri/tests/e2e_services.rs` | Opt-in checks against real speech/AI/search services and model installations |
-| `npm run docs:check` | Actual documentation data, links and generated tables; unit tests separately exercise the validators |
+| Rust inline test modules in `apps/desktop/src-tauri/src/` | Parsing, streaming, routing, storage, platform decisions and local service simulations |
+| `apps/desktop/src-tauri/tests/e2e_services.rs` | Opt-in checks against real speech/AI/search services and model installations |
+| `npm --prefix apps/desktop run docs:check` | Actual documentation data, links and generated tables; unit tests separately exercise the validators |
 | `node scripts/language-presets.mjs --check` | Published preset/index consistency; Rust tests also check the application's independent parser |
-| `npm run bench:local` | Repeated measurements using frozen workloads; see [performance baselines](../benchmarks/README.md) |
+| `npm --prefix apps/desktop run bench:local` | Repeated measurements using frozen workloads; see [performance baselines](../benchmarks/README.md) |
 
 The published polish-prompt comparison in Rust is a reproducibility check for
 [model benchmarks](../guides/benchmarks/polish-speed.md), not evidence that a model obeys the

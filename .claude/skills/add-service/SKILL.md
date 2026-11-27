@@ -26,6 +26,6 @@ says how to apply them.
      and link the row to `openai-compatible.md#cloud-services`.
    - AI polish: if the model can think, say how to turn it off, and add the server to the
      **Turn off thinking** table in `docs/guides/models/ai-polish.md` if it is new there.
-5. **Check:** `npm run docs:check` must pass. Show the user the diff; do not commit unless asked.
+5. **Check:** `npm --prefix apps/desktop run docs:check` must pass. Show the user the diff; do not commit unless asked.
 
 Never write private addresses, machine names or keys; use `<computer-address>`.

@@ -24,7 +24,7 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
   the new feature on real stills, and the end card (name, free and open source, the site
   `oratype.sennettlau.me`).
 - **Real UI only.** Stills come from the app's own components in the capture harness
-  (`tools/capture-app`), never a drawing of a screen that does not exist. Numbers in captions
+  (`apps/desktop/tools/capture-app`), never a drawing of a screen that does not exist. Numbers in captions
   come from the release's measurements; claim nothing that was not measured or shipped.
 - **Two languages per caption:** the headline in the language of the release's main audience,
   the other below it in grey. Default English first with Traditional Chinese (Hong Kong) under
@@ -39,17 +39,17 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
 
 ## Steps
 
-1. **What is new.** Read the version's What's New entry (`src/lib/whatsNew.ts`, strings in
-   `src/i18n/locales/en.json` and `zh-Hant.json`) and pick the headline feature, plus at most one
+1. **What is new.** Read the version's What's New entry (`apps/desktop/src/lib/whatsNew.ts`, strings in
+   `apps/desktop/src/i18n/locales/en.json` and `zh-Hant.json`) and pick the headline feature, plus at most one
    more. Write the storyboard as the shots' comments in `film.html`: shot, seconds, caption in
    both languages.
-2. **Stills.** Use the shots in `PROMO_SHOTS` (`tools/scripts/capture-promo-stills.mjs`). For a
-   feature with no shot yet, add a screen to the harness (`tools/capture-app/mocks.ts`: the
+2. **Stills.** Use the shots in `PROMO_SHOTS` (`apps/desktop/tools/scripts/capture-promo-stills.mjs`). For a
+   feature with no shot yet, add a screen to the harness (`apps/desktop/tools/capture-app/mocks.ts`: the
    `Screen` type, `SCREENS`, the config and command mocks it needs; `app.tsx` for store state)
-   and a shot to `PROMO_SHOTS`. Then, from the repository root (after `npm ci`):
+   and a shot to `PROMO_SHOTS`. Then, from the repository root (after `npm --prefix apps/desktop ci`):
 
    ```sh
-   node tools/scripts/capture-promo-stills.mjs <version> <shot> [<shot> ...]
+   node apps/desktop/tools/scripts/capture-promo-stills.mjs <version> <shot> [<shot> ...]
    ```
 
    Look at every still: the harness prints warnings for unmocked commands, and a missing mock
@@ -59,20 +59,20 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
    pure (no timers or CSS animations): the recorder steps `t` itself. Check single frames:
 
    ```sh
-   node tools/scripts/record-film.mjs <version> --preview 1,4,8,12
+   node apps/desktop/tools/scripts/record-film.mjs <version> --preview 1,4,8,12
    ```
 
    and look at `preview/t*.png` (text not clipped, stills sharp, nothing behind a caption).
 4. **Music**, as long as `window.DURATION`:
 
    ```sh
-   python3 tools/scripts/promo-music.py <version> <seconds>
+   python3 apps/desktop/tools/scripts/promo-music.py <version> <seconds>
    ```
 
 5. **Record:**
 
    ```sh
-   node tools/scripts/record-film.mjs <version>
+   node apps/desktop/tools/scripts/record-film.mjs <version>
    ```
 
    It renders every frame, encodes `munia-<version>-promo.mp4` with the music, writes

@@ -21,7 +21,7 @@ The [archived after snapshot](reports/2026-10-03-dictionary-work/after.json) rem
 
 Git HEAD alone does not identify a measured working tree; use the source hash above.
 [baseline.json](baseline.json) contains the full snapshot plus a report backlink. It can be passed
-to `npm run bench:local -- --compare docs/benchmarks/baseline.json` when the environment and
+to `npm --prefix apps/desktop run bench:local -- --compare docs/benchmarks/baseline.json` when the environment and
 harness still match. Future PRs should also capture a fresh before run on their PR base.
 
 ## Metrics

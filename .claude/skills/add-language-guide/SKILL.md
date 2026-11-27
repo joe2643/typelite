@@ -23,8 +23,8 @@ The format is in [CONTRIBUTING.md → Language guides](../../../CONTRIBUTING.md#
    guides (for example `../speech/openai-compatible.md#qwen3-asr`) instead of repeating them.
 4. **Preset:** if the guide names one that does not exist yet, offer `add-language-preset` in the
    same change.
-5. **Check:** `npm run docs:cards` (validates and rewrites the index on the Languages page), then
-   `npm run docs:check`. Go through the review checklist with the user. Show the diff; do not
+5. **Check:** `npm --prefix apps/desktop run docs:cards` (validates and rewrites the index on the Languages page), then
+   `npm --prefix apps/desktop run docs:check`. Go through the review checklist with the user. Show the diff; do not
    commit unless asked.
 
 Never write private addresses, machine names or keys.

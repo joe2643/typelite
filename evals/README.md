@@ -8,14 +8,16 @@ loop for agents is in [AGENTS.md](AGENTS.md).
 
 ## Commands
 
+Run from the repository root.
+
 ```sh
-npm run eval -- check                                   # validate the dataset (offline)
-npm run eval -- polish --llama-model <file.gguf>        # built-in AI (llama-server)
-npm run eval -- polish --ai-url http://127.0.0.1:8080/v1 --ai-model <name>   # any OpenAI-compatible server
-npm run eval -- speech --whisper-model <ggml-file.bin>  # built-in speech (whisper.cpp)
-npm run eval -- speech --speech-url http://127.0.0.1:8178/v1 --speech-model <name>
-npm run eval -- synth                                   # make the synthetic clips (macOS `say`)
-npm run eval -- fetch                                   # download the external clips (see Speech clips)
+npm --prefix apps/desktop run eval -- check                                   # validate the dataset (offline)
+npm --prefix apps/desktop run eval -- polish --llama-model <file.gguf>        # built-in AI (llama-server)
+npm --prefix apps/desktop run eval -- polish --ai-url http://127.0.0.1:8080/v1 --ai-model <name>   # any OpenAI-compatible server
+npm --prefix apps/desktop run eval -- speech --whisper-model <ggml-file.bin>  # built-in speech (whisper.cpp)
+npm --prefix apps/desktop run eval -- speech --speech-url http://127.0.0.1:8178/v1 --speech-model <name>
+npm --prefix apps/desktop run eval -- synth                                   # make the synthetic clips (macOS `say`)
+npm --prefix apps/desktop run eval -- fetch                                   # download the external clips (see Speech clips)
 ```
 
 Options for `polish` and `speech`:
@@ -26,7 +28,7 @@ Options for `polish` and `speech`:
 | `--split dev\|holdout\|all` | Which cases; default `dev`. |
 | `--tag numbers` / `--id en-011` | Only cases with this tag / these ids. |
 | `--n 3` | Samples per polish case (temperature noise); default 3. |
-| `--context prompt.chatgpt` | The app dictated into, a built-in profile id (`src-tauri/src/app_detector/profiles.rs`); default: a general app. |
+| `--context prompt.chatgpt` | The app dictated into, a built-in profile id (`apps/desktop/src-tauri/src/app_detector/profiles.rs`); default: a general app. |
 | `--languages en,zh-Hant-HK` | The user's language list for polish routing (default: the app's default list). |
 | `--baseline <file>\|none` | Compare with this baseline; default `evals/baselines/<kind>-<model>.json` if it exists. |
 | `--save-baseline` | Write the results into that baseline file (only when intended, see AGENTS.md). |
@@ -34,7 +36,7 @@ Options for `polish` and `speech`:
 | `--dictionary off` | Speech: do not give clips their `dictionary` words, to measure what the words change. |
 | `--out <dir>` | Where results go; default `output/evals/<time>-<kind>/` (git-ignored). |
 
-The built-in AI needs `src-tauri/binaries/llama-server-<triple>` (`bash scripts/build-llama-server.sh`)
+The built-in AI needs `apps/desktop/src-tauri/binaries/llama-server-<triple>` (`bash apps/desktop/scripts/build-llama-server.sh`)
 and a GGUF file; the recommended one is `Qwen3-4B-Instruct-2507-Q4_K_M.gguf`, which the app
 downloads into its `models` folder. The built-in speech test needs a ggml Whisper model, such as
 `ggml-large-v3-turbo-q5_0.bin` from the same folder.
@@ -45,7 +47,7 @@ the only download is `fetch` (also run by `speech` when a clip it needs is missi
 
 ### How it reuses the app
 
-`scripts/evals/cli.mjs` starts `src-tauri/examples/eval_run.rs`, which calls the same code as a
+`scripts/evals/cli.mjs` starts `apps/desktop/src-tauri/examples/eval_run.rs`, which calls the same code as a
 dictation: language routing, the polish prompt, `LlmProvider::polish` with its clean-up of the
 answer, and the dictation language guard; for speech, the recognition provider with the voice
 check and hallucination filters. Scoring is plain Node in `scripts/evals/score.mjs`.
@@ -65,7 +67,7 @@ evals/
 
 With `--presets`, each language in `--languages` uses its preset from `presets/languages/`, as an
 app that downloaded it does (its instructions and routing hints), instead of the built-in
-instructions. Use it to measure what users of a preset get: `npm run eval -- polish --lang yue
+instructions. Use it to measure what users of a preset get: `npm --prefix apps/desktop run eval -- polish --lang yue
 --languages en,zh-Hant-HK --presets …`.
 
 ## Polish cases
@@ -103,7 +105,7 @@ A sample **passes** when, for at least one of `expected` and `accept`, all check
 - **dialect** (Chinese): no Mandarin-only words in Cantonese, no Cantonese words in Mandarin,
   unless the reference has them.
 
-`npm run eval -- check` also runs every case's `expected` and `accept` through these checks, so
+`npm --prefix apps/desktop run eval -- check` also runs every case's `expected` and `accept` through these checks, so
 a case cannot demand something its own answer fails.
 
 ## Speech clips
@@ -136,7 +138,7 @@ cleaner than real speech. **Real recordings are preferred**: short (under 15 s),
 ### External clips
 
 Clips from a public set (`source: external`) are either committed, when they are few and small,
-or **fetched**: the manifest keeps the text and a `fetch` object, and `npm run eval -- fetch`
+or **fetched**: the manifest keeps the text and a `fetch` object, and `npm --prefix apps/desktop run eval -- fetch`
 downloads the audio into `audio/external/` (git-ignored):
 
 | `fetch` key | Meaning |
@@ -198,7 +200,7 @@ sentence with `FLEURS` train).
 2. Create `polish/<lang>/dev.jsonl` and `holdout.jsonl` (about 10 cases to start; 25 to 40 dev and
    10 holdout for a main language), covering every tag that applies.
 3. Optionally add `speech/<lang>/manifest.jsonl`.
-4. Run `npm run eval -- check`, then a polish run.
+4. Run `npm --prefix apps/desktop run eval -- check`, then a polish run.
 
 ## Contributing data
 

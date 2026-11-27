@@ -2,7 +2,7 @@
 # relative link resolving, generated tables up to date, and language presets valid
 # (CONTRIBUTING.md#docs-formats). Plain Node, no install, so it runs in seconds on Linux; the full
 # gate in ci.yml runs the same checks again on macOS. It runs only by hand (Actions → Docs → Run
-# workflow); locally, `npm run docs:check` does the same.
+# workflow); locally, `npm --prefix apps/desktop run docs:check` checks docs and evals from the repo root.
 name: Docs
 
 on:

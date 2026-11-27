@@ -1,6 +1,6 @@
 # Translating Munia
 
-Munia's interface text lives in one string table per language, in `src/i18n/locales/`:
+Munia's interface text lives in one string table per language, in `apps/desktop/src/i18n/locales/`:
 
 | File           | Language                                          |
 | -------------- | ------------------------------------------------- |
@@ -23,19 +23,19 @@ machine translations, so corrections from people who speak the language are very
 3. Keep every `{{placeholder}}` exactly as it is (`{{version}}`, `{{error}}` …). Munia fills
    it in; you may move it within the sentence.
 4. Leave names as they are: Munia, macOS, Whisper, Ollama, file names, URLs and key names.
-5. Run `npx vitest run src/i18n` and open a pull request. You can also edit the file on GitHub
-   in the browser; a maintainer runs the same check before merging.
+5. Run `npm --prefix apps/desktop test -- src/i18n` from the repository root and open a pull
+   request. You can also edit the file on GitHub, where a maintainer runs the check before merging.
 
-The check (`src/i18n/__tests__/localeParity.test.ts`) fails when a file is not valid JSON, lacks
+The check (`apps/desktop/src/i18n/__tests__/localeParity.test.ts`) fails when a file is not valid JSON, lacks
 a key that `en.json` has, has an extra key, has an empty value, or changes a placeholder.
 
 ## Adding a language
 
 1. Copy `en.json` to `<code>.json`, using a BCP 47 code (`pt-BR`, `ko`, `it` …), and translate
    every value.
-2. Add one line to `UI_LANGUAGES` in `src/i18n/languages.ts`, with the language's own name as
+2. Add one line to `UI_LANGUAGES` in `apps/desktop/src/i18n/languages.ts`, with the language's own name as
    the label.
-3. Add the tray menu labels for the code in `get_tray_labels` in `src-tauri/src/tray.rs` (seven
+3. Add the tray menu labels for the code in `get_tray_labels` in `apps/desktop/src-tauri/src/tray.rs` (seven
    short strings). Without them the tray menu stays in English.
 
 ## Adding or changing English text

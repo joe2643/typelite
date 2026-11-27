@@ -16,10 +16,16 @@ TypeScript:
 
 ## Code
 
-### Setup
+### Repository layout
 
-Munia is a [Tauri 2](https://v2.tauri.app/) app: a React and TypeScript frontend in `src/`
-and a Rust backend in `src-tauri/`. macOS on Apple Silicon is the main target.
+- [`apps/desktop/`](apps/desktop/) contains the current Apple Silicon macOS app. It uses
+  [Tauri 2](https://v2.tauri.app/), with React and TypeScript in `src/` and Rust in
+  `src-tauri/`. The Windows port will share this desktop app.
+- Android and iOS are planned as separate apps in `apps/android/` and `apps/ios/`.
+- Documentation, published language presets, evaluations and shared benchmark data live at
+  the repository root. KoelRelay is maintained in a separate repository.
+
+### Setup
 
 You need:
 
@@ -32,9 +38,10 @@ You need:
   llama.cpp's `llama-server` (for the Built-in AI).
 - The [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for macOS.
 
-Then, from the repository root:
+From the repository root:
 
 ```sh
+cd apps/desktop
 npm ci                     # install the exact frontend dependencies from package-lock.json
 npm run tauri dev          # run the app with live reload
 npm run build:app          # build llama-server, then the release app bundle
@@ -50,7 +57,7 @@ Munia from System Settings → Privacy & Security → Accessibility and add it a
 
 ### A development build next to the release app
 
-To try a branch end to end while you keep using a release, build **Munia Dev**:
+To try a branch end to end while you keep using a release, build **Munia Dev** from `apps/desktop/`:
 
 ```sh
 npm run build:dev-app
@@ -82,21 +89,19 @@ The [brand and rename checklist](docs/dev/rebrand.md) covers product metadata, i
 
 ### The offline gate
 
-Every pull request must pass these, with no warnings:
+Every pull request must pass the offline gate with no warnings. Run these commands from the
+repository root after building the frontend with `npm --prefix apps/desktop run build`.
 
 ```sh
-cd src-tauri && cargo test --lib && cargo fmt --check && cd ..
-npx vitest run
-npx tsc --noEmit
-npx eslint src/
-npx prettier --check src
-npm run docs:check                          # language guides and generated tables
+(cd apps/desktop/src-tauri && cargo test --lib && cargo fmt --check)
+(cd apps/desktop && npx vitest run && npx tsc --noEmit && npm run lint && npm run format:check)
+npm --prefix apps/desktop run docs:check    # documentation and eval datasets
 node scripts/language-presets.mjs --check   # language presets and index.json
 node scripts/benchmark-baseline.mjs --check # archived evidence and generated current baseline
 ```
 
-End-to-end tests against real servers are optional: `bash scripts/e2e.sh` (see
-`src-tauri/tests/e2e_services.rs` for the environment variables).
+End-to-end tests against real servers are optional: `bash apps/desktop/scripts/e2e.sh` (see
+`apps/desktop/src-tauri/tests/e2e_services.rs` for the environment variables).
 
 Follow the [testing guidelines](docs/testing/README.md) when adding or reviewing tests: assert
 behavior and boundary contracts, use synthetic content, and identify the remaining coverage
@@ -110,8 +115,8 @@ path, define its workload and capture a fresh measurement of the PR base; compar
 workloads afterward:
 
 ```sh
-npm run bench:local -- --out output/benchmarks/before.json
-npm run bench:local -- --out output/benchmarks/after.json --compare output/benchmarks/before.json
+npm --prefix apps/desktop run bench:local -- --out output/benchmarks/before.json
+npm --prefix apps/desktop run bench:local -- --out output/benchmarks/after.json --compare output/benchmarks/before.json
 ```
 
 Use [docs/benchmarks/](docs/benchmarks/README.md) for the rolling baseline, report format and
@@ -147,7 +152,7 @@ code comments, tests and commit messages. A small fix needs no plan.
 
 ## Translating the interface
 
-Each interface language is one file in `src/i18n/locales/`. To fix a translation or add a
+Each interface language is one file in `apps/desktop/src/i18n/locales/`. To fix a translation or add a
 language, see [docs/dev/translating.md](docs/dev/translating.md).
 
 ## Adding a service
@@ -163,7 +168,7 @@ OpenAI-compatible, or for speech Qwen Cloud or ElevenLabs). Test it in the app f
 - If it needs setup beyond a key, add a [server section](#server-section) under **Running your
   own server** in the connection's page (`openai-compatible.md`) and link the row to it. A cloud
   service gets a line in that page's **Cloud services** table and links there.
-- Run `npm run docs:check`.
+- Run `npm --prefix apps/desktop run docs:check`.
 
 ## Language presets
 
@@ -174,7 +179,7 @@ naming rules, how recognition hints work and how to validate a preset are in
 
 - Presets are released under **CC0-1.0**, so they can be copied into people's settings and edited
   there. Only submit text you wrote yourself.
-- Run `node scripts/language-presets.mjs` (regenerates `index.json`) and `npm run docs:cards`
+- Run `node scripts/language-presets.mjs` (regenerates `index.json`) and `npm --prefix apps/desktop run docs:cards`
   (regenerates the catalogue in `presets/languages/README.md`), and commit both.
 - Raise `version` whenever you change the text, the languages or the recognition fields.
 
@@ -204,7 +209,7 @@ their language, or improve one, with a pull request.
   wording) and you have found a setup that does. A language that works with the general setup
   needs no guide; its language preset is enough.
 - Test it with your own voice, not only with synthetic speech.
-- Run `npm run docs:cards` to validate it and regenerate the index in
+- Run `npm --prefix apps/desktop run docs:cards` to validate it and regenerate the index in
   `docs/guides/languages/README.md`, and commit both. The tests fail when a guide is invalid or
   the index is out of date.
 - A guide can name a language preset; if your language needs one too, send it in the same pull
@@ -293,10 +298,9 @@ What you measured, and how.
 ## Docs formats
 
 The guides follow two formats, so a new service, language or whole new part of Munia looks
-like what is already there. `npm run docs:check` enforces them, locally and on every pull request
-that touches the docs (the **Docs** workflow). Claude Code users can let the skills in
-`.claude/skills/` write the files: `add-service`, `add-language-guide`, `add-language-preset`,
-`add-guide-step` and `add-benchmark`.
+like what is already there. `npm --prefix apps/desktop run docs:check` validates the docs and
+evaluation datasets locally. Run the **Docs** workflow by hand on GitHub to check the docs
+and preset catalogue. Claude Code users can use the skills in `.claude/skills/` to write files.
 
 ### Guide steps
 
@@ -351,7 +355,7 @@ A `###` section under **Running your own server**, in this order:
 
 The format is in [The guide file](#the-guide-file) and the [Guide template](#guide-template)
 above. The check validates the front matter and the required sections, and rewrites the index on
-the Languages page with `npm run docs:cards`.
+the Languages page with `npm --prefix apps/desktop run docs:cards`.
 
 ### Benchmarks
 
@@ -366,7 +370,7 @@ then the numbers).
 - Put anything unusual (a busy GPU, your own recording instead of the clip) in a short note under
   the table.
 - When the polish prompt changes, a Rust test fails until `data/polish-system-prompt.txt` is
-  regenerated (see `benchmark_prompt_matches_the_published_file` in `src-tauri/src/llm/prompt.rs`).
+  regenerated (see `benchmark_prompt_matches_the_published_file` in `apps/desktop/src-tauri/src/llm/prompt.rs`).
   Old rows then no longer match; mark or re-measure them.
 
 ### Links
