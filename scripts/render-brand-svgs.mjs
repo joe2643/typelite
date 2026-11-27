@@ -21,7 +21,7 @@ for (const dev of [false, true]) {
   // A transparent eye keeps the menu bar template monochrome under macOS tinting.
   const eye = art.perched.eye
   output(
-    dev ? `${dir}/tray.svg` : `${dir}/source/koeltype-tray.svg`,
+    dev ? `${dir}/tray.svg` : `${dir}/source/munia-tray.svg`,
     `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 512 512">
   <mask id="eye">
     <rect width="512" height="512" fill="white"/>
@@ -36,7 +36,7 @@ for (const dev of [false, true]) {
 output(
   'site/public/favicon.svg',
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <title>KoelType</title>
+  <title>Munia</title>
   <style>
     path { fill: #0c0c0c; }
     @media (prefers-color-scheme: dark) { path { fill: #f4f1ea; } }

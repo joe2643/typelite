@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Builds llama.cpp's `llama-server` for KoelType's Built-in AI (plan `ai-polish-setup`).
+# Builds llama.cpp's `llama-server` for Munia's Built-in AI (plan `ai-polish-setup`).
 #
 # The binary is built from source at one pinned llama.cpp release, with Metal on and the Metal
 # shaders embedded, linked statically (no libllama/libggml dylibs, no OpenSSL, no curl), so the
-# one file runs on its own inside KoelType.app. It is written to
+# one file runs on its own inside Munia.app. It is written to
 #
 #   src-tauri/binaries/llama-server-<target-triple>
 #

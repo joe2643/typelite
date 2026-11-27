@@ -11,7 +11,7 @@ node scripts/render-brand-svgs.mjs
 
 for flavor in release dev; do
   dir="$icons"
-  tray="$icons/source/koeltype-tray.svg"
+  tray="$icons/source/munia-tray.svg"
   if [[ "$flavor" == dev ]]; then
     dir="$icons/dev"
     tray="$dir/tray.svg"

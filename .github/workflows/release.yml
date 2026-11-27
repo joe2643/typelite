@@ -1,4 +1,4 @@
-# Builds KoelType for macOS (Apple Silicon) and creates a DRAFT GitHub release.
+# Builds Munia for macOS (Apple Silicon) and creates a DRAFT GitHub release.
 # See docs/releasing.md.
 #
 # - Push a tag `vX.Y.Z`: builds the DMG and ZIP, writes SHA256SUMS.txt and creates a draft
@@ -143,7 +143,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
-          name: koeltype-${{ steps.version.outputs.version }}-dry-run
+          name: munia-${{ steps.version.outputs.version }}-dry-run
           path: dist-release/
           retention-days: 7
 

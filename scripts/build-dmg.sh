@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Builds the installer DMG from an already built KoelType.app, with the drag-to-Applications
+# Builds the installer DMG from an already built Munia.app, with the drag-to-Applications
 # window (scripts/dmg-settings.py). Needs Python 3; dmgbuild (BSD licence) is installed into a
 # throwaway virtual environment.
 #
-#   bash scripts/build-dmg.sh <path to KoelType.app> <output .dmg>
+#   bash scripts/build-dmg.sh <path to Munia.app> <output .dmg>
 set -euo pipefail
 
-app="${1:?usage: build-dmg.sh <KoelType.app> <output.dmg>}"
-out="${2:?usage: build-dmg.sh <KoelType.app> <output.dmg>}"
+app="${1:?usage: build-dmg.sh <Munia.app> <output.dmg>}"
+out="${2:?usage: build-dmg.sh <Munia.app> <output.dmg>}"
 here="$(cd "$(dirname "$0")" && pwd)"
 venv="${TMPDIR:-/tmp}/oratype-dmgbuild"
 
