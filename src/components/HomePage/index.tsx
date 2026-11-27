@@ -292,7 +292,7 @@ export function HomePage() {
         <div className="flex items-center justify-between gap-3">
           <h1 className="page-title text-[26px] text-balance">{t('home.headline')}</h1>
           <div className="home-koel">
-            <KoelBird />
+            <KoelBird facing="left" />
           </div>
         </div>
       }
