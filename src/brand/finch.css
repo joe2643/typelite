@@ -1,0 +1,81 @@
+.finch-plumage {
+  fill: var(--koel-logo-ink);
+}
+.finch-wing {
+  transform-origin: 51px 33px;
+  fill: var(--koel-soft);
+  fill: light-dark(#655b4f, #9c9183);
+}
+.finch-wing-far {
+  fill: color-mix(in srgb, var(--koel-soft) 75%, var(--koel-paper));
+}
+.finch-face {
+  fill: var(--koel-surface);
+  fill: light-dark(#faf4ea, #706558);
+}
+.finch-eye {
+  fill: var(--koel-logo-ink);
+  fill: light-dark(#24201b, #faf4ea);
+}
+.finch-bill {
+  fill: var(--koel-btn-red);
+}
+.finch-feet {
+  stroke: var(--koel-soft);
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  transform-origin: 44px 45px;
+}
+
+@keyframes finch-pitch {
+  0%,
+  18% {
+    transform: rotate(-14deg);
+  }
+  60% {
+    transform: rotate(7deg);
+  }
+  88% {
+    transform: rotate(-8deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes finch-extend-feet {
+  0%,
+  74% {
+    transform: rotate(65deg) scaleY(0.5);
+    opacity: 0;
+  }
+  94%,
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes finch-wingbeat {
+  0%,
+  100% {
+    d: path('M51 33 C46 28 37 29 30 32 C23 35 17 40 14 43 C21 44 31 43 39 40 C45 39 50 37 51 33 Z');
+  }
+  34% {
+    d: path('M51 33 C51 23 47 15 42 11 C37 7 31 5 26 3 C26 12 29 22 34 29 C39 36 46 38 51 33 Z');
+  }
+  72% {
+    d: path('M51 33 C53 39 49 49 44 55 C40 60 35 63 31 65 C30 55 32 47 34 42 C38 36 45 30 51 33 Z');
+  }
+}
+
+/* Older WebKit can animate SVG transforms but does not support the CSS d property. */
+@supports not (d: path('M0 0')) {
+  @keyframes finch-wingbeat {
+    34% {
+      transform: scaleY(-1.25) rotate(14deg);
+    }
+    72% {
+      transform: scaleY(1.55) rotate(-12deg);
+    }
+  }
+}
