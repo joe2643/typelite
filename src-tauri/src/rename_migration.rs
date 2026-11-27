@@ -1,20 +1,20 @@
 //! Plan `rename-oratype`: Typelite became OraType in 1.2.0, bundle identifier included
-//! (`dev.typelite.mac` → `dev.oratype.mac`). macOS keys an app's folders and login item by its
-//! identifier and name, so on the first launch after the update this moves them across, before
-//! anything reads them:
+//! (`dev.typelite.mac` -> `dev.oratype.mac`), and OraType later became Munia. macOS keys an app's
+//! folders and login item by its identifier and name, so on the first launch after an update
+//! this moves legacy data across and cleans up stale login items before anything reads them:
 //!
-//! - `~/Library/Application Support/<old id>` → `<new id>`: settings, the database (renamed
+//! - `~/Library/Application Support/<old id>` -> `<new id>`: settings, the database (renamed
 //!   `oratype.db`) and the downloaded models. A move on the same disk, so gigabytes of models
 //!   take no time.
-//! - `~/Library/WebKit/<old id>` → `<new id>`: the windows' local storage.
-//! - `~/Library/LaunchAgents/<old name>.plist` is removed. "Launch at login" registers OraType
-//!   again from the setting (`sync_auto_start_preference`).
-//! - An app bundle still called `Typelite.app` is renamed `OraType.app` and started again from
-//!   there: an in-place update keeps the old folder name.
+//! - `~/Library/WebKit/<old id>` -> `<new id>`: the windows' local storage.
+//! - `~/Library/LaunchAgents/<legacy name>.plist` (`Typelite` and `OraType`) is removed.
+//!   "Launch at login" registers Munia again from the setting (`sync_auto_start_preference`).
+//! - An app bundle still called `Typelite.app` or `OraType.app` is renamed `Munia.app` and started
+//!   again from there: an in-place update keeps the old folder name.
 //!
 //! API keys move on first use (`credentials.rs`). macOS permissions (Accessibility, Microphone,
-//! Automation) belong to the identifier and cannot be moved: they are granted again once.
-//! Everything here is a no-op when there is nothing to move, so it runs on every launch.
+//! Automation) belong to the identifier and cannot be moved: they are granted again once from
+//! Typelite. Everything here is a no-op when there is nothing to move, so it runs on every launch.
 
 #![cfg_attr(not(target_os = "macos"), allow(dead_code))]
 
@@ -24,17 +24,17 @@ use std::path::{Path, PathBuf};
 mod names {
     pub const OLD_ID: &str = "dev.typelite.mac";
     pub const NEW_ID: &str = "dev.oratype.mac";
-    pub const OLD_NAME: &str = "Typelite";
-    pub const NEW_NAME: &str = "OraType";
+    pub const LEGACY_NAMES: [&str; 2] = ["Typelite", "OraType"];
+    pub const NEW_NAME: &str = "Munia";
 }
 #[cfg(feature = "dev-build")]
 mod names {
     pub const OLD_ID: &str = "dev.typelite.mac.dev";
     pub const NEW_ID: &str = "dev.oratype.mac.dev";
-    pub const OLD_NAME: &str = "Typelite Dev";
-    pub const NEW_NAME: &str = "OraType Dev";
+    pub const LEGACY_NAMES: [&str; 2] = ["Typelite Dev", "OraType Dev"];
+    pub const NEW_NAME: &str = "Munia Dev";
 }
-use names::{NEW_ID, NEW_NAME, OLD_ID, OLD_NAME};
+use names::{LEGACY_NAMES, NEW_ID, NEW_NAME, OLD_ID};
 
 /// The database Typelite kept in its data folder, and its SQLite side files.
 const OLD_DATABASE: &str = "typelite.db";
@@ -67,7 +67,7 @@ pub fn run() -> Next {
     Next::Continue
 }
 
-/// Moves Typelite's folders to OraType's under `home`, and removes its login item.
+/// Moves Typelite's folders to `NEW_ID` under `home`, and removes legacy login items.
 fn move_folders(home: &Path) {
     let library = home.join("Library");
     for parent in ["Application Support", "WebKit"] {
@@ -75,26 +75,35 @@ fn move_folders(home: &Path) {
         move_folder(&parent.join(OLD_ID), &parent.join(NEW_ID));
     }
     rename_database(&library.join("Application Support").join(NEW_ID));
-    let agent = library
-        .join("LaunchAgents")
-        .join(format!("{OLD_NAME}.plist"));
-    if agent.exists() {
-        match std::fs::remove_file(&agent) {
-            Ok(()) => tracing::info!("Rename: removed Typelite's login item"),
-            Err(error) => tracing::warn!("Rename: could not remove Typelite's login item: {error}"),
+    remove_legacy_login_items(&library);
+}
+
+/// Removes stale LaunchAgents plists left by earlier product names (`Typelite` and `OraType`)
+/// so `sync_auto_start_preference` re-registers `Munia.plist` pointing at the current app.
+fn remove_legacy_login_items(library: &Path) {
+    let agents_dir = library.join("LaunchAgents");
+    for legacy_name in LEGACY_NAMES {
+        let agent = agents_dir.join(format!("{legacy_name}.plist"));
+        if agent.exists() {
+            match std::fs::remove_file(&agent) {
+                Ok(()) => tracing::info!("Rename: removed {legacy_name}'s login item"),
+                Err(error) => {
+                    tracing::warn!("Rename: could not remove {legacy_name}'s login item: {error}")
+                }
+            }
         }
     }
 }
 
-/// Moves `from` to `to` when only `from` exists. When both exist OraType has run before, so its
-/// own folder wins and Typelite's is left alone.
+/// Moves `from` to `to` when only `from` exists. When both exist the current data folder has
+/// run before, so it wins and Typelite's is left alone.
 fn move_folder(from: &Path, to: &Path) {
     if !from.is_dir() {
         return;
     }
     if to.exists() {
         tracing::info!(
-            "Rename: {} and {} both exist; keeping OraType's",
+            "Rename: {} and {} both exist; keeping existing folder",
             from.display(),
             to.display()
         );
@@ -107,7 +116,7 @@ fn move_folder(from: &Path, to: &Path) {
 }
 
 /// Renames `typelite.db` (and its `-wal` / `-shm` files) to `oratype.db` in `dir`, unless
-/// OraType's database already exists.
+/// `oratype.db` already exists.
 fn rename_database(dir: &Path) {
     if !dir.join(OLD_DATABASE).exists() || dir.join(NEW_DATABASE).exists() {
         return;
@@ -125,14 +134,18 @@ fn rename_database(dir: &Path) {
 }
 
 /// The bundle to rename and its new path, when the running app sits in a bundle still called
-/// `Typelite.app` (an update replaces the bundle's contents in place) and nothing is in the way.
-/// A bundle macOS runs from a randomised read-only copy (App Translocation, for a downloaded app
-/// opened in place) is left alone.
+/// `Typelite.app` or `OraType.app` (an update replaces the bundle's contents in place) and nothing
+/// is in the way. A bundle macOS runs from a randomised read-only copy (App Translocation, for a
+/// downloaded app opened in place) is left alone.
 fn bundle_rename(exe: &Path) -> Option<(PathBuf, PathBuf)> {
     let bundle = exe
         .ancestors()
         .find(|path| path.extension().is_some_and(|ext| ext == "app"))?;
-    if bundle.file_name()? != std::ffi::OsStr::new(&format!("{OLD_NAME}.app")) {
+    let file_name = bundle.file_name()?;
+    let is_legacy_bundle = LEGACY_NAMES
+        .iter()
+        .any(|legacy_name| file_name == std::ffi::OsStr::new(&format!("{legacy_name}.app")));
+    if !is_legacy_bundle {
         return None;
     }
     if bundle
@@ -174,8 +187,7 @@ mod tests {
     use super::*;
 
     fn temp_home(name: &str) -> PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("oratype-rename-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("munia-rename-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -195,10 +207,16 @@ mod tests {
         write(&old.join(OLD_DATABASE), "db");
         write(&old.join(format!("{OLD_DATABASE}-wal")), "wal");
         write(&home.join("Library/WebKit").join(OLD_ID).join("data"), "x");
-        let agent = home
-            .join("Library/LaunchAgents")
-            .join(format!("{OLD_NAME}.plist"));
-        write(&agent, "plist");
+        let legacy_agents: Vec<PathBuf> = LEGACY_NAMES
+            .iter()
+            .map(|name| {
+                let path = home
+                    .join("Library/LaunchAgents")
+                    .join(format!("{name}.plist"));
+                write(&path, "plist");
+                path
+            })
+            .collect();
 
         move_folders(&home);
 
@@ -220,10 +238,37 @@ mod tests {
             .join(NEW_ID)
             .join("data")
             .exists());
-        assert!(!agent.exists());
+        for agent in &legacy_agents {
+            assert!(!agent.exists());
+        }
         // A second run has nothing to do.
         move_folders(&home);
         assert!(new.join(NEW_DATABASE).exists());
+        let _ = std::fs::remove_dir_all(&home);
+    }
+
+    #[test]
+    fn stale_typelite_and_oratype_login_items_are_removed_while_munia_stays() {
+        let home = temp_home("login");
+        let agents_dir = home.join("Library/LaunchAgents");
+        let legacy_agents: Vec<PathBuf> = LEGACY_NAMES
+            .iter()
+            .map(|name| {
+                let path = agents_dir.join(format!("{name}.plist"));
+                write(&path, "legacy");
+                path
+            })
+            .collect();
+        let munia_agent = agents_dir.join(format!("{NEW_NAME}.plist"));
+        write(&munia_agent, "munia");
+
+        move_folders(&home);
+
+        for agent in &legacy_agents {
+            assert!(!agent.exists());
+        }
+        assert!(munia_agent.exists());
+        assert_eq!(std::fs::read_to_string(&munia_agent).unwrap(), "munia");
         let _ = std::fs::remove_dir_all(&home);
     }
 
@@ -243,28 +288,32 @@ mod tests {
     }
 
     #[test]
-    fn only_a_bundle_still_called_typelite_is_renamed() {
+    fn legacy_typelite_and_oratype_bundles_are_renamed_to_munia() {
         let apps = temp_home("bundle");
         let exe = |bundle: &str| apps.join(bundle).join("Contents/MacOS/oratype");
-        assert_eq!(
-            bundle_rename(&exe(&format!("{OLD_NAME}.app"))),
-            Some((
-                apps.join(format!("{OLD_NAME}.app")),
-                apps.join(format!("{NEW_NAME}.app"))
-            ))
-        );
+        for legacy_name in LEGACY_NAMES {
+            assert_eq!(
+                bundle_rename(&exe(&format!("{legacy_name}.app"))),
+                Some((
+                    apps.join(format!("{legacy_name}.app")),
+                    apps.join(format!("{NEW_NAME}.app"))
+                ))
+            );
+        }
         // Already renamed, renamed by the user, or not in a bundle (a development run).
         assert_eq!(bundle_rename(&exe(&format!("{NEW_NAME}.app"))), None);
         assert_eq!(bundle_rename(&exe("My Dictation.app")), None);
         assert_eq!(bundle_rename(Path::new("/repo/target/debug/oratype")), None);
-        // Something already called OraType.app is in the way.
+        // Something already called Munia.app is in the way.
         std::fs::create_dir_all(apps.join(format!("{NEW_NAME}.app"))).unwrap();
-        assert_eq!(bundle_rename(&exe(&format!("{OLD_NAME}.app"))), None);
-        // A translocated copy is read-only.
-        let translocated = PathBuf::from(format!(
-            "/private/var/folders/x/AppTranslocation/ABC/d/{OLD_NAME}.app/Contents/MacOS/oratype"
-        ));
-        assert_eq!(bundle_rename(&translocated), None);
+        for legacy_name in LEGACY_NAMES {
+            assert_eq!(bundle_rename(&exe(&format!("{legacy_name}.app"))), None);
+            // A translocated copy is read-only.
+            let translocated = PathBuf::from(format!(
+                "/private/var/folders/x/AppTranslocation/ABC/d/{legacy_name}.app/Contents/MacOS/oratype"
+            ));
+            assert_eq!(bundle_rename(&translocated), None);
+        }
         let _ = std::fs::remove_dir_all(&apps);
     }
 }
