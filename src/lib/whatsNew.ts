@@ -10,6 +10,7 @@ export interface WhatsNewEntry {
 }
 
 export const WHATS_NEW: WhatsNewEntry[] = [
+  { version: '1.3.0', changeKeys: ['renamedToMunia'] },
   {
     version: '1.2.2',
     changeKeys: [
