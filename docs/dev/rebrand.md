@@ -1,11 +1,11 @@
-# KoelType brand and rename checklist
+# Munia brand and rename checklist
 
-KoelType uses Koelony’s Warm Slate palette, official K mark, and red-eyed bird. The shared
+Munia uses Koelony’s Warm Slate palette, official K mark, and red-eyed bird. The shared
 palette assigns Harbour Slate to links, selection and focus, and Koel Red to primary buttons.
 Chiron GoRound TC is used for Latin display text, with installed fonts for other scripts.
-The website’s hero and the app’s Home and welcome screens share a single takeoff, wingbeat
-and landing sequence. Reduced motion shows the perched pose immediately. The recording
-capsule uses the dark palette with Slate and Red indicators.
+The website’s hero and the app’s Home and welcome screens share a foreground landing
+sequence. The hero and Home also show a background flyby. Reduced motion shows the perched
+pose immediately. The recording capsule uses the dark palette with Slate and Red indicators.
 
 ## When the name changes
 
@@ -16,7 +16,9 @@ capsule uses the dark palette with Slate and Red indicators.
       old migration note in the 1.2.0 release history.
 - [ ] Update the npm names in both package manifests and lockfiles, repository and issue links,
       active guides and README, site content and SEO metadata, DMG backdrop text and the promo
-      template. Update `src-tauri/src/llm/language_library/mod.rs` if the repository moves again.
+      template. Keep the site class in sync with the system-theme selector in
+      `src/brand/palette.css`. Update `src-tauri/src/llm/language_library/mod.rs` if the repository
+      moves again.
       Use the actual release repository in artifacts and verify the preset index and update feed.
 - [ ] Regenerate tracked icons with `bash scripts/render-brand-icons.sh` (root `npm ci`,
       `rsvg-convert`, macOS `sips`). The script reads the geometry in
@@ -28,10 +30,10 @@ capsule uses the dark palette with Slate and Red indicators.
 
 | Class | References and follow-up |
 |---|---|
-| Compatibility | Retain `dev.oratype.mac` and `dev.oratype.mac.dev`, `oratype` binary and Rust crate names, `oratype.db`, existing Application Support and WebKit paths, Keychain services `OraType` / `OraType Dev`, and logging paths. The native login item uses its previous label explicitly. An in-place Tauri update keeps the old `OraType.app` directory, so its launch-agent executable path stays valid. A new download is `KoelType.app`. Verify a signed update in place and fresh install separately. Decide whether to migrate existing bundle filenames and their launch-agent paths together in a later release. |
-| Compatibility | The Typelite → OraType migration and Keychain fallback support direct upgrades from older versions. New export filenames use the KoelType slug. Retain the import format markers for dictionaries and preset shares, preference keys, mute recovery flags, CLI and environment variables (including `ORATYPE_*`), Tauri labels, commands, events and Objective-C classes. The site keeps its existing theme storage key. |
-| Historical | The README and site record the 1.2.0 and 1.3.0 names. Keep version-specific release notes, old package and app filenames, historical plans, benchmarks, research, eval samples and legacy fixtures. This branch keeps version 1.2.2. Set the release version separately when publishing is authorized. |
-| Externally controlled | Keep the existing updater endpoint and public key, and the `Typelite Signing` identity, until a signed upgrade passes on a disposable macOS account. The old GitHub update URL and the new repo URL reach the same current manifest. The GitHub About text, hosted domains, Worker name and signing/Cloudflare secrets belong to their services. The site still builds for `oratype.sennettlau.me` and keeps the `typelite.sennettlau.me` redirect. Confirm the final hostname before touching Worker routes, canonical/OG URLs, sitemap, robots and README. |
+| Compatibility | Retain `dev.oratype.mac` and `dev.oratype.mac.dev`, `oratype` binary and Rust crate names, `oratype.db`, existing Application Support and WebKit paths, Keychain services `OraType` / `OraType Dev`, and logging paths. The native login item uses its previous label explicitly. An in-place Tauri update keeps the old `OraType.app` directory, so its launch-agent executable path stays valid. A new download is `Munia.app`. Verify a signed update in place and fresh install separately. Decide whether to migrate existing bundle filenames and their launch-agent paths together in a later release. |
+| Compatibility | The Typelite → OraType migration and Keychain fallback support direct upgrades from older versions. New preset exports use `.munia-presets.json`. Retain the import format markers for dictionaries and preset shares, preference keys, mute recovery flags, CLI and environment variables (including `ORATYPE_*`), Tauri labels, commands, events and Objective-C classes. The site keeps its existing theme storage key. |
+| Historical | Published versions before 1.2.0 used Typelite, and 1.2.x used OraType. KoelType was a working name on the rebrand branch. Keep version-specific release notes, old package and app filenames, historical plans, benchmarks, research, eval samples and legacy fixtures. Set the release version separately when cutting a release. |
+| Externally controlled | Keep the existing updater endpoint and public key, and the `Typelite Signing` identity, until a signed upgrade passes on a disposable macOS account. The existing update URL points to the release manifest. The code repository remains `koelony/koeltype`. The GitHub About text, hosted domains, Worker name and signing/Cloudflare secrets belong to their services. The site still builds for `oratype.sennettlau.me` and keeps the `typelite.sennettlau.me` redirect. Confirm the final hostname before touching Worker routes, canonical/OG URLs, sitemap, robots and README. |
 
 ## Provenance and sync
 
@@ -39,7 +41,7 @@ capsule uses the dark palette with Slate and Red indicators.
   Koel brand export (art and palette commits `d81a227`, `56f06fa`). The same mark and
   bird appear on [Koelony’s public website](https://koelony.com/). The geometry and eye are
   retained, with a paper tile for the Dock and a monochrome knockout for the tray.
-  This is Koelony brand artwork reused for KoelType under the rebrand brief.
+  This is Koelony brand artwork reused for Munia under the rebrand brief.
 - The flying body, wings, and shoulder pivot match the rendered Koelony homepage. The
   landing sequence is a shared CSS adaptation of the public motion. The
   [Koelony homepage](https://koelony.com/) is the reference for the tone-staff flight and
@@ -55,7 +57,7 @@ Update both declarations for dark mode and the fixed dark capsule aliases. For n
 the icons and media. The site CI watches the shared brand folder.
 
 The shared palette has no dedicated **success**, **warning**, **Ask mode** or **capsule
-recording and waveform** roles. KoelType uses local green and amber for success and warning,
+recording and waveform** roles. Munia uses local green and amber for success and warning,
 amber with the Ask icon, and dark-theme Red Text and Slate for the capsule. The existing Red
 Text role supplies errors, with a local ink mix for readability on tinted backgrounds.
 If design adds these roles, ask for light and dark foregrounds and the surfaces they’re

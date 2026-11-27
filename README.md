@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src-tauri/icons/128x128.png" width="96" height="96" alt="KoelType icon">
+  <img src="src-tauri/icons/128x128.png" width="96" height="96" alt="Munia icon">
 </p>
 
-<h1 align="center">KoelType</h1>
+<h1 align="center">Munia</h1>
 
 <p align="center"><b>Just say it.</b> Press a shortcut in any app, speak, and clean text lands where you're typing.</p>
 
@@ -10,7 +10,7 @@
   Free and open source (MIT) · No account · No telemetry · Runs on your computer or your own servers
 </p>
 
-<p align="center"><i>KoelType was called Typelite until version 1.2.0.<br>KoelType was called OraType until version 1.3.0.</i></p>
+<p align="center"><i>Munia was previously released as Typelite (before 1.2.0) and OraType (1.2.x).</i></p>
 
 <p align="center">
   <a href="https://oratype.sennettlau.me/">Website</a> ·
@@ -19,10 +19,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/hero.gif" width="800" alt="KoelType's pill listening at the bottom of the screen, then clean text is pasted into a chat: fillers and a self-correction are removed">
+  <img src="docs/media/hero.gif" width="800" alt="Munia's pill listening at the bottom of the screen, then clean text is pasted into a chat: fillers and a self-correction are removed">
 </p>
 
-KoelType is a voice keyboard for macOS. Hold or tap a shortcut and speak. KoelType turns your
+Munia is a voice keyboard for macOS. Hold or tap a shortcut and speak. Munia turns your
 speech into text, removes fillers, applies your self-corrections, adds punctuation and pastes the
 result where you are typing. It can also translate what you say, or answer a question about the
 text you have highlighted.
@@ -31,12 +31,13 @@ text you have highlighted.
 
 ### Download
 
-KoelType runs on Macs with Apple Silicon (M1 or later).
+Munia runs on Macs with Apple Silicon (M1 or later).
 
-1. Download `KoelType_X.Y.Z_aarch64.dmg` from the
-   [latest release](https://github.com/koelony/koeltype/releases/latest). Historical releases use their original product name. To check the download,
-   download `SHA256SUMS.txt` too and run `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`.
-2. Open the DMG and drag **KoelType** to **Applications**.
+1. Download the Apple Silicon DMG from the
+   [latest release](https://github.com/koelony/koeltype/releases/latest). Munia releases use
+   `Munia_X.Y.Z_aarch64.dmg`. Earlier releases use their original product name. To check the
+   download, get `SHA256SUMS.txt` and run `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`.
+2. Open the DMG and drag the app to **Applications**.
 3. Start it once as described in [First launch](#first-launch).
 
 ### Build from source
@@ -49,7 +50,7 @@ git clone https://github.com/koelony/koeltype.git
 cd koeltype
 npm ci
 npm run build:app      # builds llama-server, then the app
-open src-tauri/target/release/bundle/macos/KoelType.app
+open src-tauri/target/release/bundle/macos/Munia.app
 ```
 
 More detail is in the [Contributing guide](CONTRIBUTING.md#setup).
@@ -57,15 +58,15 @@ More detail is in the [Contributing guide](CONTRIBUTING.md#setup).
 ### First launch
 
 1. Downloaded builds are not signed by Apple yet, so macOS blocks the first launch. Right-click
-   KoelType.app and choose **Open** (on macOS 15 and later: **System Settings → Privacy &
-   Security → Open Anyway**), or run `xattr -dr com.apple.quarantine /Applications/KoelType.app`
+   Munia.app and choose **Open** (on macOS 15 and later: **System Settings → Privacy &
+   Security → Open Anyway**), or run `xattr -dr com.apple.quarantine /Applications/Munia.app`
    once.
-2. Allow **Microphone** and **Accessibility** when macOS asks. Accessibility lets KoelType paste.
+2. Allow **Microphone** and **Accessibility** when macOS asks. Accessibility lets Munia paste.
 3. Follow the guided setup: microphone, speech, AI, then a short hands-on tutorial.
 
-KoelType is macOS first and runs best on Apple Silicon.
+Munia is macOS first and runs best on Apple Silicon.
 
-## What makes KoelType different
+## What makes Munia different
 
 ### Language presets and a router
 
@@ -92,21 +93,21 @@ text and press Translate to replace it with its translation.
 On Apple Silicon, both halves can run on your computer with nothing else to install.
 [whisper.cpp](https://github.com/ggml-org/whisper.cpp) handles speech recognition inside the app,
 and [llama.cpp](https://github.com/ggml-org/llama.cpp)'s server handles AI polish. Press
-**Set up** and KoelType picks models that suit your hardware, downloads them and checks each
+**Set up** and Munia picks models that suit your hardware, downloads them and checks each
 download against a SHA-256.
 
 ### Bring your own server or key
 
-Prefer a GPU computer on your network or a cloud key? KoelType works with any OpenAI-compatible
+Prefer a GPU computer on your network or a cloud key? Munia works with any OpenAI-compatible
 speech or chat server (whisper.cpp server, Speaches, Ollama, LM Studio, OpenAI, Groq, OpenRouter
 and more) and with the Qwen Cloud and ElevenLabs speech APIs. Cloud services are opt-in and use your own key. See
 the [Guides](docs/guides/README.md).
 
 ## How it compares with Typeless
 
-KoelType is inspired by [Typeless](https://www.typeless.com/), a polished commercial product.
+Munia is inspired by [Typeless](https://www.typeless.com/), a polished commercial product.
 
-|  | Typeless | KoelType |
+|  | Typeless | Munia |
 |---|---|---|
 | Source | Closed | Open source (MIT) |
 | Price | Free tier and paid plans | Free |
@@ -182,7 +183,7 @@ See [media generation](docs/media/README.md) for recording and Copy capsule stil
 - [qwen3-asr-cantonese-hk](https://github.com/koelony/qwen3-asr-cantonese-hk):
   [Koelony](https://koelony.com)'s fine-tune of Qwen3-ASR-1.7B for Hong Kong Cantonese with
   English mixed in (Apache-2.0).
-  KoelType's built-in speech uses it for any language list with Cantonese. The repository has
+  Munia's built-in speech uses it for any language list with Cantonese. The repository has
   the BF16, GGUF, FP8 and NVFP4 weights and their benchmarks; the weights are published on
   Hugging Face under [koelony](https://huggingface.co/koelony).
 

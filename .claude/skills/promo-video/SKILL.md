@@ -1,6 +1,6 @@
 ---
 name: promo-video
-description: Make the short promo video for a KoelType release (10–15 s, 1920×1080) from the real app UI, in the standard folder output/promo-<version>/. Use when preparing a release, or when someone asks for a promo, launch or "what's new" video for a version.
+description: Make the short promo video for a Munia release (10–15 s, 1920×1080) from the real app UI, in the standard folder output/promo-<version>/. Use when preparing a release, or when someone asks for a promo, launch or "what's new" video for a version.
 ---
 
 # Make a release promo video
@@ -13,7 +13,7 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
 | `film.html` | The film: shots, captions and timing, drawn by `render(t)` |
 | `stills/<shot>.png` | Stills of the real app (dark, 2× or 4×), from the capture harness |
 | `music.wav` | The soundtrack, synthesised for the film's length |
-| `koeltype-<version>-promo.mp4` | **The video** (the one file to share) |
+| `munia-<version>-promo.mp4` | **The video** (the one file to share) |
 | `sheet.png` | One frame per second on one image, to check the film at a glance |
 | `preview/` | Single frames from `--preview` (optional, safe to delete) |
 
@@ -75,10 +75,10 @@ lives in **`output/promo-<version>/`** (git-ignored), so every release looks the
    node site/scripts/record-film.mjs <version>
    ```
 
-   It renders every frame, encodes `koeltype-<version>-promo.mp4` with the music, writes
+   It renders every frame, encodes `munia-<version>-promo.mp4` with the music, writes
    `sheet.png` and deletes the frames. Look at `sheet.png`, and check the length with
    `ffprobe -v error -show_entries format=duration -of csv=p=0 <mp4>`.
-6. **Hand over:** reveal the video in Finder (`open -R output/promo-<version>/koeltype-<version>-promo.mp4`)
+6. **Hand over:** reveal the video in Finder (`open -R output/promo-<version>/munia-<version>-promo.mp4`)
    and give the path. Nothing in `output/` is committed; changes to the harness or the scripts
    go in a pull request.
 
