@@ -1,7 +1,9 @@
 use crate::app_detector::types::{BrowserAccessStatus, BrowserTarget};
 use crate::app_detector::ContextDetectorHandle;
-use crate::hotkey::{HotkeySupervisor, HotkeySupervisorSnapshot, HotkeySupervisorState};
-use crate::native_hotkey::{NativeHotkeyBinding, NativeHotkeyRuntime};
+use crate::hotkey::{
+    HotkeySupervisor, HotkeySupervisorSnapshot, HotkeySupervisorState, NativeHotkeyBinding,
+    NativeHotkeyRuntime,
+};
 use crate::pipeline;
 use crate::platform;
 use crate::shortcut_gate::{ShortcutGate, ShortcutGateRequest, ShortcutGateState};
@@ -1228,7 +1230,7 @@ pub fn pause_hotkey(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 /// Event sent to the settings window for every key edge while a shortcut field is recording.
-/// Payload: `native_hotkey::ShortcutCaptureEvent` (`{ held, finished, cancelled }`).
+/// Payload: `ShortcutCaptureEvent` (`{ held, finished, cancelled }`).
 pub const SHORTCUT_CAPTURE_EVENT: &str = "hotkey:capture";
 
 /// Start recording a shortcut with the native key listener (macOS). Normal shortcuts are

@@ -175,7 +175,7 @@ fn restore_clipboard_if_safe(original: Option<Snapshot>, written: i64, restore_i
 fn simulate_paste(_shortcut: PasteShortcut) -> Result<(), AppError> {
     // OraType's own ⌘V: it must not fire a shortcut on a bare Command key (plan
     // `own-keystrokes`).
-    let _own = crate::native_hotkey::OwnKeystroke::begin();
+    let _own = crate::hotkey::OwnKeystroke::begin();
     let status = std::process::Command::new("osascript")
         .args([
             "-e",

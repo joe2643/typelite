@@ -1,5 +1,4 @@
 use crate::commands;
-use crate::native_hotkey::NativeChord;
 use crate::native_keys;
 use crate::pipeline;
 use crate::storage;
@@ -12,6 +11,15 @@ use std::time::Duration;
 use tauri::Emitter;
 use tauri::Manager;
 use tauri_plugin_global_shortcut::{Code, Modifiers, Shortcut, ShortcutState};
+
+pub(crate) mod listener;
+
+use listener::NativeChord;
+#[cfg(target_os = "macos")]
+pub(crate) use listener::OwnKeystroke;
+pub(crate) use listener::{
+    KeystrokeObserver, MacEventKind, MacKeyEvent, NativeHotkeyBinding, NativeHotkeyRuntime,
+};
 
 /// After a failed registration the supervisor tries again, first after this wait, doubling it
 /// after every failure up to [`HOTKEY_RETRY_MAX_DELAY`], until registration works. The usual
@@ -291,7 +299,7 @@ pub enum HotkeyRole {
     SwitchScene,
     OpenApp,
     /// Moves a running Translate recording to its next language. Only active while a
-    /// Translate recording runs (see `native_hotkey::ChordMatcher`).
+    /// Translate recording runs (see `listener::ChordMatcher`).
     SwitchLanguage,
     /// Stops a running Translate recording: the Translate shortcut's first key on its own
     /// (plan `translate-pill-and-keys`). Only active while a Translate recording runs, like
@@ -299,7 +307,7 @@ pub enum HotkeyRole {
     StopTranslate,
     /// Escape while a run is active: cancels it like the pill's cancel button. Not a
     /// configurable shortcut; the native key listener fires it (see
-    /// `native_hotkey::ChordMatcher::with_cancel_key`).
+    /// `listener::ChordMatcher::with_cancel_key`).
     Cancel,
 }
 

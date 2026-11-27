@@ -8,7 +8,7 @@
 //! AZERTY. The numbers look random (A is 0, S is 1, End is 119) because they come from the
 //! original Apple keyboard scan codes. This table lists the ones we can bind.
 //!
-//! **Two kinds of key events.** A `CGEventTap` (see `native_hotkey.rs`) receives:
+//! **Two kinds of key events.** A `CGEventTap` (see `hotkey/listener/macos.rs`) receives:
 //! - `kCGEventKeyDown` / `kCGEventKeyUp` for normal keys (letters, End, F13, Space …). The
 //!   keycode is in the event field `kCGKeyboardEventKeycode`. Holding a key produces repeated
 //!   key-down events with `kCGKeyboardEventAutorepeat` set.

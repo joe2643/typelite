@@ -3,7 +3,7 @@
 //! - **Speaking:** after a Dictate or Translate run pasted its result, the final text is split
 //!   into words ([`count_words`]) and added, with the recording length, to running totals. The
 //!   text is dropped at once.
-//! - **Typing:** the native key listener (`native_hotkey.rs`) tells [`SpeedStats`] "one text
+//! - **Typing:** the native key listener (`hotkey/listener/macos.rs`) tells [`SpeedStats`] "one text
 //!   keystroke now" for every key-down that typed text ([`counts_as_typing`]). Which key it was
 //!   is never passed on, stored or logged. [`TypingTracker`] counts the gaps between keystrokes:
 //!   a keystroke within [`BURST_GAP`] of the one before adds one keystroke and that gap's time.
@@ -212,8 +212,8 @@ pub fn is_text_keycode(code: u16) -> bool {
 
 /// Whether a macOS key event is one typed keystroke: a first key-down (not a repeat) of a text
 /// key, without ⌘ or ⌃ (shortcuts), that OraType did not swallow (its own shortcuts).
-pub fn counts_as_typing(event: &crate::native_hotkey::MacKeyEvent, swallowed: bool) -> bool {
-    event.kind == crate::native_hotkey::MacEventKind::KeyDown
+pub fn counts_as_typing(event: &crate::hotkey::MacKeyEvent, swallowed: bool) -> bool {
+    event.kind == crate::hotkey::MacEventKind::KeyDown
         && !event.autorepeat
         && !swallowed
         && event.flags & (FLAG_COMMAND | FLAG_CONTROL) == 0
@@ -806,7 +806,7 @@ pub fn start_worker(app: tauri::AppHandle, stats: SpeedStats) {
 }
 
 /// The observer the key listener calls for each typed keystroke.
-pub fn keystroke_observer(stats: SpeedStats) -> crate::native_hotkey::KeystrokeObserver {
+pub fn keystroke_observer(stats: SpeedStats) -> crate::hotkey::KeystrokeObserver {
     Arc::new(move || stats.note_keystroke(Instant::now()))
 }
 
@@ -836,7 +836,7 @@ pub fn dismiss_typing_nudge(stats: tauri::State<'_, SpeedStats>, forever: bool) 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::native_hotkey::{MacEventKind, MacKeyEvent};
+    use crate::hotkey::{MacEventKind, MacKeyEvent};
 
     fn key_down(keycode: u16, flags: u64) -> MacKeyEvent {
         MacKeyEvent {

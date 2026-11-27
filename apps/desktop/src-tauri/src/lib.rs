@@ -12,7 +12,10 @@ pub mod hotkey;
 #[cfg(target_os = "linux")]
 mod linux_x11;
 pub mod llm;
-pub mod native_hotkey;
+/// Native listener types exposed at their original crate path.
+pub mod native_hotkey {
+    pub use crate::hotkey::listener::*;
+}
 pub mod native_keys;
 pub mod output;
 pub mod overlay_window;
@@ -1482,7 +1485,7 @@ pub fn run() {
                 hotkey::hotkey_registration_plan_from_config(&initial_config.hotkeys)
                     .unwrap_or_default(),
             ))));
-            app.manage(native_hotkey::NativeHotkeyRuntime::default());
+            app.manage(hotkey::NativeHotkeyRuntime::default());
             let hotkey_registration_error = Arc::new(Mutex::new(None));
             app.manage(HotkeyRegistrationError(hotkey_registration_error.clone()));
             let hotkey_supervisor = hotkey::HotkeySupervisor::default();

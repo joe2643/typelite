@@ -105,7 +105,7 @@ fn copy_selected_text_to_clipboard() -> bool {
     // permission the paste does not already need: Accessibility, and Automation of System
     // Events (asked once, on first use). Marked as OraType's own, so its ⌘ cannot fire a
     // shortcut on a bare Command key (plan `own-keystrokes`).
-    let _own = crate::native_hotkey::OwnKeystroke::begin();
+    let _own = crate::hotkey::OwnKeystroke::begin();
     match std::process::Command::new("/usr/bin/osascript")
         .args([
             "-e",
