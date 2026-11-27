@@ -93,6 +93,9 @@ jobs:
         run: npm ci
 
       - name: Build llama-server (Built-in AI)
+        env:
+          # Keep the source checkout and CMake cache outside the Rust target cache.
+          LLAMA_BUILD_DIR: ${{ runner.temp }}/llama.cpp
         run: npm run build:llama-server
 
       # As `npm run build:app`, plus the signed update package (plan `auto-update`):
