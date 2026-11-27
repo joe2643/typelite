@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { App } from './App'
 import './styles.css'
+import './bird-motion.css'
 
 const root = document.getElementById('root')!
 const app = (

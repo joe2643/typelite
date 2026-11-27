@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { KoelBird } from '../../../src/brand/KoelArtwork'
+import { MuniaFlight } from '../components/BirdMotion'
 import { HeroDemo } from '../demos/HeroDemo'
 import { IconBook, IconDownload, IconStar } from '../components/Icons'
 import { formatCount, type RepoStats } from '../lib/hooks'
@@ -10,16 +11,23 @@ export function Hero({ stats }: { stats: RepoStats | null }) {
     <section className="hero" id="top" aria-labelledby="hero-title">
       <div className="container">
         <div className="hero-intro">
-          <div className="hero-flock" aria-hidden="true">
-            <KoelBird variant="background" />
-            <KoelBird variant="background" />
-          </div>
           <div className="hero-headline">
-            <h1 id="hero-title" className="hero-title hero-rise">
-              Just say it<span className="hero-period">.</span>
-            </h1>
+            <div className="hero-brand-copy">
+              <h1 id="hero-title" className="hero-title hero-rise">
+                Mun
+                <span className="hero-perch-letter">
+                  i<MuniaFlight />
+                </span>
+                a
+              </h1>
+              <p className="hero-tagline hero-rise" style={rise(0.08)}>
+                Just say it<span className="hero-period">.</span>
+              </p>
+            </div>
             <div className="hero-koel">
-              <KoelBird />
+              <div className="hero-koel-perch">
+                <KoelBird facing="left" />
+              </div>
             </div>
           </div>
           <p className="hero-sub hero-rise" style={rise(0.12)}>

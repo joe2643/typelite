@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { KoelPerch } from '../components/BirdMotion'
 import {
   IconArrowRight,
   IconCard,
@@ -295,6 +296,7 @@ export function Footer() {
       </section>
       <footer className="footer">
         <div className="container">
+          <KoelPerch />
           <div className="footer-grid">
             <div>
               <a className="brand" href="#top">

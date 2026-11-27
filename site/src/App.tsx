@@ -7,6 +7,7 @@ import { Story } from './sections/Story'
 import { Languages } from './sections/Languages'
 import { Setup } from './sections/Setup'
 import { Compare, Footer, OpenSource, Privacy } from './sections/More'
+import { BackgroundFlock } from './components/BirdMotion'
 
 export function App() {
   const stats = useRepoStats()
@@ -14,6 +15,7 @@ export function App() {
   useMagneticButtons()
   return (
     <>
+      <BackgroundFlock />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
