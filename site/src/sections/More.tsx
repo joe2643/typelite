@@ -47,13 +47,13 @@ export function Compare() {
             Inspired by Typeless. Built to be yours.
           </h2>
           <p className="section-lead">
-            Typeless is a polished commercial product and a great source of ideas. KoelType is for
+            Typeless is a polished commercial product and a great source of ideas. {PRODUCT_NAME} is for
             people who want to own the whole pipeline and tune it for their languages.
           </p>
         </div>
         <div className="card table-wrap" data-reveal>
           <table>
-            <caption className="sr-only">Typeless and KoelType compared</caption>
+            <caption className="sr-only">Typeless and {PRODUCT_NAME} compared</caption>
             <thead>
               <tr>
                 <th scope="col">
@@ -77,8 +77,8 @@ export function Compare() {
           </table>
         </div>
         <p className="compare-note" data-reveal>
-          Based on public information about <a rel="noopener" href={links.typeless}>Typeless</a>; it may change.
-          KoelType is an independent project and not affiliated with Typeless.
+          Based on public information about <a rel="noopener" href={links.typeless}>Typeless</a>; it may change.{' '}
+          {PRODUCT_NAME} is an independent project and not affiliated with Typeless.
         </p>
       </div>
     </section>
@@ -111,7 +111,7 @@ const CONTRIB = [
   {
     icon: <IconLanguages size={18} />,
     title: 'Language presets',
-    body: 'Speak a language well? Teach KoelType how to write it, in a small Markdown file.',
+    body: `Speak a language well? Teach ${PRODUCT_NAME} how to write it, in a small Markdown file.`,
     href: links.contributePresets,
   },
   {
@@ -368,9 +368,9 @@ export function Footer() {
           </div>
           <p className="footer-legal">
             © {PRODUCT_NAME} contributors. Released under the <a rel="noopener" href={links.license}>MIT licence</a>;
-            third-party components are listed in <a rel="noopener" href={links.notices}>THIRD_PARTY_NOTICES</a>.
-            {PRODUCT_NAME} was called Typelite until version 1.2.0 and OraType until version 1.3.0. Not affiliated with Typeless. This
-            site uses no cookies, analytics or tracking.
+            third-party components are listed in <a rel="noopener" href={links.notices}>THIRD_PARTY_NOTICES</a>.{' '}
+            {PRODUCT_NAME} was previously released as Typelite (before 1.2.0) and OraType (1.2.x).
+            Not affiliated with Typeless. This site uses no cookies, analytics or tracking.
           </p>
         </div>
       </footer>

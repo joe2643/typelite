@@ -1,6 +1,6 @@
-# KoelType site
+# Munia site
 
-The one-page website for KoelType: Vite, React and TypeScript, deployed to Cloudflare Workers at
+The one-page website for Munia: Vite, React and TypeScript, deployed to Cloudflare Workers at
 `https://oratype.sennettlau.me/`. It is a separate project with its own
 `package.json` and lockfile; nothing here is part of the app.
 

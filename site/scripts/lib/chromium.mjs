@@ -15,7 +15,7 @@ import { join } from 'node:path'
 const DEFAULT_CHROMIUM = '/Applications/Chromium.app/Contents/MacOS/Chromium'
 
 export async function launch({ executable = process.env.CHROMIUM || DEFAULT_CHROMIUM } = {}) {
-  const profile = await mkdtemp(join(tmpdir(), 'koeltype-capture-'))
+  const profile = await mkdtemp(join(tmpdir(), 'munia-capture-'))
   const child = spawn(
     executable,
     [

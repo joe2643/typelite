@@ -1,4 +1,5 @@
 import { easeOut, progress } from '../lib/clock'
+import { PRODUCT_NAME } from '../links'
 import { Stage } from '../components/Stage'
 import { IconMic } from '../components/Icons'
 
@@ -139,8 +140,8 @@ export function Speed() {
             You speak about three times faster than you type.
           </h2>
           <p className="section-lead">
-            Most people type around {TYPING_WPM} words a minute and speak around {SPEAKING_WPM}.
-            KoelType turns that speed into finished text, so what you say is ready to send, without
+            Most people type around {TYPING_WPM} words a minute and speak around {SPEAKING_WPM}.{' '}
+            {PRODUCT_NAME} turns that speed into finished text, so what you say is ready to send, without
             the ums or the retyping.
           </p>
         </div>
@@ -181,7 +182,7 @@ export function Speed() {
                     caret={!done && Math.floor(t * 2) % 2 === 0}
                   />
                   <Lane
-                    label="Speaking with KoelType"
+                    label={`Speaking with ${PRODUCT_NAME}`}
                     icon={<IconMic size={16} />}
                     wpm={SPEAKING_WPM}
                     words={SPEAKING_WPM * p}
@@ -208,7 +209,7 @@ export function Speed() {
           }}
         </Stage>
         <p className="race-note" data-reveal>
-          KoelType shows your own speaking and typing speeds in Insights, kept on your computer.
+          {PRODUCT_NAME} shows your own speaking and typing speeds in Insights, kept on your computer.
         </p>
         <p className="footnote" data-reveal>
           Rates are rounded down and vary from person to person. Typing: an average of 52 words per

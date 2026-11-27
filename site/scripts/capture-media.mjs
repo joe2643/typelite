@@ -104,7 +104,7 @@ async function captureGif(
   await page.goto(`${base}/capture/?scene=${scene}&theme=${theme}`)
   await page.waitFor('window.__oratypeCapture && document.querySelector("#frame > *")')
   await document_fonts(page)
-  const frames = await mkdtemp(join(tmpdir(), `koeltype-${name}-`))
+  const frames = await mkdtemp(join(tmpdir(), `munia-${name}-`))
   const step = 1 / fps
   let i = 0
   for (let t = from; t < to - 1e-6; t += step) {

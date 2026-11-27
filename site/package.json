@@ -1,9 +1,9 @@
 {
-  "name": "koeltype-site",
+  "name": "munia-site",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "KoelType's one-page website, deployed to Cloudflare Workers",
+  "description": "Munia's one-page website, deployed to Cloudflare Workers",
   "license": "MIT",
   "scripts": {
     "dev": "vite",

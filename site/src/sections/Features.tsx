@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
+import { PRODUCT_NAME } from '../links'
 import { KeyCap } from '../components/KeyCap'
 import { AskVignette, DictateVignette, TranslateVignette } from '../demos/Vignettes'
 import { IconCheck, IconGlobe, IconMic, IconSparkle } from '../components/Icons'
@@ -94,7 +95,7 @@ export function Features() {
             signal={signals[0]}
             demo={<DictateVignette keys={signals[0]} />}
           >
-            Talk the way you talk. KoelType writes it the way you would have typed it, and pastes it
+            Talk the way you talk. {PRODUCT_NAME} writes it the way you would have typed it, and pastes it
             where your cursor is.
           </Feature>
           <Feature

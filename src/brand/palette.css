@@ -52,7 +52,7 @@
 
 /* The prerendered site follows the system before JavaScript and when no theme is pinned. */
 @media (prefers-color-scheme: dark) {
-  :root.koeltype-site:not([data-theme='light']) {
+  :root.munia-site:not([data-theme='light']) {
     --koel-paper: #1e1e1d;
     --koel-surface: #262625;
     --koel-surface-2: #2e2e2c;

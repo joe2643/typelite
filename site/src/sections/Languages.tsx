@@ -2,7 +2,7 @@ import { easeOut, progress } from '../lib/clock'
 import { Stage } from '../components/Stage'
 import { RouterFlow } from '../components/RouterFlow'
 import { IconArrowRight, IconLanguages } from '../components/Icons'
-import { links } from '../links'
+import { links, PRODUCT_NAME } from '../links'
 // The community library itself, so the cards always match the repository.
 import library from '../../../presets/languages/index.json'
 
@@ -204,7 +204,7 @@ export function Languages() {
             data-reveal
           >
             <h4>Your language?</h4>
-            <p>If you speak a language well, you can make KoelType write it better.</p>
+            <p>If you speak a language well, you can make {PRODUCT_NAME} write it better.</p>
             <span className="inline-link">
               Contribute a preset <IconArrowRight size={15} />
             </span>

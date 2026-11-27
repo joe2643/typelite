@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { PRODUCT_NAME } from '../links'
 import { easeOut, progress } from '../lib/clock'
 import { IconArrowRight, IconMic, IconSparkle } from '../components/Icons'
 import {
@@ -219,7 +220,7 @@ export function HeroFrame({ t }: { t: number }) {
         </div>
         <div className="card caption">
           <span className="caption-label">
-            <IconSparkle size={14} /> KoelType types
+            <IconSparkle size={14} /> {PRODUCT_NAME} types
           </span>
           <p className="caption-text caption-clean">{!inHold && u >= DONE ? ex.clean : ' '}</p>
         </div>
