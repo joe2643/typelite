@@ -5,7 +5,7 @@
  *   /capture/?scene=hero|translate|ask|og&theme=light|dark
  */
 import { createRoot } from 'react-dom/client'
-import { KoelMark } from '../../src/brand/KoelArtwork'
+import { MuniaMark } from '../../src/brand/KoelArtwork'
 import { enableCaptureClock } from '../src/lib/clock'
 import { HeroDemo } from '../src/demos/HeroDemo'
 import { AskVignette, TranslateVignette } from '../src/demos/Vignettes'
@@ -28,7 +28,7 @@ function Og() {
   return (
     <div className="og">
       <div className="og-brand">
-        <KoelMark size={64} />
+        <MuniaMark size={64} />
         {PRODUCT_NAME}
       </div>
       <h1>

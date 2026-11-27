@@ -1,19 +1,25 @@
 import art from './koel-art.json'
+import muniaArt from './munia-art.json'
 
-export function KoelMark({ size }: { size: number }) {
+export function MuniaMark({ size }: { size: number }) {
   return (
     <svg
-      className="koel-mark"
+      className="koel-mark munia-mark"
       viewBox="0 0 512 512"
       width={size}
       height={size}
       aria-hidden="true"
       focusable="false"
     >
-      <path d={art.mark.body} />
-      <circle className="koel-eye" {...art.mark.eye} />
+      <path d={muniaArt.mark.body} />
+      <circle {...muniaArt.mark.eye} />
+      <path className="munia-beak" d={muniaArt.mark.beak} />
     </svg>
   )
+}
+
+export function KoelMark({ size }: { size: number }) {
+  return <MuniaMark size={size} />
 }
 
 export function KoelBird({ variant = 'foreground' }: { variant?: 'foreground' | 'background' }) {

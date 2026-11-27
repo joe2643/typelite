@@ -9,7 +9,7 @@ import {
   searchState,
   type EndpointState,
 } from '../../lib/connectionStatus'
-import { KoelMark } from '../../brand/KoelArtwork'
+import { MuniaMark } from '../../brand/KoelArtwork'
 import { AccessibilityBanner } from './AccessibilityBanner'
 
 interface NavItem {
@@ -131,12 +131,12 @@ export function MainLayout({ children }: Props) {
       <div className="drag-strip" data-tauri-drag-region aria-hidden="true" />
 
       <aside className="sidebar flex w-[208px] shrink-0 flex-col px-2.5 pt-11 pb-3">
-        {/* The Koelony mark sits beside the product name. */}
+        {/* The Munia mark sits beside the product name. */}
         <div
           className="flex items-center gap-[9px] px-2 pb-4 font-display text-[18px] font-bold tracking-[-0.01em]"
           data-testid="sidebar-brand"
         >
-          <KoelMark size={28} />
+          <MuniaMark size={28} />
           {t('app.name')}
         </div>
 

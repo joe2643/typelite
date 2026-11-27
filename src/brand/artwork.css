@@ -8,6 +8,9 @@
 .koel-eye {
   fill: var(--koel-eye);
 }
+.munia-beak {
+  fill: var(--koel-btn-red);
+}
 .koel-bird {
   width: var(--koel-bird-width, 72px);
   height: auto;
