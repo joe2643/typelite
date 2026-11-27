@@ -1317,6 +1317,8 @@ impl AppConfig {
     /// translation language until the user adds one (older configs keep theirs).
     pub fn new_install_default() -> Self {
         Self {
+            // A fresh Windows portable build keeps start at login opt-in.
+            auto_start: !cfg!(target_os = "windows"),
             target_lang: String::new(),
             translation: TranslationConfig::empty(),
             ..Self::default()
@@ -4604,15 +4606,20 @@ mod tests {
     }
 
     #[test]
-    fn app_config_migrates_legacy_keyboard_output_to_auto_insertion_strategy() {
+    fn app_config_migrates_legacy_keyboard_output_to_the_platform_default() {
         let value = serde_json::json!({
             "output_mode": "keyboard"
         });
 
         let config = AppConfig::from_stored_value(value).unwrap();
 
-        assert_eq!(config.insertion_strategy, "auto");
-        assert_eq!(config.output_mode, "keyboard");
+        let (strategy, mode) = if cfg!(target_os = "windows") {
+            ("clipboardPaste", "clipboard")
+        } else {
+            ("auto", "keyboard")
+        };
+        assert_eq!(config.insertion_strategy, strategy);
+        assert_eq!(config.output_mode, mode);
     }
 
     #[test]
@@ -5264,7 +5271,7 @@ mod tests {
     #[test]
     fn app_config_new_install_defaults_auto_start_and_dock_icon() {
         let config = AppConfig::new_install_default();
-        assert!(config.auto_start);
+        assert_eq!(config.auto_start, !cfg!(target_os = "windows"));
         assert!(config.show_in_dock);
     }
 

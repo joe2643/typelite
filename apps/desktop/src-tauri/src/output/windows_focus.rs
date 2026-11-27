@@ -3,7 +3,8 @@
 //! Showing the capsule overlay or racing with background UI transitions can move Win32
 //! `GetForegroundWindow()` away from the text field the user was focused on when dictation
 //! started. This module records the non-overlay foreground window before `Preparing` updates
-//! the UI and restores it (with `AttachThreadInput` fallback) right before text output.
+//! the UI and restores it before text output if the foreground is missing or is one of our
+//! overlays. An ordinary foreground window remains the paste target.
 
 use std::sync::Mutex;
 
@@ -12,7 +13,6 @@ pub struct ForegroundWindowInfo {
     pub hwnd: isize,
     pub pid: u32,
     pub thread_id: u32,
-    pub exe_name: String,
 }
 
 static LAST_NON_OVERLAY_FOREGROUND: Mutex<Option<ForegroundWindowInfo>> = Mutex::new(None);
@@ -20,18 +20,17 @@ static LAST_NON_OVERLAY_FOREGROUND: Mutex<Option<ForegroundWindowInfo>> = Mutex:
 static ACTIVE_RECORDING_TARGET: Mutex<Option<ForegroundWindowInfo>> = Mutex::new(None);
 
 /// Pure decision helper for unit testing: returns `true` when we have a valid recorded
-/// target window and the current foreground `HWND` is different (or missing).
-pub fn should_attempt_focus_restore(
+/// target window and the foreground is missing or belongs to one of our overlays.
+#[cfg(any(target_os = "windows", test))]
+fn should_attempt_focus_restore(
     recorded: Option<&ForegroundWindowInfo>,
     current: Option<&ForegroundWindowInfo>,
+    current_is_overlay: bool,
 ) -> bool {
     let Some(target) = recorded else {
         return false;
     };
-    if target.hwnd == 0 {
-        return false;
-    }
-    current.map(|fg| fg.hwnd) != Some(target.hwnd)
+    target.hwnd != 0 && current.is_none_or(|fg| current_is_overlay && fg.hwnd != target.hwnd)
 }
 
 /// A window as the log names it: its handle and process id. The program's name is left out on
@@ -75,7 +74,7 @@ pub fn capture_recording_start_foreground() -> Option<ForegroundWindowInfo> {
             .lock()
             .unwrap_or_else(|e| e.into_inner())
             .clone()
-            .filter(|info| unsafe { win::is_valid_target_hwnd(info.hwnd) })
+            .filter(|info| unsafe { win::matches_window(info) })
     });
     if let Some(info) = &fg {
         *LAST_NON_OVERLAY_FOREGROUND
@@ -98,7 +97,7 @@ pub fn capture_recording_start_foreground() -> Option<ForegroundWindowInfo> {
 }
 
 /// Logs the current foreground window right before output/paste, and restores focus back
-/// to the recording-start target if another window (including an overlay) took foreground.
+/// to the recording-start target when a Munia overlay gained focus or foreground is missing.
 #[cfg(target_os = "windows")]
 pub fn ensure_recording_target_foreground_before_paste() -> Option<ForegroundWindowInfo> {
     let recorded = ACTIVE_RECORDING_TARGET
@@ -112,16 +111,19 @@ pub fn ensure_recording_target_foreground_before_paste() -> Option<ForegroundWin
         format_foreground_summary(recorded.as_ref())
     );
 
-    if !should_attempt_focus_restore(recorded.as_ref(), current.as_ref()) {
+    let current_is_overlay = current
+        .as_ref()
+        .is_some_and(|fg| crate::overlay_window::is_own_overlay_hwnd(fg.hwnd));
+    if !should_attempt_focus_restore(recorded.as_ref(), current.as_ref(), current_is_overlay) {
         return current;
     }
 
     let Some(target) = recorded else {
         return current;
     };
-    if !unsafe { win::is_valid_target_hwnd(target.hwnd) } {
+    if !unsafe { win::matches_window(&target) } {
         tracing::info!(
-            "Windows focus restore skipped: recorded target hwnd=0x{:x} no longer exists",
+            "Windows focus restore skipped: recorded target hwnd=0x{:x} no longer belongs to the recording target",
             target.hwnd as usize
         );
         return current;
@@ -147,21 +149,16 @@ pub fn ensure_recording_target_foreground_before_paste() -> Option<ForegroundWin
 #[cfg(target_os = "windows")]
 mod win {
     use super::ForegroundWindowInfo;
-    use std::ffi::OsString;
-    use std::os::windows::ffi::OsStringExt;
     use std::ptr;
-    use windows_sys::Win32::Foundation::{CloseHandle, HWND};
-    use windows_sys::Win32::System::Threading::{
-        AttachThreadInput, GetCurrentThreadId, OpenProcess, QueryFullProcessImageNameW,
-        PROCESS_QUERY_LIMITED_INFORMATION,
-    };
+    use windows_sys::Win32::Foundation::HWND;
+    use windows_sys::Win32::System::Threading::{AttachThreadInput, GetCurrentThreadId};
     use windows_sys::Win32::UI::WindowsAndMessaging::{
         BringWindowToTop, GetForegroundWindow, GetWindow, GetWindowThreadProcessId, IsWindow,
         IsWindowVisible, SetForegroundWindow, GW_HWNDNEXT,
     };
 
-    pub(super) unsafe fn is_valid_target_hwnd(hwnd: isize) -> bool {
-        hwnd != 0 && IsWindow(hwnd as HWND) != 0
+    pub(super) unsafe fn matches_window(info: &ForegroundWindowInfo) -> bool {
+        inspect_hwnd(info.hwnd as HWND).as_ref() == Some(info)
     }
 
     pub(super) unsafe fn current_foreground_info() -> Option<ForegroundWindowInfo> {
@@ -204,39 +201,19 @@ mod win {
         }
         let mut pid = 0u32;
         let thread_id = GetWindowThreadProcessId(hwnd, &mut pid);
-        let exe_name = process_exe_name(pid).unwrap_or_else(|| "<unknown>".to_string());
+        if thread_id == 0 {
+            return None;
+        }
         Some(ForegroundWindowInfo {
             hwnd: hwnd as isize,
             pid,
             thread_id,
-            exe_name,
         })
-    }
-
-    unsafe fn process_exe_name(pid: u32) -> Option<String> {
-        if pid == 0 {
-            return None;
-        }
-        let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
-        if handle.is_null() {
-            return None;
-        }
-        let mut buf = [0u16; 260];
-        let mut len = buf.len() as u32;
-        let ok = QueryFullProcessImageNameW(handle, 0, buf.as_mut_ptr(), &mut len);
-        let _ = CloseHandle(handle);
-        if ok == 0 || len == 0 {
-            return None;
-        }
-        let full = OsString::from_wide(&buf[..len as usize])
-            .to_string_lossy()
-            .to_string();
-        full.rsplit(['\\', '/']).next().map(str::to_string)
     }
 
     pub(super) unsafe fn restore_foreground_hwnd(target: &ForegroundWindowInfo) -> bool {
         let target_hwnd = target.hwnd as HWND;
-        if target_hwnd.is_null() || IsWindow(target_hwnd) == 0 {
+        if !matches_window(target) {
             return false;
         }
         if SetForegroundWindow(target_hwnd) != 0 && GetForegroundWindow() == target_hwnd {
@@ -283,50 +260,57 @@ mod win {
 mod tests {
     use super::*;
 
-    fn info(hwnd: isize, exe: &str) -> ForegroundWindowInfo {
+    fn info(hwnd: isize) -> ForegroundWindowInfo {
         ForegroundWindowInfo {
             hwnd,
             pid: 42,
             thread_id: 100,
-            exe_name: exe.to_string(),
         }
     }
 
     #[test]
-    fn the_log_summary_never_names_the_program() {
-        let summary = format_foreground_summary(Some(&info(0x1234, "notepad.exe")));
-        assert_eq!(summary, "hwnd=0x1234, pid=42");
+    fn the_log_summary_contains_only_handle_and_process_id() {
+        assert_eq!(
+            format_foreground_summary(Some(&info(0x1234))),
+            "hwnd=0x1234, pid=42"
+        );
         assert_eq!(format_foreground_summary(None), "hwnd=0x0, pid=0");
     }
 
     #[test]
-    fn focus_restore_skipped_when_current_matches_recorded_hwnd() {
-        let recorded = info(0x1234, "notepad.exe");
-        let current = info(0x1234, "notepad.exe");
+    fn focus_restore_respects_the_current_app() {
+        let recorded = info(0x1234);
         assert!(!should_attempt_focus_restore(
             Some(&recorded),
-            Some(&current)
+            Some(&recorded),
+            false
+        ));
+        assert!(!should_attempt_focus_restore(
+            Some(&recorded),
+            Some(&info(0x9999)),
+            false
         ));
     }
 
     #[test]
-    fn focus_restore_triggered_when_foreground_drifted_or_missing() {
-        let recorded = info(0x1234, "notepad.exe");
-        let overlay = info(0x9999, "oratype.exe");
+    fn focus_restore_triggers_when_an_overlay_or_no_window_has_focus() {
+        let recorded = info(0x1234);
         assert!(should_attempt_focus_restore(
             Some(&recorded),
-            Some(&overlay)
+            Some(&info(0x9999)),
+            true
         ));
-        assert!(should_attempt_focus_restore(Some(&recorded), None));
+        assert!(should_attempt_focus_restore(Some(&recorded), None, false));
     }
 
     #[test]
-    fn focus_restore_skipped_when_recorded_is_missing_or_null() {
-        let current = info(0x9999, "oratype.exe");
-        assert!(!should_attempt_focus_restore(None, Some(&current)));
+    fn focus_restore_requires_a_recorded_window() {
+        let current = info(0x9999);
+        assert!(!should_attempt_focus_restore(None, Some(&current), true));
         assert!(!should_attempt_focus_restore(
-            Some(&info(0, "")),
-            Some(&current)
+            Some(&info(0)),
+            Some(&current),
+            true
         ));
     }
 }

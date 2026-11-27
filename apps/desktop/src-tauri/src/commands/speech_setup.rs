@@ -474,9 +474,9 @@ pub fn build_builtin_backend_info(
     whisper_gpu_device: i32,
 ) -> BuiltinBackendInfo {
     let (llama_engine, whisper_engine) = match platform {
-        "windows" => ("llama.cpp b11177 (Vulkan)", "whisper.cpp (Vulkan)"),
-        "macos" => ("llama.cpp b11177 (Metal)", "whisper.cpp (Metal)"),
-        _ => ("llama.cpp b11177", "whisper.cpp (CPU)"),
+        "windows" => ("llama.cpp (Vulkan)", "whisper.cpp (Vulkan)"),
+        "macos" => ("llama.cpp (Metal)", "whisper.cpp (Metal)"),
+        _ => ("llama.cpp", "whisper.cpp (CPU)"),
     };
     let active_ai_device =
         format_llama_backend_display(ai_choice, platform, &devices, auto_device_id.as_deref());
@@ -552,7 +552,7 @@ mod tests {
             true,
             1,
         );
-        assert_eq!(auto_info.llama_engine, "llama.cpp b11177 (Vulkan)");
+        assert_eq!(auto_info.llama_engine, "llama.cpp (Vulkan)");
         assert_eq!(auto_info.whisper_engine, "whisper.cpp (Vulkan)");
         assert_eq!(
             auto_info.active_ai_device,

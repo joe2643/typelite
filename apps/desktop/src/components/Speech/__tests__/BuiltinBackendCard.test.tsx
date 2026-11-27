@@ -13,7 +13,7 @@ vi.mock('react-i18next', async () => {
 
 const WINDOWS_INFO: tauri.BuiltinBackendInfo = {
   platform: 'windows',
-  llamaEngine: 'llama.cpp b11177 (Vulkan)',
+  llamaEngine: 'llama.cpp (Vulkan)',
   whisperEngine: 'whisper.cpp (Vulkan)',
   devices: [
     {
@@ -57,7 +57,7 @@ describe('BuiltinBackendCard', () => {
     render(<BuiltinBackendCard kind="ai" />)
 
     expect(await screen.findByTestId('builtin-ai-engine')).toHaveTextContent(
-      'llama.cpp b11177 (Vulkan)',
+      'llama.cpp (Vulkan)',
     )
     expect(screen.getByTestId('builtin-ai-device')).toHaveTextContent(
       'Vulkan1 · NVIDIA GeForce RTX 4090 (24 GB)',
@@ -95,7 +95,7 @@ describe('BuiltinBackendCard', () => {
     render(<BuiltinBackendCard kind="speech" />)
 
     expect(await screen.findByTestId('builtin-speech-engine')).toHaveTextContent(
-      'whisper.cpp (Vulkan) / llama.cpp b11177 (Vulkan)',
+      'whisper.cpp (Vulkan) / llama.cpp (Vulkan)',
     )
     expect(screen.getByTestId('builtin-speech-device')).toHaveTextContent(
       'Vulkan1 · NVIDIA GeForce RTX 4090 (24 GB)',

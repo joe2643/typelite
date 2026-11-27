@@ -1,0 +1,79 @@
+name: Windows desktop
+
+on:
+  pull_request:
+    paths:
+      - apps/desktop/**
+      - rust-toolchain.toml
+      - .github/workflows/windows.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  x64:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    env:
+      CARGO_TARGET_DIR: C:\munia-build
+      LIBCLANG_PATH: C:\Program Files\LLVM\bin
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+
+      - name: Rust toolchain
+        run: |
+          rustup show
+          rustc --version
+
+      - name: Vulkan SDK
+        shell: pwsh
+        run: |
+          $version = '1.4.363.0'
+          $name = "vulkansdk-windows-X64-$version.exe"
+          $installer = Join-Path $env:RUNNER_TEMP $name
+          $sdk = Join-Path $env:RUNNER_TEMP "vulkan-$version"
+          curl.exe -fLsS --retry 3 "https://sdk.lunarg.com/sdk/download/$version/windows/$name" -o $installer
+          if ($LASTEXITCODE -ne 0) { throw 'Vulkan SDK download failed.' }
+          if ((Get-FileHash -Algorithm SHA256 $installer).Hash -ne '94a82d378f7a5e3e54c9db7d2fb7016af136e14ac0a18dbf0f2f67a36352d141') {
+            throw 'Vulkan SDK checksum mismatch.'
+          }
+          $install = Start-Process -FilePath $installer -ArgumentList @('--root', ('"{0}"' -f $sdk), '--accept-licenses', '--default-answer', '--confirm-command', 'install') -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Vulkan SDK installer exited $($install.ExitCode)." }
+          $glslc = Join-Path $sdk 'Bin\glslc.exe'
+          & $glslc --version
+          if ($LASTEXITCODE -ne 0) { throw 'Vulkan shader compiler failed.' }
+          "VULKAN_SDK=$sdk" >> $env:GITHUB_ENV
+
+      - name: Build and test frontend
+        run: |
+          npm ci
+          npm run build
+          npm test
+
+      - name: Rust format and tests
+        working-directory: apps/desktop/src-tauri
+        run: |
+          cargo fmt --check
+          cargo test --locked --target x86_64-pc-windows-msvc --lib -- --test-threads=1
+
+      - name: Package portable x64 build
+        run: ./scripts/build-portable-windows.ps1
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: munia-windows-x64
+          path: C:\munia-build\portable\Munia-*-windows-x64.zip
+          if-no-files-found: error

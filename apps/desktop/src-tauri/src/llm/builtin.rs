@@ -686,7 +686,7 @@ pub fn log_level_for(line: &str) -> Option<tracing::Level> {
 /// Where the `llama-server` program is: next to the main executable (the app bundle's
 /// `Contents/MacOS/`, where Tauri puts external binaries), or with the target triple in its
 /// name. `ORATYPE_LLAMA_SERVER` overrides it; debug builds also look in
-/// `src-tauri/binaries/`, where the build script puts it.
+/// the project’s sidecar staging directory.
 pub fn find_server_binary() -> Option<PathBuf> {
     if let Ok(path) = std::env::var("ORATYPE_LLAMA_SERVER") {
         let path = PathBuf::from(path);
@@ -707,11 +707,10 @@ pub fn find_server_binary() -> Option<PathBuf> {
         candidates.push(dir.join(&triple_name));
     }
     if cfg!(debug_assertions) {
-        candidates.push(
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("binaries")
-                .join(&triple_name),
-        );
+        let binaries = Path::new(env!("CARGO_MANIFEST_DIR")).join("binaries");
+        #[cfg(target_os = "windows")]
+        candidates.push(binaries.join("win-vulkan-x64").join(&exe_name));
+        candidates.push(binaries.join(&triple_name));
     }
     candidates.into_iter().find(|path| path.is_file())
 }

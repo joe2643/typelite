@@ -5,13 +5,14 @@ Munia includes the following third-party software.
 ## Chiron GoRound TC
 
 The Latin webfont subsets are by the Chiron GoRound TC Project Authors and distributed under
-the [SIL Open Font License 1.1](src/brand/fonts/OFL.txt).
+the [SIL Open Font License 1.1](apps/desktop/src/brand/fonts/OFL.txt).
 
 ## whisper.cpp, llama.cpp and ggml
 
 whisper.cpp is used for built-in speech recognition (through the `whisper-rs` crate, which is
-released under the Unlicense). llama.cpp's `llama-server` (release b11177) is built from source
-and shipped inside Munia for Built-in AI polish. Both are released by the ggml authors under
+released under the Unlicense). Built-in AI ships with llama.cpp's `llama-server` (release
+b11177), built from source on macOS and sourced from the upstream Windows Vulkan release on
+Windows. Both are released by the ggml authors under
 the MIT License (llama.cpp: Copyright (c) 2023-2026 The ggml authors).
 
 MIT License

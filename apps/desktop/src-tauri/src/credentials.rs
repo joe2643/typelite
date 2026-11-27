@@ -6,16 +6,21 @@ use crate::storage::AppConfig;
 
 /// The Keychain service the keys are stored under. The development build (`dev-build` feature)
 /// keeps its own, so testing never reads or changes the release app's keys.
-#[cfg(not(feature = "dev-build"))]
+#[cfg(target_os = "windows")]
+const SERVICE_NAME: &str = crate::APP_NAME;
+#[cfg(all(not(target_os = "windows"), not(feature = "dev-build")))]
 const SERVICE_NAME: &str = "OraType";
-#[cfg(feature = "dev-build")]
+#[cfg(all(not(target_os = "windows"), feature = "dev-build"))]
 const SERVICE_NAME: &str = "OraType Dev";
 /// Plan `rename-oratype`: where Typelite (before 1.2.0) kept the keys. A key missing under
 /// [`SERVICE_NAME`] is read from here once and copied across. macOS may ask once to let OraType
 /// use the old item, because a different app (Typelite) created it.
-#[cfg(not(feature = "dev-build"))]
+#[cfg(all(
+    any(target_os = "macos", target_os = "linux"),
+    not(feature = "dev-build")
+))]
 const LEGACY_SERVICE_NAME: &str = "Typelite";
-#[cfg(feature = "dev-build")]
+#[cfg(all(any(target_os = "macos", target_os = "linux"), feature = "dev-build"))]
 const LEGACY_SERVICE_NAME: &str = "Typelite Dev";
 const API_KEY_ACCOUNT_SUFFIX: &str = "api_key";
 const STORED_CREDENTIAL_VERSION: u8 = 1;
@@ -107,7 +112,7 @@ fn system_entry(account: &str) -> Result<keyring::Entry> {
     keyring::Entry::new(SERVICE_NAME, account).context("open system credential vault")
 }
 
-#[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn legacy_entry(account: &str) -> Result<keyring::Entry> {
     keyring::Entry::new(LEGACY_SERVICE_NAME, account).context("open system credential vault")
 }
@@ -130,14 +135,17 @@ fn write_system_secret(_account: &str, _secret: &str) -> Result<()> {
 fn read_system_secret(account: &str) -> Result<Option<String>> {
     match system_entry(account)?.get_password() {
         Ok(secret) => Ok(Some(secret)),
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
         Err(keyring::Error::NoEntry) => read_legacy_secret(account),
+        #[cfg(target_os = "windows")]
+        Err(keyring::Error::NoEntry) => Ok(None),
         Err(error) => Err(anyhow!("read system credential vault {account}: {error}")),
     }
 }
 
 /// A key saved by Typelite: copied under the new service name, so it is read from there next
 /// time. The old item stays (deleting it could ask again); removing the key removes both.
-#[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn read_legacy_secret(account: &str) -> Result<Option<String>> {
     let Ok(secret) = legacy_entry(account)?.get_password() else {
         return Ok(None);
@@ -161,6 +169,7 @@ fn read_system_secret(_account: &str) -> Result<Option<String>> {
 #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
 fn delete_system_secret(account: &str) -> Result<()> {
     // A removed key must not come back from Typelite's copy.
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     if let Ok(legacy) = legacy_entry(account) {
         let _ = legacy.delete_credential();
     }

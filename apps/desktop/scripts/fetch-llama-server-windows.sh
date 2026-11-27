@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Fetches the pinned official Windows Vulkan x64 `llama.cpp` release archive for OraType's
+# Fetches the pinned official Windows Vulkan x64 `llama.cpp` release archive for Munia's
 # Built-in AI (`llama-server.exe`), verifies its SHA-256 checksum, and stages `llama-server.exe`
 # alongside all required runtime DLLs for Windows portable packaging and local debug builds.
 #
@@ -11,13 +11,12 @@
 set -euo pipefail
 
 LLAMA_CPP_TAG="b11177"
-ASSET_NAME="llama-b11177-bin-win-vulkan-x64.zip"
+ASSET_NAME="llama-${LLAMA_CPP_TAG}-bin-win-vulkan-x64.zip"
 ASSET_URL="https://github.com/ggml-org/llama.cpp/releases/download/${LLAMA_CPP_TAG}/${ASSET_NAME}"
 ASSET_SHA256="6e4e7a8cea0d2dbd0a745b55f6b42d46d8130f8df4791938802f8269dfc205d5"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_DIR="${1:-$ROOT/src-tauri/binaries/win-vulkan-x64}"
-BINARIES_DIR="$ROOT/src-tauri/binaries"
 
 say() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 fail() { printf '\033[31mError:\033[0m %s\n' "$*" >&2; exit 1; }
@@ -26,7 +25,7 @@ command -v sha256sum >/dev/null || fail "sha256sum is required."
 command -v unzip >/dev/null || fail "unzip is required."
 command -v curl >/dev/null || fail "curl is required."
 
-TMP_DIR="$(mktemp -d /tmp/oratype-llama-win-XXXXXX)"
+TMP_DIR="$(mktemp -d)"
 # The archive and its extracted copy are only needed until the files are staged.
 trap 'rm -rf "$TMP_DIR"' EXIT
 ZIP_PATH="$TMP_DIR/$ASSET_NAME"
@@ -80,15 +79,11 @@ RUNTIME_FILES=(
   "LICENSE-LLVM-OpenMP"
 )
 
-mkdir -p "$OUT_DIR" "$BINARIES_DIR"
+mkdir -p "$OUT_DIR"
 for file in "${RUNTIME_FILES[@]}"; do
   src="$EXTRACT_DIR/$file"
   [[ -f "$src" ]] || fail "Expected runtime file missing from archive: $file"
   cp -f "$src" "$OUT_DIR/$file"
-  if [[ "$file" == *.dll ]]; then
-    cp -f "$src" "$BINARIES_DIR/$file"
-  fi
 done
-cp -f "$EXTRACT_DIR/llama-server.exe" "$BINARIES_DIR/llama-server-x86_64-pc-windows-gnu.exe"
 
 say "Staged ${#RUNTIME_FILES[@]} files to $OUT_DIR"

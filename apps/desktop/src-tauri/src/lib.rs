@@ -1247,16 +1247,13 @@ pub(crate) const APP_NAME: &str = "Munia Dev";
 
 /// The log folder's name under `~/Library/Logs`. The development build (`dev-build` feature)
 /// writes to its own folder, so its log never mixes with the release app's.
-#[cfg(all(
-    any(target_os = "macos", target_os = "windows"),
-    not(feature = "dev-build")
-))]
+#[cfg(all(target_os = "macos", not(feature = "dev-build")))]
 const LOG_FOLDER: &str = "OraType";
-#[cfg(all(any(target_os = "macos", target_os = "windows"), feature = "dev-build"))]
+#[cfg(all(target_os = "macos", feature = "dev-build"))]
 const LOG_FOLDER: &str = "OraType Dev";
 
 /// Where the log file lives: `~/Library/Logs/OraType/oratype.log` on macOS and
-/// `%LOCALAPPDATA%\OraType\Logs\oratype.log` on Windows. The log holds timings, sizes and
+/// `%LOCALAPPDATA%\Munia\Logs\munia.log` on Windows. The log holds timings, sizes and
 /// errors only, never dictated text.
 fn log_file_path() -> Option<std::path::PathBuf> {
     #[cfg(target_os = "macos")]
@@ -1274,7 +1271,7 @@ fn log_file_path() -> Option<std::path::PathBuf> {
         let base = std::env::var_os("LOCALAPPDATA")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(std::env::temp_dir);
-        Some(base.join(LOG_FOLDER).join("Logs").join("oratype.log"))
+        Some(base.join(APP_NAME).join("Logs").join("munia.log"))
     }
     #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
     {
@@ -1397,6 +1394,9 @@ pub fn run() {
             // Initialize data directory and database
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
+            #[cfg(target_os = "windows")]
+            let db_path = data_dir.join("munia.db");
+            #[cfg(not(target_os = "windows"))]
             let db_path = data_dir.join("oratype.db");
             // Unmute the output if a previous run crashed while it held the mute.
             audio::output_mute::init(&data_dir);
@@ -1719,7 +1719,7 @@ pub fn run() {
                 }
             }
 
-            tracing::info!("OraType started");
+            tracing::info!("{APP_NAME} started");
 
             // Plan `language-prompt-library`: the daily check for languages with auto-update on.
             commands::language_presets::start_auto_updates(app_handle.clone());

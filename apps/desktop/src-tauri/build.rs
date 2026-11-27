@@ -10,13 +10,12 @@ fn main() {
         // windows-targets uses raw-dylib and omits -ladvapi32 from the GNU linker line.
         println!("cargo:rustc-link-arg=-ladvapi32");
         println!("cargo:rerun-if-env-changed=ORATYPE_WIN_VULKAN_SDK");
-        let sdk_dir = std::env::var("ORATYPE_WIN_VULKAN_SDK")
-            .ok()
-            .filter(|v| !v.is_empty())
-            .unwrap_or_else(|| "/tmp/oratype-vulkan-sdk".to_string());
-        let sdk_lib = std::path::Path::new(&sdk_dir).join("lib");
-        if sdk_lib.join("libvulkan.dll.a").exists() {
-            println!("cargo:rustc-link-search=native={}", sdk_lib.display());
+        if let Some(sdk_dir) = std::env::var_os("ORATYPE_WIN_VULKAN_SDK").filter(|v| !v.is_empty())
+        {
+            let sdk_lib = std::path::Path::new(&sdk_dir).join("lib");
+            if sdk_lib.join("libvulkan.dll.a").is_file() {
+                println!("cargo:rustc-link-search=native={}", sdk_lib.display());
+            }
         }
     }
 

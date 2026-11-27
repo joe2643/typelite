@@ -590,12 +590,8 @@ mod tests {
 
     /// A fresh, empty folder for one test.
     fn temp_dir(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!(
-            "oratype-timing-{name}-{}-{:?}",
-            std::process::id(),
-            Instant::now()
-        ));
-        let _ = std::fs::remove_dir_all(&dir);
+        let dir =
+            std::env::temp_dir().join(format!("oratype-timing-{name}-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).unwrap();
         dir
     }

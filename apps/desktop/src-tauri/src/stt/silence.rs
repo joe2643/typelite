@@ -492,7 +492,8 @@ mod tests {
     }
 
     #[test]
-    fn voice_thresholds_require_both_level_and_duration() {
+    fn macos_voice_thresholds_require_both_level_and_duration() {
+        let profile = SpeechProfile::MacOs;
         // 184/185 straddle -45 dBFS. With a background of 64, 254/255 straddle
         // the stronger threshold of 12 dB above the measured room noise.
         for (background, amplitude, above_threshold) in [
@@ -506,7 +507,7 @@ mod tests {
                 for sample in 3_200..3_200 + windows * 320 {
                     pcm[sample * 2..sample * 2 + 2].copy_from_slice(&amplitude.to_le_bytes());
                 }
-                let activity = VoiceActivity::measure(&pcm, RATE);
+                let activity = VoiceActivity::measure_with_profile(&pcm, RATE, profile);
                 assert_eq!(
                     activity.voiced_ms,
                     if above_threshold {
@@ -516,11 +517,17 @@ mod tests {
                     },
                     "background {background}, amplitude {amplitude}, windows {windows}"
                 );
-                assert_eq!(activity.has_speech(), above_threshold && windows == 10);
+                assert_eq!(
+                    activity.has_speech_with_profile(profile),
+                    above_threshold && windows == 10
+                );
 
                 // A trailing byte is not a complete PCM sample and must change no field.
                 pcm.push(0xff);
-                assert_eq!(VoiceActivity::measure(&pcm, RATE), activity);
+                assert_eq!(
+                    VoiceActivity::measure_with_profile(&pcm, RATE, profile),
+                    activity
+                );
             }
         }
     }

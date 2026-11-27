@@ -12,7 +12,7 @@
 //! Built-in is chosen) and stopped at quit, like the built-in AI server (`llm/builtin.rs`).
 //! SearXNG does not log queries; its output goes to `search/searxng.log`.
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(not(target_os = "windows"), test))]
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
