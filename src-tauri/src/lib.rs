@@ -142,6 +142,7 @@ fn reconcile_auto_start_preference(
     desired_enabled: bool,
     current_enabled: Result<bool, String>,
     needs_refresh: bool,
+    legacy_enabled: bool,
     apply: impl FnOnce(bool) -> Result<(), String>,
 ) -> AutoStartSyncOutcome {
     let current_enabled = match current_enabled {
@@ -170,7 +171,7 @@ fn reconcile_auto_start_preference(
         Err(error) => {
             let action = if desired_enabled { "enable" } else { "disable" };
             AutoStartSyncOutcome {
-                config_auto_start: current_enabled,
+                config_auto_start: current_enabled || (desired_enabled && legacy_enabled),
                 error: Some(format!("Failed to {action} launch at startup: {error}")),
             }
         }
@@ -250,10 +251,20 @@ fn sync_auto_start_preference(
             "Launch at login plist points to a stale executable; refreshing for {APP_NAME}"
         );
     }
+    #[cfg(target_os = "macos")]
+    let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
+    #[cfg(target_os = "macos")]
+    let legacy_enabled = home
+        .as_deref()
+        .is_some_and(rename_migration::has_legacy_login_item);
+    #[cfg(not(target_os = "macos"))]
+    let legacy_enabled = false;
+
     let outcome = reconcile_auto_start_preference(
         config.auto_start,
         current_enabled,
         needs_refresh,
+        legacy_enabled,
         |enabled| {
             if enabled {
                 autolaunch.enable()
@@ -266,6 +277,11 @@ fn sync_auto_start_preference(
 
     if let Some(error) = &outcome.error {
         tracing::warn!("{error}");
+    } else {
+        #[cfg(target_os = "macos")]
+        if let Some(home) = home.as_deref() {
+            rename_migration::remove_legacy_login_items(home);
+        }
     }
 
     if config.auto_start != outcome.config_auto_start {
@@ -653,7 +669,7 @@ mod tests {
 
     #[test]
     fn auto_start_sync_uses_actual_state_when_enable_fails() {
-        let outcome = reconcile_auto_start_preference(true, Ok(false), false, |_| {
+        let outcome = reconcile_auto_start_preference(true, Ok(false), false, false, |_| {
             Err("Login item failed".to_string())
         });
 
@@ -665,8 +681,17 @@ mod tests {
     }
 
     #[test]
+    fn auto_start_sync_preserves_an_enabled_legacy_preference_on_failure() {
+        let outcome = reconcile_auto_start_preference(true, Ok(false), false, true, |_| {
+            Err("Login item failed".to_string())
+        });
+        assert!(outcome.config_auto_start);
+        assert!(outcome.error.is_some());
+    }
+
+    #[test]
     fn auto_start_sync_keeps_preference_when_apply_succeeds() {
-        let outcome = reconcile_auto_start_preference(true, Ok(false), false, |_| Ok(()));
+        let outcome = reconcile_auto_start_preference(true, Ok(false), false, false, |_| Ok(()));
 
         assert!(outcome.config_auto_start);
         assert_eq!(outcome.error, None);
@@ -691,7 +716,7 @@ mod tests {
         assert!(!needs_refresh);
 
         let mut called = false;
-        let outcome = reconcile_auto_start_preference(true, Ok(true), needs_refresh, |_| {
+        let outcome = reconcile_auto_start_preference(true, Ok(true), needs_refresh, false, |_| {
             called = true;
             Ok(())
         });
@@ -727,7 +752,7 @@ mod tests {
 
             let mut applied = None;
             let outcome =
-                reconcile_auto_start_preference(true, Ok(true), needs_refresh, |enabled| {
+                reconcile_auto_start_preference(true, Ok(true), needs_refresh, false, |enabled| {
                     applied = Some(enabled);
                     Ok(())
                 });
@@ -773,7 +798,7 @@ mod tests {
     #[test]
     fn auto_start_sync_does_not_refresh_when_disabled() {
         let mut called = false;
-        let outcome = reconcile_auto_start_preference(false, Ok(false), true, |_| {
+        let outcome = reconcile_auto_start_preference(false, Ok(false), true, false, |_| {
             called = true;
             Ok(())
         });
@@ -1289,11 +1314,8 @@ pub fn run() {
 
     init_logging();
 
-    // Plan `rename-oratype`: move Typelite's folders across before anything reads them; a bundle
-    // still called Typelite.app or OraType.app is renamed to Munia.app and started again from there.
-    if rename_migration::run() == rename_migration::Next::Exit {
-        return;
-    }
+    // Move Typelite's folders before anything reads them. Keep the installed bundle path.
+    rename_migration::run();
 
     #[cfg(target_os = "linux")]
     log_linux_launch_diagnostics(xinitthreads_status);
@@ -1314,7 +1336,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_clipboard_manager::init())
-        // Register the login item under Munia; rename_migration removes stale Typelite/OraType plists.
+        // Register the login item under Munia; startup sync retires the legacy login items.
         .plugin(
             tauri_plugin_autostart::Builder::new()
                 .app_name(APP_NAME)
