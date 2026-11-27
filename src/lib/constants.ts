@@ -1,4 +1,4 @@
-import { name, repository, version } from '../../package.json'
+import { name, version } from '../../package.json'
 import { productName } from '../../src-tauri/tauri.conf.json'
 
 // App metadata
@@ -10,7 +10,7 @@ export const APP_SLUG = name
  * Cargo.toml matches.
  */
 export const APP_VERSION: string = version
-export const APP_REPO_URL = repository.url
+export const APP_REPO_URL = 'https://github.com/koelony/munia'
 export const APP_LICENSE_URL = `${APP_REPO_URL}/blob/main/LICENSE`
 
 export const LANGUAGES: { value: string; label?: string; labelKey?: string }[] = [
