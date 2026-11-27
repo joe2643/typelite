@@ -1,6 +1,6 @@
 """Background music for a release's promo film (see .claude/skills/promo-video).
 
-    python3 site/scripts/promo-music.py <version> <seconds>
+    python3 tools/scripts/promo-music.py <version> <seconds>
 
 Writes output/promo-<version>/music.wav: a soft piano arpeggio over a held chord, C-G-Am-F at
 80 bpm, with a gentle fade in and out and no sound effects. It is synthesised here from sine

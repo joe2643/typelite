@@ -50,31 +50,6 @@
   --koel-sheet: rgba(30, 30, 29, 0.98);
 }
 
-/* The prerendered site follows the system before JavaScript and when no theme is pinned. */
-@media (prefers-color-scheme: dark) {
-  :root.munia-site:not([data-theme='light']) {
-    --koel-paper: #1e1e1d;
-    --koel-surface: #262625;
-    --koel-surface-2: #2e2e2c;
-    --koel-ink: #e6e2da;
-    --koel-ink-2: #c2beb6;
-    --koel-soft: #a19d95;
-    --koel-hair: #3a3936;
-    --koel-line: #77756f;
-    --koel-rule: #2f2f2d;
-    --koel-slate: #93abc1;
-    --koel-slate-deep: #b3c7d9;
-    --koel-slate-soft: #26303a;
-    --koel-on-slate: #1e1e1d;
-    --koel-logo-ink: #f4f1ea;
-    --koel-red-text: #ec6c65;
-    --koel-success: #84c5a2;
-    --koel-warning: #e4bb7f;
-    --koel-panel: rgba(38, 38, 37, 0.98);
-    --koel-sheet: rgba(30, 30, 29, 0.98);
-  }
-}
-
 /* The recording and Ask surfaces use the same dark palette in either app theme. */
 :root {
   --koel-capsule-bg: rgba(30, 30, 29, 0.96);

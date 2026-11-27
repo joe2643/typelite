@@ -24,8 +24,5 @@ for flavor in release dev; do
   rsvg-convert -w 44 -h 44 "$tray" > "$dir/tray-template.png"
 done
 
-cp "$icons/128x128@2x.png" site/public/icon-256.png
-cp "$icons/32x32.png" site/public/favicon-32.png
-rsvg-convert -w 180 -h 180 "$icons/app-icon.svg" > site/public/apple-touch-icon.png
 rsvg-convert "$icons/dmg/background.svg" > "$tmp/dmg.png"
 sips -s format tiff "$tmp/dmg.png" --out "$icons/dmg/background.tiff" >/dev/null

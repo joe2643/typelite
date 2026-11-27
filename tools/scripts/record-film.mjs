@@ -1,7 +1,7 @@
 // Records a release's promo film into an MP4 (see .claude/skills/promo-video).
 //
-//   node site/scripts/record-film.mjs <version>                  # the whole film
-//   node site/scripts/record-film.mjs <version> --preview 1,4.5  # only these seconds
+//   node tools/scripts/record-film.mjs <version>                  # the whole film
+//   node tools/scripts/record-film.mjs <version> --preview 1,4.5  # only these seconds
 //
 // Reads output/promo-<version>/film.html, which defines:
 //   window.DURATION  the film's length in seconds
@@ -9,7 +9,7 @@
 //   window.ready     a promise that resolves once its images have decoded
 // Each frame is rendered and screenshot at 1920×1080 and 30 fps, so the film never depends on
 // real-time playback. Then ffmpeg encodes munia-<version>-promo.mp4 with music.wav from the
-// same folder (made by site/scripts/promo-music.py), writes sheet.png (one frame per second, to
+// same folder (made by tools/scripts/promo-music.py), writes sheet.png (one frame per second, to
 // check the film at a glance) and removes the frames. A preview writes preview/t<seconds>.png.
 //
 // Needs Chromium (or CHROMIUM) and ffmpeg.
@@ -28,7 +28,7 @@ const HEIGHT = 1080
 
 const [version, flag, list] = process.argv.slice(2)
 if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-  console.error('Usage: node site/scripts/record-film.mjs <version> [--preview 1,4.5]')
+  console.error('Usage: node tools/scripts/record-film.mjs <version> [--preview 1,4.5]')
   process.exit(1)
 }
 const dir = join(repoRoot, 'output', `promo-${version}`)
@@ -69,7 +69,7 @@ if (!preview) {
   const video = join(dir, `munia-${version}-promo.mp4`)
   const music = join(dir, 'music.wav')
   const audio = existsSync(music) ? ['-i', music, '-c:a', 'aac', '-b:a', '192k', '-shortest'] : []
-  if (!audio.length) console.warn('No music.wav: the film is silent (site/scripts/promo-music.py)')
+  if (!audio.length) console.warn('No music.wav: the film is silent (tools/scripts/promo-music.py)')
   execFileSync(
     'ffmpeg',
     [
