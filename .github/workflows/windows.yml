@@ -40,12 +40,18 @@ jobs:
           $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if (-not $vsPath) { throw 'Visual Studio 2022 C++ tools not found.' }
           $vcvars = Join-Path $vsPath 'VC\Auxiliary\Build\vcvars64.bat'
+          $beforePath = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+          foreach ($entry in ($env:PATH -split ';')) {
+            if ($entry) { [void]$beforePath.Add($entry.TrimEnd('\')) }
+          }
           cmd /c "`"$vcvars`" && set" | ForEach-Object {
             if ($_ -match '^([^=]+)=(.*)$') {
               $k = $matches[1]
               $v = $matches[2]
               if ($k -ieq 'PATH') {
-                $v -split ';' | Where-Object { $_ } | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+                $added = @($v -split ';' | Where-Object { $_ -and -not $beforePath.Contains($_.TrimEnd('\')) })
+                [array]::Reverse($added)
+                $added | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
               } elseif ($k -in @('INCLUDE', 'LIB', 'LIBPATH', 'VCToolsInstallDir', 'WindowsSdkDir', 'WindowsSDKVersion', 'UniversalCRTSdkDir')) {
                 "$k=$v" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               }

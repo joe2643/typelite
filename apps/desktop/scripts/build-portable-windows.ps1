@@ -3,8 +3,37 @@ $desktop = Split-Path -Parent $PSScriptRoot
 $repo = Split-Path -Parent (Split-Path -Parent $desktop)
 $target = 'x86_64-pc-windows-msvc'
 $version = (Get-Content -Raw (Join-Path $desktop 'package.json') | ConvertFrom-Json).version
-$gitRoot = Split-Path -Parent (Split-Path -Parent (Get-Command git.exe).Source)
-$bash = Join-Path $gitRoot 'bin\bash.exe'
+function Resolve-GitBash {
+    $candidates = [System.Collections.Generic.List[string]]::new()
+    $gitCmd = Get-Command git.exe -ErrorAction SilentlyContinue
+    if ($gitCmd -and $gitCmd.Source) {
+        $dir = Split-Path -Parent $gitCmd.Source
+        for ($i = 0; $i -lt 4 -and $dir; $i++) {
+            $candidates.Add((Join-Path $dir 'bin\bash.exe'))
+            $candidates.Add((Join-Path $dir 'usr\bin\bash.exe'))
+            $dir = Split-Path -Parent $dir
+        }
+    }
+    foreach ($root in @($env:ProgramFiles, ${env:ProgramFiles(x86)}, (Join-Path $env:LOCALAPPDATA 'Programs'))) {
+        if ($root) {
+            $candidates.Add((Join-Path $root 'Git\bin\bash.exe'))
+            $candidates.Add((Join-Path $root 'Git\usr\bin\bash.exe'))
+        }
+    }
+    foreach ($cmd in (Get-Command bash.exe -All -ErrorAction SilentlyContinue)) {
+        if ($cmd.Source -and $cmd.Source -notmatch '\\(System32|SysWOW64|WindowsApps)\\bash\.exe$') {
+            $candidates.Add($cmd.Source)
+        }
+    }
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+            return $candidate
+        }
+    }
+    throw 'Could not locate Git Bash (bash.exe). Install Git for Windows or add Git\bin to PATH.'
+}
+
+$bash = Resolve-GitBash
 
 Push-Location (Join-Path $desktop 'src-tauri')
 try {
